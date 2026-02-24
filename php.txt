@@ -1,0 +1,8 @@
+<?php
+if (extension_loaded('gd')) {
+    echo "✅ GD está ACTIVADO correctamente";
+} else {
+    echo "❌ GD NO está activado. Verifica php.ini";
+}
+phpinfo();
+?>

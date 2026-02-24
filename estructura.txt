@@ -1,0 +1,52 @@
+Listado de rutas de carpetas
+El número de serie del volumen es DCA1-3243
+C:.
+¦   estructura.txt
+¦   index.php
+¦   
++---api
+¦       buscar_persona.php
+¦       buscar_producto.php
+¦       registrar_movimiento.php
+¦       
++---assets
+¦   +---css
+¦   ¦       estilo.css
+¦   ¦       
+¦   +---img
+¦   +---js
+¦           funciones.js
+¦           
++---config
+¦       database.php
+¦       
++---includes
+¦       footer.php
+¦       header.php
+¦       
++---modules
+    ¦   dashboard.php
+    ¦   
+    +---asignaciones
+    ¦       cargar_equipos.php
+    ¦       
+    +---movimientos
+    ¦       devolucion.php
+    ¦       historial.php
+    ¦       prestamo.php
+    ¦       
+    +---personas
+    ¦       agregar.php
+    ¦       editar.php
+    ¦       eliminar.php
+    ¦       listar.php
+    ¦       
+    +---productos
+    ¦       agregar.php
+    ¦       editar.php
+    ¦       eliminar.php
+    ¦       listar.php
+    ¦       
+    +---reportes
+            equipos_por_persona.php
+            

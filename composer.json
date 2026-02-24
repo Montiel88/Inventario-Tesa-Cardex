@@ -1,0 +1,14 @@
+{
+    "name": "tesa/inventario",
+    "description": "Sistema de Inventario TESA",
+    "type": "project",
+    "require": {
+        "phpoffice/phpspreadsheet": "1.29.5",
+        "endroid/qr-code": "^4.5"
+    },
+    "config": {
+        "audit": {
+            "block-insecure": false
+        }
+    }
+}
