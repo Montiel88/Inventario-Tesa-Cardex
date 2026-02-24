@@ -1,5 +1,12 @@
 <?php
 session_start();
+// NOTA: No requerimos login para esta página porque es pública para el QR
+// Si quieres que sea privada, descomenta las líneas de abajo
+// if (!isset($_SESSION['user_id'])) {
+//     header('Location: /inventario_ti/login.php');
+//     exit();
+// }
+
 require_once '../../config/database.php';
 ?>
 <!DOCTYPE html>

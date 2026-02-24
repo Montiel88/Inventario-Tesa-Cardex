@@ -41,6 +41,13 @@ $sql_historial = "SELECT m.*, e.tipo_equipo, e.codigo_barras
                   ORDER BY m.fecha_movimiento DESC
                   LIMIT 20";
 $historial = $conn->query($sql_historial);
+
+// ============================================
+// IP DEL SERVIDOR CORREGIDA (IPv4)
+// ============================================
+$ip_servidor = '192.168.101.25'; // TU IP FIJA
+$puerto = $_SERVER['SERVER_PORT'];
+$puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
 ?>
 
 <style>
@@ -280,6 +287,7 @@ $historial = $conn->query($sql_historial);
         <h4><i class="fas fa-qrcode me-2"></i>Código QR de <?php echo $persona['nombres']; ?></h4>
         <div id="qrcode-container"></div>
         <p class="text-muted">Escanea este código para ver los equipos de la persona</p>
+        <div id="qr-url-info" class="alert alert-info mt-2" style="font-size: 12px; word-break: break-all; display: none;"></div>
         <button class="btn-close" onclick="cerrarModalQR()">Cerrar</button>
     </div>
 </div>
@@ -452,7 +460,7 @@ $historial = $conn->query($sql_historial);
 
 <script>
 // ============================================
-// FUNCIONES PARA EL MODAL QR
+// FUNCIONES PARA EL MODAL QR - CORREGIDO CON TU IP
 // ============================================
 function generarQR(id) {
     // Mostrar modal
@@ -461,8 +469,22 @@ function generarQR(id) {
     // Limpiar contenedor anterior
     document.getElementById('qrcode-container').innerHTML = '';
     
-    // URL que irá en el QR
-    const url = window.location.origin + '/inventario_ti/modules/personas/ver_equipos_qr.php?id=' + id;
+    // ============================================
+    // URL CORREGIDA CON TU IP 192.168.101.25
+    // ============================================
+    var ipServidor = '192.168.101.25'; // TU IP FIJA
+    var puerto = '<?php echo $puerto_texto; ?>';
+    
+    // Construir URL con IP en lugar de localhost
+    const url = 'http://' + ipServidor + puerto + '/inventario_ti/modules/personas/ver_equipos_qr.php?id=' + id;
+    
+    // Mostrar la URL en consola para debug
+    console.log('URL del QR CORREGIDA:', url);
+    console.log('IP utilizada:', ipServidor);
+    
+    // Mostrar la URL en el modal (opcional)
+    document.getElementById('qr-url-info').style.display = 'block';
+    document.getElementById('qr-url-info').innerHTML = '<small>URL: ' + url + '</small>';
     
     // Generar QR
     new QRCode(document.getElementById("qrcode-container"), {
