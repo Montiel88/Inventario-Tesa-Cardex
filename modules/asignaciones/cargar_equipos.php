@@ -106,9 +106,14 @@ $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Asignar Equipo a Persona</h4>
-                    <button class="scanner-btn" onclick="abrirScanner()">
-                        <i class="fas fa-camera me-2"></i>Escanear Código
-                    </button>
+                    <div>
+                        <button class="scanner-btn" onclick="abrirScanner()">
+                            <i class="fas fa-camera me-2"></i>Escanear Código
+                        </button>
+                        <button class="scanner-btn" onclick="ingresarManual()" style="background: #28a745;">
+                            <i class="fas fa-keyboard me-2"></i>Manual
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     
@@ -142,7 +147,7 @@ $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
                     <?php endif; ?>
                     
                     <!-- Formulario -->
-                    <form method="POST" action="">
+                    <form method="POST" action="" id="formEquipo">
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -174,18 +179,18 @@ $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
                             
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Marca</label>
-                                <input type="text" name="marca" class="form-control" placeholder="Ej: HP, Dell">
+                                <input type="text" name="marca" class="form-control" id="marca" placeholder="Ej: HP, Dell">
                             </div>
                             
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Modelo</label>
-                                <input type="text" name="modelo" class="form-control" placeholder="Ej: Pavilion">
+                                <input type="text" name="modelo" class="form-control" id="modelo" placeholder="Ej: Pavilion">
                             </div>
                             
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Código de Barras</label>
                                 <div class="input-group">
-                                    <input type="text" name="codigo_barras" id="codigo_barras" class="form-control" placeholder="Automático si se deja vacío">
+                                    <input type="text" name="codigo_barras" id="codigo_barras" class="form-control" placeholder="Automático">
                                     <button class="btn btn-primary" type="button" onclick="abrirScanner()">
                                         <i class="fas fa-camera"></i>
                                     </button>
@@ -194,12 +199,12 @@ $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
                             
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Número de Serie</label>
-                                <input type="text" name="numero_serie" class="form-control" placeholder="Serie del fabricante">
+                                <input type="text" name="numero_serie" id="numero_serie" class="form-control" placeholder="Serie del fabricante">
                             </div>
                             
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Especificaciones</label>
-                                <textarea name="especificaciones" class="form-control" rows="2" placeholder="RAM, disco, etc."></textarea>
+                                <textarea name="especificaciones" class="form-control" rows="2" placeholder="RAM, disco, etc." id="especificaciones"></textarea>
                             </div>
                         </div>
                         
@@ -223,7 +228,7 @@ $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
 
 <script>
 // ============================================
-// ESCÁNER DE CÓDIGOS QR Y BARRAS - VERSIÓN COMPLETA
+// ESCÁNER INTELIGENTE - DETECTA TIPO DE CÓDIGO
 // ============================================
 let html5QrCode = null;
 let escaneando = false;
@@ -242,7 +247,7 @@ function abrirScanner() {
         return;
     }
     
-    // Configuración para códigos de barras y QR
+    // Configuración optimizada
     const config = {
         fps: 30,
         qrbox: { width: 300, height: 150 },
@@ -260,7 +265,7 @@ function abrirScanner() {
         ]
     };
     
-    // Obtener cámaras y empezar
+    // Obtener cámaras
     Html5Qrcode.getCameras().then(cameras => {
         if (cameras.length === 0) {
             alert('❌ No hay cámaras disponibles');
@@ -283,9 +288,44 @@ function abrirScanner() {
             cameraId,
             config,
             (decodedText) => {
-                // ÉXITO: Código detectado
-                document.getElementById('codigo_barras').value = decodedText;
-                alert('✅ Código detectado: ' + decodedText);
+                // ============================================
+                // CLASIFICACIÓN INTELIGENTE DEL CÓDIGO
+                // ============================================
+                
+                // 1. Verificar si es un código de equipo PRO-XXXXXX
+                if (decodedText.startsWith('PRO-')) {
+                    document.getElementById('codigo_barras').value = decodedText;
+                    alert('✅ Código de barras detectado: ' + decodedText);
+                }
+                // 2. Verificar si es un QR con JSON (viene de generar_qr_persona)
+                else if (decodedText.startsWith('http') && decodedText.includes('ver_equipos_qr')) {
+                    // Es un QR de persona, no es relevante aquí
+                    alert('⚠️ Este es un QR de persona, no de equipo');
+                }
+                // 3. Intentar parsear como JSON (datos completos de equipo)
+                else {
+                    try {
+                        const datos = JSON.parse(decodedText);
+                        // Si tiene estructura de equipo, rellenar campos
+                        if (datos.codigo || datos.serie || datos.marca || datos.modelo) {
+                            if (datos.codigo) document.getElementById('codigo_barras').value = datos.codigo;
+                            if (datos.serie) document.getElementById('numero_serie').value = datos.serie;
+                            if (datos.marca) document.getElementById('marca').value = datos.marca;
+                            if (datos.modelo) document.getElementById('modelo').value = datos.modelo;
+                            if (datos.especificaciones) document.getElementById('especificaciones').value = datos.especificaciones;
+                            alert('✅ Datos de equipo cargados desde QR');
+                        } else {
+                            // Es JSON pero no de equipo, lo ponemos en número de serie
+                            document.getElementById('numero_serie').value = decodedText;
+                            alert('✅ Número de serie detectado: ' + decodedText);
+                        }
+                    } catch (e) {
+                        // 4. Si no es JSON, asumimos que es número de serie
+                        document.getElementById('numero_serie').value = decodedText;
+                        alert('✅ Número de serie detectado: ' + decodedText);
+                    }
+                }
+                
                 cerrarScanner();
                 
                 // Vibración en móviles
@@ -321,11 +361,27 @@ function cerrarScanner() {
 function ingresarManual() {
     let codigo = prompt('📝 Ingresa el código manualmente:');
     if (codigo) {
-        document.getElementById('codigo_barras').value = codigo;
+        // Aplicar la misma lógica de clasificación
+        if (codigo.startsWith('PRO-')) {
+            document.getElementById('codigo_barras').value = codigo;
+        } else {
+            document.getElementById('numero_serie').value = codigo;
+        }
     }
 }
 
-console.log('✅ Escáner listo - Soporta QR, CODE128, EAN, UPC, etc.');
+// Validación del formulario
+document.getElementById('formEquipo').addEventListener('submit', function(e) {
+    const persona = document.querySelector('select[name="persona_id"]').value;
+    const tipo = document.querySelector('select[name="tipo_equipo"]').value;
+    
+    if (!persona || !tipo) {
+        e.preventDefault();
+        alert('❌ Debe seleccionar una persona y tipo de equipo');
+    }
+});
+
+console.log('✅ Escáner inteligente listo');
 </script>
 
 <?php include '../../includes/footer.php'; ?>

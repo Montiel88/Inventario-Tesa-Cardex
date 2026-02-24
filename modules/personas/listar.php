@@ -162,7 +162,9 @@ if (!$result) {
 </div>
 
 <style>
-/* Estilos para los botones */
+/* ============================================ */
+/* ESTILOS PARA LOS BOTONES */
+/* ============================================ */
 .d-flex.gap-1 {
     gap: 5px !important;
 }
@@ -172,12 +174,16 @@ if (!$result) {
     font-size: 0.8rem;
 }
 
-/* Responsive para móviles */
+/* ============================================ */
+/* RESPONSIVE PARA MÓVILES - VERSIÓN TARJETAS MEJORADA */
+/* ============================================ */
 @media (max-width: 768px) {
+    /* Ocultar cabeceras de la tabla */
     .table thead {
         display: none !important;
     }
     
+    /* Cada fila se convierte en tarjeta */
     .table tbody tr {
         display: block !important;
         margin-bottom: 20px !important;
@@ -185,8 +191,10 @@ if (!$result) {
         border-radius: 15px !important;
         padding: 15px !important;
         background: white !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
     
+    /* Cada celda se muestra como flex */
     .table tbody td {
         display: flex !important;
         justify-content: space-between !important;
@@ -194,18 +202,83 @@ if (!$result) {
         padding: 10px 8px !important;
         border: none !important;
         border-bottom: 1px dashed #eee !important;
+        font-size: 14px !important;
+        white-space: normal !important;
+        word-break: break-word !important;
     }
     
+    /* Última celda sin borde */
     .table tbody td:last-child {
         border-bottom: none !important;
     }
     
+    /* Mostrar etiqueta antes del valor */
     .table tbody td:before {
         content: attr(data-label) !important;
         font-weight: 700 !important;
         color: #5a2d8c !important;
         margin-right: 15px !important;
-        min-width: 80px !important;
+        min-width: 90px !important;
+        font-size: 13px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    /* Ajuste para la columna de acciones */
+    .table tbody td:last-child:before {
+        content: "ACCIONES" !important;
+    }
+    
+    /* Botones en móvil */
+    .table tbody td .d-flex {
+        justify-content: flex-end !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .btn-sm {
+        padding: 5px 8px !important;
+        font-size: 11px !important;
+        margin: 2px !important;
+    }
+    
+    /* Badge de solo lectura */
+    .badge {
+        font-size: 11px !important;
+        padding: 4px 8px !important;
+    }
+}
+
+/* Para teléfonos muy pequeños */
+@media (max-width: 480px) {
+    .table tbody td {
+        font-size: 13px !important;
+        padding: 8px 5px !important;
+    }
+    
+    .table tbody td:before {
+        min-width: 70px !important;
+        font-size: 11px !important;
+    }
+    
+    .btn-sm {
+        padding: 4px 6px !important;
+        font-size: 10px !important;
+    }
+    
+    .table tbody td .d-flex {
+        gap: 3px !important;
+    }
+}
+
+/* Para pantallas medianas (tablets) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .table {
+        font-size: 14px;
+    }
+    
+    .btn-sm {
+        padding: 3px 6px;
+        font-size: 0.7rem;
     }
 }
 </style>
