@@ -50,7 +50,7 @@ $result = $conn->query($sql);
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0"><i class="fas fa-laptop me-2"></i>Listado de Equipos</h4>
                     
-                    <!-- Botón AGREGAR - Solo visible para admin -->
+                    <!-- Botones AGREGAR - Solo visible para admin -->
                     <?php if ($es_admin): ?>
                     <div>
                         <a href="agregar.php" class="btn btn-primary">
@@ -103,7 +103,12 @@ $result = $conn->query($sql);
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while($row = $result->fetch_assoc()): ?>
+                                    <?php while($row = $result->fetch_assoc()): 
+                                        // Verificar si el equipo está asignado actualmente (para actas)
+                                        $check_asignado = $conn->query("SELECT id, persona_id FROM asignaciones WHERE equipo_id = {$row['id']} AND fecha_devolucion IS NULL");
+                                        $tiene_asignacion = $check_asignado->num_rows > 0;
+                                        $persona_id = $tiene_asignacion ? $check_asignado->fetch_assoc()['persona_id'] : 0;
+                                    ?>
                                     <tr>
                                         <td data-label="CÓDIGO"><?php echo htmlspecialchars($row['codigo_barras'] ?? 'N/A'); ?></td>
                                         <td data-label="TIPO"><?php echo htmlspecialchars($row['tipo_equipo'] ?? 'N/A'); ?></td>
@@ -130,6 +135,24 @@ $result = $conn->query($sql);
                                             <?php if ($es_admin): ?>
                                                 <!-- ADMIN: Todos los botones -->
                                                 <div class="d-flex gap-1 justify-content-center">
+                                                    <!-- Botón TRAZABILIDAD -->
+                                                    <a href="../reportes/trazabilidad_equipo.php?id=<?php echo $row['id']; ?>" 
+                                                       class="btn btn-sm" 
+                                                       title="Ver trazabilidad completa del equipo"
+                                                       style="background: #6610f2; border-color: #6610f2; color: white;">
+                                                        <i class="fas fa-history"></i>
+                                                    </a>
+                                                    
+                                                    <!-- Botón ACTA ENTREGA (solo si está asignado) -->
+                                                    <?php if ($tiene_asignacion && $persona_id > 0): ?>
+                                                    <a href="/inventario_ti/api/generar_acta_mpdf.php?tipo=ingreso&persona_id=<?php echo $persona_id; ?>" 
+                                                       class="btn btn-sm btn-success" 
+                                                       title="Generar acta de entrega"
+                                                       target="_blank">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                    </a>
+                                                    <?php endif; ?>
+                                                    
                                                     <!-- Botón QR -->
                                                     <a href="/inventario_ti/api/generar_qr_equipo.php?id=<?php echo $row['id']; ?>" 
                                                        class="btn btn-sm btn-dark" 
@@ -138,12 +161,10 @@ $result = $conn->query($sql);
                                                         <i class="fas fa-qrcode"></i>
                                                     </a>
                                                     
-                                                    <!-- Botón VER DETALLE (si existe) -->
-                                                    <?php if (file_exists('detalle.php')): ?>
+                                                    <!-- Botón VER DETALLE -->
                                                     <a href="detalle.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info" title="Ver detalles">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <?php endif; ?>
                                                     
                                                     <!-- Botón EDITAR -->
                                                     <a href="editar.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning" title="Editar equipo">
@@ -159,16 +180,35 @@ $result = $conn->query($sql);
                                                     </a>
                                                 </div>
                                             <?php else: ?>
-                                                <!-- LECTOR: Solo puede ver -->
+                                                <!-- LECTOR: Puede ver información y descargar documentos -->
                                                 <div class="d-flex gap-1 justify-content-center">
-                                                    <span class="badge bg-secondary">Solo lectura</span>
-                                                    <!-- Botón QR también para lectores (solo descarga) -->
+                                                    <!-- Botón TRAZABILIDAD (también para lectores) -->
+                                                    <a href="../reportes/trazabilidad_equipo.php?id=<?php echo $row['id']; ?>" 
+                                                       class="btn btn-sm" 
+                                                       title="Ver trazabilidad completa del equipo"
+                                                       style="background: #6610f2; border-color: #6610f2; color: white;">
+                                                        <i class="fas fa-history"></i>
+                                                    </a>
+                                                    
+                                                    <!-- Botón ACTA (si está asignado) -->
+                                                    <?php if ($tiene_asignacion && $persona_id > 0): ?>
+                                                    <a href="/inventario_ti/api/generar_acta_mpdf.php?tipo=ingreso&persona_id=<?php echo $persona_id; ?>" 
+                                                       class="btn btn-sm btn-success" 
+                                                       title="Ver acta de entrega"
+                                                       target="_blank">
+                                                        <i class="fas fa-file-pdf"></i>
+                                                    </a>
+                                                    <?php endif; ?>
+                                                    
+                                                    <!-- Botón QR -->
                                                     <a href="/inventario_ti/api/generar_qr_equipo.php?id=<?php echo $row['id']; ?>" 
                                                        class="btn btn-sm btn-dark" 
                                                        title="Descargar código QR"
                                                        download="qr_<?php echo $row['codigo_barras']; ?>.png">
                                                         <i class="fas fa-qrcode"></i>
                                                     </a>
+                                                    
+                                                    <span class="badge bg-secondary">Solo lectura</span>
                                                 </div>
                                             <?php endif; ?>
                                         </td>
@@ -232,6 +272,7 @@ $result = $conn->query($sql);
     white-space: nowrap !important;
     flex-shrink: 0 !important;
     transition: all 0.2s ease !important;
+    border: none !important;
 }
 
 /* Efecto hover */
@@ -241,28 +282,43 @@ $result = $conn->query($sql);
 }
 
 /* Colores específicos para cada botón */
-.d-flex.gap-1 .btn-dark {
+.d-flex.gap-1 .btn-sm[style*="background: #6610f2"] {
+    background: #6610f2 !important;
+    color: white !important;
+}
+
+.d-flex.gap-1 .btn-sm[style*="background: #6610f2"]:hover {
+    background: #520dc2 !important;
+}
+
+.d-flex.gap-1 .btn-sm.btn-success {
+    background: #28a745 !important;
+    color: white !important;
+}
+
+.d-flex.gap-1 .btn-sm.btn-success:hover {
+    background: #218838 !important;
+}
+
+.d-flex.gap-1 .btn-sm.btn-dark {
     background: #343a40 !important;
     color: #f3b229 !important;
     border: 1px solid #f3b229 !important;
 }
 
-.d-flex.gap-1 .btn-info {
+.d-flex.gap-1 .btn-sm.btn-info {
     background: #17a2b8 !important;
     color: white !important;
-    border: none !important;
 }
 
-.d-flex.gap-1 .btn-warning {
+.d-flex.gap-1 .btn-sm.btn-warning {
     background: #ffc107 !important;
     color: #212529 !important;
-    border: none !important;
 }
 
-.d-flex.gap-1 .btn-danger {
+.d-flex.gap-1 .btn-sm.btn-danger {
     background: #dc3545 !important;
     color: white !important;
-    border: none !important;
 }
 
 /* Badge de solo lectura */
@@ -392,8 +448,7 @@ $result = $conn->query($sql);
 <!-- Script adicional para mejor experiencia -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Los botones ya están en fila gracias al CSS
-    console.log('📋 Página de equipos cargada correctamente');
+    console.log('📋 Página de equipos cargada correctamente con botones de trazabilidad');
 });
 </script>
 

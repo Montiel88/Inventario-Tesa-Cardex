@@ -288,17 +288,32 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4><i class="fas fa-user me-2"></i>Detalle de Persona</h4>
                     <div>
+                        <!-- BOTONES DE ACTAS - NUEVOS -->
+                        <a href="/inventario_ti/api/generar_acta_mpdf.php?tipo=ingreso&persona_id=<?php echo $id; ?>" 
+                           class="btn btn-success" target="_blank">
+                            <i class="fas fa-file-pdf me-2"></i>Acta Entrega
+                        </a>
+                        
+                        <a href="/inventario_ti/api/generar_acta_mpdf.php?tipo=devolucion&persona_id=<?php echo $id; ?>" 
+                           class="btn btn-warning" target="_blank">
+                            <i class="fas fa-file-pdf me-2"></i>Acta Devolución
+                        </a>
+                        
+                        <!-- BOTONES EXISTENTES -->
                         <button onclick="generarQR(<?php echo $id; ?>)" class="btn btn-info">
                             <i class="fas fa-qrcode me-2"></i>Ver QR
                         </button>
+                        
                         <a href="/inventario_ti/api/generar_qr_persona.php?id=<?php echo $id; ?>" class="btn btn-warning" download="qr_persona_<?php echo $id; ?>.png">
                             <i class="fas fa-download me-2"></i>Descargar QR
                         </a>
+                        
                         <?php if ($es_admin): ?>
                         <a href="editar.php?id=<?php echo $id; ?>" class="btn btn-primary">
                             <i class="fas fa-edit me-2"></i>Editar
                         </a>
                         <?php endif; ?>
+                        
                         <a href="listar.php" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Volver
                         </a>
