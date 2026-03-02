@@ -282,21 +282,16 @@ $base_url = '';
                     </li>
                     
                     <!-- SECCIÓN DE USUARIO CON BOTÓN DE SALIR -->
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                    <li class="nav-item">
-                        <div class="user-section">
-                            <span class="user-name">
-                                <i class="fas fa-user-circle"></i>
-                                <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Usuario'); ?>
-                            </span>
-                            <a href="/inventario_ti/logout.php" 
-                               class="btn-logout" 
-                               onclick="return confirm('¿Estás seguro de cerrar sesión?')">
-                                <i class="fas fa-sign-out-alt"></i> Salir
-                            </a>
-                        </div>
-                    </li>
-                    <?php endif; ?>
+                    <!-- BOTÓN DE SALIR (SIN NOMBRE) -->
+<?php if (isset($_SESSION['user_id'])): ?>
+<li class="nav-item">
+    <a href="/inventario_ti/logout.php" 
+       class="btn-logout" 
+       onclick="return confirm('¿Estás seguro de cerrar sesión?')">
+        <i class="fas fa-sign-out-alt"></i> Salir
+    </a>
+</li>
+<?php endif; ?>
                 </ul>
             </div>
         </div>
