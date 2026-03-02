@@ -14,14 +14,18 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $id = intval($_GET['id']);
 
-// Obtener datos del equipo
+// Obtener datos del equipo incluyendo la ubicación
 $sql = "SELECT e.*, 
                a.persona_id, 
                p.nombres as persona_nombre,
-               a.fecha_asignacion
+               a.fecha_asignacion,
+               u.id as ubicacion_id,
+               u.nombre as ubicacion_nombre,
+               u.codigo_ubicacion
         FROM equipos e
         LEFT JOIN asignaciones a ON e.id = a.equipo_id AND a.fecha_devolucion IS NULL
         LEFT JOIN personas p ON a.persona_id = p.id
+        LEFT JOIN ubicaciones u ON e.ubicacion_id = u.id
         WHERE e.id = $id";
 $result = $conn->query($sql);
 
@@ -51,30 +55,46 @@ $equipo = $result->fetch_assoc();
                             <table class="table table-bordered">
                                 <tr>
                                     <th width="30%">Código:</th>
-                                    <td><?php echo $equipo['codigo_barras']; ?></td>
+                                    <td><?php echo htmlspecialchars($equipo['codigo_barras']); ?></td>
                                 </tr>
                                 <tr>
                                     <th>Tipo:</th>
-                                    <td><?php echo $equipo['tipo_equipo']; ?></td>
+                                    <td><?php echo htmlspecialchars($equipo['tipo_equipo']); ?></td>
                                 </tr>
                                 <tr>
                                     <th>Marca:</th>
-                                    <td><?php echo $equipo['marca'] ?: 'N/A'; ?></td>
+                                    <td><?php echo htmlspecialchars($equipo['marca'] ?: 'N/A'); ?></td>
                                 </tr>
                                 <tr>
                                     <th>Modelo:</th>
-                                    <td><?php echo $equipo['modelo'] ?: 'N/A'; ?></td>
+                                    <td><?php echo htmlspecialchars($equipo['modelo'] ?: 'N/A'); ?></td>
                                 </tr>
                                 <tr>
                                     <th>N° Serie:</th>
-                                    <td><?php echo $equipo['numero_serie'] ?: 'N/A'; ?></td>
+                                    <td><?php echo htmlspecialchars($equipo['numero_serie'] ?: 'N/A'); ?></td>
                                 </tr>
                                 <tr>
                                     <th>Estado:</th>
                                     <td>
-                                        <span class="badge bg-<?php echo $equipo['persona_id'] ? 'warning' : 'success'; ?>">
-                                            <?php echo $equipo['persona_id'] ? 'PRESTADO' : 'DISPONIBLE'; ?>
+                                        <?php 
+                                        $estado = $equipo['persona_id'] ? 'PRESTADO' : 'DISPONIBLE';
+                                        $badgeClass = $equipo['persona_id'] ? 'warning' : 'success';
+                                        ?>
+                                        <span class="badge bg-<?php echo $badgeClass; ?>">
+                                            <?php echo $estado; ?>
                                         </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Ubicación:</th>
+                                    <td>
+                                        <?php if ($equipo['ubicacion_id']): ?>
+                                            <a href="../ubicaciones/detalle.php?id=<?php echo $equipo['ubicacion_id']; ?>">
+                                                <?php echo htmlspecialchars($equipo['codigo_ubicacion'] . ' - ' . $equipo['ubicacion_nombre']); ?>
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="text-muted">Sin ubicación</span>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                                 <?php if ($equipo['persona_id']): ?>
@@ -82,7 +102,7 @@ $equipo = $result->fetch_assoc();
                                     <th>Asignado a:</th>
                                     <td>
                                         <a href="../personas/detalle.php?id=<?php echo $equipo['persona_id']; ?>">
-                                            <?php echo $equipo['persona_nombre']; ?>
+                                            <?php echo htmlspecialchars($equipo['persona_nombre']); ?>
                                         </a>
                                     </td>
                                 </tr>
@@ -97,10 +117,10 @@ $equipo = $result->fetch_assoc();
                             <div class="card bg-light">
                                 <div class="card-body">
                                     <h5>Especificaciones</h5>
-                                    <p><?php echo nl2br($equipo['especificaciones'] ?: 'Sin especificaciones'); ?></p>
+                                    <p><?php echo nl2br(htmlspecialchars($equipo['especificaciones'] ?: 'Sin especificaciones')); ?></p>
                                     
                                     <h5 class="mt-4">Observaciones</h5>
-                                    <p><?php echo nl2br($equipo['observaciones'] ?: 'Sin observaciones'); ?></p>
+                                    <p><?php echo nl2br(htmlspecialchars($equipo['observaciones'] ?: 'Sin observaciones')); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -110,6 +130,12 @@ $equipo = $result->fetch_assoc();
                     <div class="mt-4 text-center">
                         <a href="../movimientos/devolucion.php?equipo_id=<?php echo $equipo['id']; ?>" class="btn btn-warning btn-lg">
                             <i class="fas fa-undo-alt me-2"></i>Registrar Devolución
+                        </a>
+                    </div>
+                    <?php else: ?>
+                    <div class="mt-4 text-center">
+                        <a href="../movimientos/prestamo.php?equipo_id=<?php echo $equipo['id']; ?>" class="btn btn-primary btn-lg">
+                            <i class="fas fa-hand-holding me-2"></i>Registrar Préstamo
                         </a>
                     </div>
                     <?php endif; ?>

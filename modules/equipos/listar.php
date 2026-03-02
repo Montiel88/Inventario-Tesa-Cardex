@@ -18,8 +18,16 @@ if (!$conn) {
     die("Error de conexión a la base de datos");
 }
 
-// Consultar equipos
-$sql = "SELECT * FROM equipos ORDER BY id DESC";
+// Obtener filtro de ubicación si existe
+$ubicacion_id = isset($_GET['ubicacion_id']) ? intval($_GET['ubicacion_id']) : 0;
+$where = $ubicacion_id > 0 ? "WHERE e.ubicacion_id = $ubicacion_id" : "";
+
+// Consultar equipos con JOIN para obtener nombre de ubicación
+$sql = "SELECT e.*, u.nombre as ubicacion_nombre, u.codigo_ubicacion as ubicacion_codigo 
+        FROM equipos e
+        LEFT JOIN ubicaciones u ON e.ubicacion_id = u.id
+        $where
+        ORDER BY e.id DESC";
 $result = $conn->query($sql);
 ?>
 
@@ -67,6 +75,14 @@ $result = $conn->query($sql);
                         </div>
                     <?php endif; ?>
                     
+                    <!-- Mostrar filtro activo -->
+                    <?php if ($ubicacion_id > 0): ?>
+                        <div class="alert alert-info">
+                            <i class="fas fa-filter me-2"></i>Mostrando equipos de la ubicación seleccionada. 
+                            <a href="listar.php" class="alert-link">Ver todos</a>
+                        </div>
+                    <?php endif; ?>
+                    
                     <?php if ($result && $result->num_rows > 0): ?>
                         <div class="table-responsive">
                             <table class="table table-hover">
@@ -76,6 +92,7 @@ $result = $conn->query($sql);
                                         <th>Tipo</th>
                                         <th>Marca</th>
                                         <th>Modelo</th>
+                                        <th>Ubicación</th>
                                         <th>Estado</th>
                                         <th class="text-center">Acciones</th>
                                     </tr>
@@ -87,6 +104,15 @@ $result = $conn->query($sql);
                                         <td data-label="TIPO"><?php echo htmlspecialchars($row['tipo_equipo'] ?? 'N/A'); ?></td>
                                         <td data-label="MARCA"><?php echo htmlspecialchars($row['marca'] ?? 'N/A'); ?></td>
                                         <td data-label="MODELO"><?php echo htmlspecialchars($row['modelo'] ?? 'N/A'); ?></td>
+                                        <td data-label="UBICACIÓN">
+                                            <?php 
+                                            if (!empty($row['ubicacion_nombre'])) {
+                                                echo htmlspecialchars($row['ubicacion_codigo'] . ' - ' . $row['ubicacion_nombre']);
+                                            } else {
+                                                echo '<span class="text-muted">Sin ubicación</span>';
+                                            }
+                                            ?>
+                                        </td>
                                         <td data-label="ESTADO">
                                             <span class="badge bg-<?php 
                                                 echo $row['estado'] == 'Disponible' ? 'success' : 
