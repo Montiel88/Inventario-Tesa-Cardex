@@ -29,7 +29,7 @@ if ($result_persona->num_rows == 0) {
 
 $persona = $result_persona->fetch_assoc();
 
-// Obtener equipos asignados a esta persona
+// Obtener equipos asignados actualmente a esta persona (no devueltos)
 $sql_equipos = "SELECT e.*, a.fecha_asignacion, a.observaciones as obs_asignacion
                 FROM equipos e
                 JOIN asignaciones a ON e.id = a.equipo_id
@@ -37,7 +37,7 @@ $sql_equipos = "SELECT e.*, a.fecha_asignacion, a.observaciones as obs_asignacio
                 ORDER BY a.fecha_asignacion DESC";
 $equipos_asignados = $conn->query($sql_equipos);
 
-// Obtener historial de movimientos de esta persona
+// Obtener historial de movimientos de esta persona (últimos 20)
 $sql_historial = "SELECT m.*, e.tipo_equipo, e.codigo_barras
                   FROM movimientos m
                   JOIN equipos e ON m.equipo_id = e.id
@@ -45,6 +45,15 @@ $sql_historial = "SELECT m.*, e.tipo_equipo, e.codigo_barras
                   ORDER BY m.fecha_movimiento DESC
                   LIMIT 20";
 $historial = $conn->query($sql_historial);
+
+// Obtener incidencias relacionadas con esta persona (últimas 5)
+$sql_incidencias = "SELECT i.*, e.tipo_equipo, e.codigo_barras
+                    FROM incidencias i
+                    JOIN equipos e ON i.equipo_id = e.id
+                    WHERE i.persona_id = $id
+                    ORDER BY i.fecha_reporte DESC
+                    LIMIT 5";
+$incidencias = $conn->query($sql_incidencias);
 
 // IP DEL SERVIDOR (puedes cambiarla si es necesario)
 $ip_servidor = '186.4.141.11'; // TU IP FIJA
@@ -294,6 +303,10 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                         <a href="/inventario_ti/api/generar_qr_persona.php?id=<?php echo $id; ?>" class="btn btn-warning" download="qr_persona_<?php echo $id; ?>.png">
                             <i class="fas fa-download me-2"></i>Descargar QR
                         </a>
+                        <!-- NUEVO BOTÓN DE HISTORIAL -->
+                        <a href="historial.php?id=<?php echo $id; ?>" class="btn btn-secondary">
+                            <i class="fas fa-history me-2"></i>Historial
+                        </a>
                         <?php if ($es_admin): ?>
                         <a href="editar.php?id=<?php echo $id; ?>" class="btn btn-primary">
                             <i class="fas fa-edit me-2"></i>Editar
@@ -420,7 +433,49 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                             <?php endif; ?>
                         </div>
                     </div>
-                    
+
+                    <!-- SECCIÓN DE INCIDENCIAS RELACIONADAS (nuevo) -->
+                    <?php if ($incidencias && $incidencias->num_rows > 0): ?>
+                    <div class="card mt-4">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Incidencias Recientes</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                <?php while($inc = $incidencias->fetch_assoc()): 
+                                    $clase_inc = $inc['tipo_incidencia'] == 'daño' ? 'danger' : ($inc['tipo_incidencia'] == 'reparación' ? 'warning' : 'info');
+                                ?>
+                                    <div class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="badge bg-<?php echo $clase_inc; ?>">
+                                                    <?php echo strtoupper($inc['tipo_incidencia']); ?>
+                                                </span>
+                                                <span class="badge bg-<?php 
+                                                    echo $inc['estado'] == 'pendiente' ? 'secondary' : 
+                                                        ($inc['estado'] == 'en proceso' ? 'primary' : 'success'); 
+                                                ?> ms-2">
+                                                    <?php echo $inc['estado']; ?>
+                                                </span>
+                                                <small class="text-muted ms-2">
+                                                    <?php echo $inc['tipo_equipo'] . ' (' . $inc['codigo_barras'] . ')'; ?>
+                                                </small>
+                                            </div>
+                                            <small><?php echo date('d/m/Y', strtotime($inc['fecha_reporte'])); ?></small>
+                                        </div>
+                                        <p class="mb-0 mt-2"><?php echo nl2br($inc['descripcion']); ?></p>
+                                    </div>
+                                <?php endwhile; ?>
+                            </div>
+                            <?php if ($incidencias->num_rows == 5): ?>
+                                <div class="text-center mt-3">
+                                    <a href="historial.php?id=<?php echo $id; ?>" class="btn btn-sm btn-outline-danger">Ver todas las incidencias</a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                 </div>
             </div>
         </div>

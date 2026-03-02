@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: /inventario_ti/login.php');
     exit();
 }
-
+    
 // Verificar rol (1 = admin, 2 = lector)
 $es_admin = ($_SESSION['user_rol'] == 1);
 
@@ -65,6 +65,20 @@ $result = $conn->query($sql);
                 
                 <div class="card-body">
                     
+                    <!-- ============================================ -->
+                    <!-- BUSCADOR CON ÍCONO QUE SE EXPANDE AL HOVER -->
+                    <!-- ============================================ -->
+                    <div class="search-expand-container">
+                        <div class="search-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <input type="text" 
+                               id="buscadorEquipos" 
+                               class="search-input" 
+                               placeholder="Buscar por código, tipo, marca, modelo, ubicación..."
+                               autocomplete="off">
+                    </div>
+                    
                     <!-- Mensajes de éxito/error -->
                     <?php if (isset($_GET['mensaje'])): ?>
                         <div class="alert alert-success alert-dismissible fade show">
@@ -90,7 +104,7 @@ $result = $conn->query($sql);
                     
                     <?php if ($result && $result->num_rows > 0): ?>
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover" id="tablaEquipos">
                                 <thead>
                                     <tr>
                                         <th>Código</th>
@@ -203,9 +217,51 @@ $result = $conn->query($sql);
     </div>
 </div>
 
+<!-- ============================================ -->
+<!-- SCRIPT PARA EL BUSCADOR (LUPA) -->
+<!-- ============================================ -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.getElementById('buscadorEquipos');
+    const tabla = document.getElementById('tablaEquipos');
+    
+    if (!buscador || !tabla) return;
+    
+    const filas = tabla.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    buscador.addEventListener('keyup', function() {
+        const texto = buscador.value.toLowerCase().trim();
+
+        for (let fila of filas) {
+            let coincide = false;
+            const celdas = fila.getElementsByTagName('td');
+            
+            // Recorrer todas las celdas de la fila excepto la última (acciones)
+            for (let i = 0; i < celdas.length - 1; i++) {
+                const contenido = celdas[i].textContent.toLowerCase();
+                if (contenido.includes(texto)) {
+                    coincide = true;
+                    break;
+                }
+            }
+            
+            fila.style.display = coincide ? '' : 'none';
+        }
+    });
+
+    // Opcional: al hacer clic en el icono, enfocar el input
+    const searchIcon = document.querySelector('.search-icon');
+    if (searchIcon) {
+        searchIcon.addEventListener('click', function() {
+            buscador.focus();
+        });
+    }
+});
+</script>
+
 <style>
 /* ============================================ */
-/* ESTILOS PARA BOTONES DE ACCIÓN */
+/* ESTILOS PARA BOTONES DE ACCIÓN (se mantienen) */
 /* ============================================ */
 
 /* Contenedor de botones - SIEMPRE EN FILA */
@@ -279,15 +335,86 @@ $result = $conn->query($sql);
 }
 
 /* ============================================ */
-/* RESPONSIVE PARA MÓVILES */
+/* BUSCADOR CON ÍCONO QUE SE EXPANDE AL HOVER */
+/* ============================================ */
+.search-expand-container {
+    display: inline-flex;
+    align-items: center;
+    background: white;
+    border-radius: 40px;
+    padding: 5px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+    width: 50px; /* ancho inicial solo para el icono */
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.search-expand-container:hover {
+    width: 300px; /* se expande al hover */
+    border-color: #5a2d8c;
+    box-shadow: 0 4px 12px rgba(90,45,140,0.15);
+}
+
+.search-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #5a2d8c;
+    border-radius: 50%;
+    color: white;
+    flex-shrink: 0;
+    transition: background 0.3s;
+}
+
+.search-expand-container:hover .search-icon {
+    background: #3d1e5e;
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    padding: 0 10px;
+    font-size: 14px;
+    width: 0;
+    opacity: 0;
+    transition: width 0.3s ease, opacity 0.2s ease;
+    background: transparent;
+}
+
+.search-expand-container:hover .search-input {
+    width: calc(100% - 50px);
+    opacity: 1;
+    padding: 0 10px;
+}
+
+/* Para móviles: siempre visible (no expandible) */
+@media (max-width: 768px) {
+    .search-expand-container {
+        width: 100%;
+        border: 1px solid #e0e0e0;
+    }
+    .search-expand-container .search-input {
+        width: calc(100% - 50px);
+        opacity: 1;
+        padding: 0 10px;
+    }
+    .search-expand-container:hover {
+        width: 100%;
+    }
+}
+
+/* ============================================ */
+/* RESPONSIVE (se mantiene igual) */
 /* ============================================ */
 @media (max-width: 768px) {
-    /* Ocultar cabeceras de la tabla */
     .table thead {
         display: none !important;
     }
     
-    /* Cada fila se convierte en tarjeta */
     .table tbody tr {
         display: block !important;
         margin-bottom: 20px !important;
@@ -298,7 +425,6 @@ $result = $conn->query($sql);
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
     
-    /* Cada celda se muestra como flex */
     .table tbody td {
         display: flex !important;
         justify-content: space-between !important;
@@ -309,12 +435,10 @@ $result = $conn->query($sql);
         font-size: 14px !important;
     }
     
-    /* Última celda sin borde */
     .table tbody td:last-child {
         border-bottom: none !important;
     }
     
-    /* Mostrar etiqueta antes del valor */
     .table tbody td:before {
         content: attr(data-label) !important;
         font-weight: 700 !important;
@@ -324,12 +448,10 @@ $result = $conn->query($sql);
         font-size: 13px !important;
     }
     
-    /* Ajuste para la columna de acciones */
     .table tbody td:last-child:before {
         content: "ACCIONES" !important;
     }
     
-    /* Botones en móvil - FORZAR FILA */
     .table tbody td .d-flex.gap-1 {
         flex-wrap: nowrap !important;
         justify-content: flex-end !important;
@@ -343,14 +465,12 @@ $result = $conn->query($sql);
         height: 34px !important;
     }
     
-    /* Badge de estado */
     .badge {
         font-size: 12px !important;
         padding: 5px 8px !important;
     }
 }
 
-/* Para teléfonos muy pequeños */
 @media (max-width: 480px) {
     .table tbody td {
         font-size: 13px !important;
@@ -375,26 +495,6 @@ $result = $conn->query($sql);
         height: 28px !important;
     }
 }
-
-@media (max-width: 360px) {
-    .d-flex.gap-1 {
-        gap: 3px !important;
-    }
-    
-    .d-flex.gap-1 .btn-sm {
-        padding: 3px 5px !important;
-        min-width: 28px !important;
-        height: 28px !important;
-    }
-}
 </style>
-
-<!-- Script adicional para mejor experiencia -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Los botones ya están en fila gracias al CSS
-    console.log('📋 Página de equipos cargada correctamente');
-});
-</script>
 
 <?php include '../../includes/footer.php'; ?>

@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Verificar rol (1 = admin, 2 = lector) - CORREGIDO
+// Verificar rol (1 = admin, 2 = lector)
 $es_admin = ($_SESSION['user_rol'] == 1);
 
 require_once '../../config/database.php';
@@ -57,6 +57,16 @@ if (!$result) {
                 
                 <div class="card-body">
                     
+                    <!-- ============================================ -->
+                    <!-- BUSCADOR CON LUPA DESPLEGABLE (HOVER) -->
+                    <!-- ============================================ -->
+                    <div class="buscador-container">
+                        <div class="search-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" id="buscadorPersonas" placeholder="Buscar por cédula, nombre, email, cargo...">
+                        </div>
+                    </div>
+                    
                     <!-- Mensajes de éxito/error -->
                     <?php if (isset($_GET['mensaje'])): ?>
                         <div class="alert alert-success alert-dismissible fade show">
@@ -74,7 +84,7 @@ if (!$result) {
 
                     <?php if ($result && $result->num_rows > 0): ?>
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover" id="tablaPersonas">
                                 <thead>
                                     <tr>
                                         <th>Cédula</th>
@@ -161,6 +171,40 @@ if (!$result) {
     </div>
 </div>
 
+<!-- ============================================ -->
+<!-- SCRIPT PARA EL BUSCADOR (LUPA) -->
+<!-- ============================================ -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.getElementById('buscadorPersonas');
+    const tabla = document.getElementById('tablaPersonas');
+    
+    if (!buscador || !tabla) return;
+    
+    const filas = tabla.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+    buscador.addEventListener('keyup', function() {
+        const texto = buscador.value.toLowerCase().trim();
+
+        for (let fila of filas) {
+            let coincide = false;
+            const celdas = fila.getElementsByTagName('td');
+            
+            // Recorrer todas las celdas de la fila excepto la última (acciones)
+            for (let i = 0; i < celdas.length - 1; i++) {
+                const contenido = celdas[i].textContent.toLowerCase();
+                if (contenido.includes(texto)) {
+                    coincide = true;
+                    break;
+                }
+            }
+            
+            fila.style.display = coincide ? '' : 'none';
+        }
+    });
+});
+</script>
+
 <style>
 /* ============================================ */
 /* ESTILOS PARA LOS BOTONES */
@@ -172,6 +216,72 @@ if (!$result) {
 .btn-sm {
     padding: 4px 8px;
     font-size: 0.8rem;
+}
+
+/* ============================================ */
+/* BUSCADOR CON EFECTO HOVER (LUPA QUE SE EXPANDE) */
+/* ============================================ */
+.buscador-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    right: 10px;
+    color: #5a2d8c;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 2;
+    transition: all 0.3s ease;
+    background: white;
+    padding: 8px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.search-input {
+    width: 0;
+    padding: 8px 0;
+    border: 2px solid #5a2d8c;
+    border-radius: 30px;
+    font-size: 1rem;
+    outline: none;
+    opacity: 0;
+    transition: width 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+    background: white;
+    color: #333;
+}
+
+/* Al hacer hover sobre el contenedor, el input se expande */
+.search-wrapper:hover .search-input {
+    width: 250px;
+    padding: 8px 15px;
+    opacity: 1;
+}
+
+.search-wrapper:hover .search-icon {
+    background: #5a2d8c;
+    color: white;
+    transform: scale(1.1);
+    right: 10px; /* se mantiene a la derecha */
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .buscador-container {
+        justify-content: center;
+    }
+    .search-wrapper:hover .search-input {
+        width: 200px;
+    }
 }
 
 /* ============================================ */

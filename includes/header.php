@@ -1,4 +1,5 @@
 <?php
+ob_start(); // <-- AÑADIDO PARA EVITAR ERRORES DE HEADERS
 // Iniciar sesión si no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -45,6 +46,100 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     
     <!-- CSS Personalizado (AHORA SÍ SE VA A VER) -->
     <link rel="stylesheet" href="/inventario_ti/assets/css/estilo.css">
+    
+    <!-- Estilos adicionales para la lupa de búsqueda -->
+    <style>
+        /* ============================================ */
+        /* BUSCADOR GLOBAL (LUPA EXPANDIBLE) */
+        /* ============================================ */
+        .search-global-container {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255,255,255,0.15);
+            border-radius: 40px;
+            padding: 5px;
+            margin-left: 10px;
+            border: 1px solid rgba(243, 178, 41, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 40px;
+            overflow: hidden;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            vertical-align: middle;
+        }
+
+        .search-global-container:hover,
+        .search-global-container.active {
+            width: 250px;
+            background: rgba(255,255,255,0.25);
+            border-color: #f3b229;
+        }
+
+        .search-global-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: #f3b229;
+            border-radius: 50%;
+            color: #5a2d8c;
+            flex-shrink: 0;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+
+        .search-global-container:hover .search-global-icon,
+        .search-global-container.active .search-global-icon {
+            background: #d49b1f;
+        }
+
+        .search-global-input {
+            border: none;
+            outline: none;
+            padding: 0 10px;
+            font-size: 14px;
+            width: 0;
+            opacity: 0;
+            transition: width 0.3s ease, opacity 0.2s ease;
+            background: transparent;
+            color: white;
+        }
+
+        .search-global-input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .search-global-container:hover .search-global-input,
+        .search-global-container.active .search-global-input {
+            width: calc(100% - 40px);
+            opacity: 1;
+            padding: 0 10px;
+        }
+
+        .search-global-form {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .search-global-container {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 10px;
+            }
+            .search-global-container:hover,
+            .search-global-container.active {
+                width: 100%;
+            }
+            .search-global-input {
+                width: calc(100% - 40px);
+                opacity: 1;
+                padding: 0 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark">
@@ -157,17 +252,34 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         </ul>
                     </li>
                     
-                    <!-- SECCIÓN DE USUARIO CON BOTÓN DE SALIR -->
-                    <!-- BOTÓN DE SALIR (SIN NOMBRE) -->
-<?php if (isset($_SESSION['user_id'])): ?>
-<li class="nav-item">
-    <a href="/inventario_ti/logout.php" 
-       class="btn-logout" 
-       onclick="return confirm('¿Estás seguro de cerrar sesión?')">
-        <i class="fas fa-sign-out-alt"></i> Salir
-    </a>
-</li>
-<?php endif; ?>
+                    <!-- LUPA DE BÚSQUEDA GLOBAL -->
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                    <li class="nav-item d-flex align-items-center">
+                        <div class="search-global-container" id="globalSearchContainer">
+                            <div class="search-global-icon" id="globalSearchIcon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <form action="/inventario_ti/buscar.php" method="GET" class="search-global-form">
+                                <input type="text" 
+                                       name="q" 
+                                       class="search-global-input" 
+                                       placeholder="Buscar en el sistema..."
+                                       autocomplete="off">
+                            </form>
+                        </div>
+                    </li>
+                    <?php endif; ?>
+                    
+                    <!-- BOTÓN DE SALIR -->
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                    <li class="nav-item">
+                        <a href="/inventario_ti/logout.php" 
+                           class="btn-logout" 
+                           onclick="return confirm('¿Estás seguro de cerrar sesión?')">
+                            <i class="fas fa-sign-out-alt"></i> Salir
+                        </a>
+                    </li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>
@@ -183,3 +295,41 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     
     <!-- EL MAIN SE CIERRA EN EL FOOTER -->
     <main class="container mt-4">
+
+    <!-- Script para el comportamiento de la lupa -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchContainer = document.getElementById('globalSearchContainer');
+        const searchIcon = document.getElementById('globalSearchIcon');
+        const searchInput = document.querySelector('.search-global-input');
+
+        if (searchContainer && searchIcon && searchInput) {
+            // Al hacer clic en el icono, expandir y enfocar
+            searchIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                searchContainer.classList.add('active');
+                searchInput.focus();
+            });
+
+            // Si el input pierde el foco y está vacío, contraer (solo en desktop)
+            searchInput.addEventListener('blur', function() {
+                if (window.innerWidth > 768 && searchInput.value === '') {
+                    searchContainer.classList.remove('active');
+                }
+            });
+
+            // Hover para expandir
+            searchContainer.addEventListener('mouseenter', function() {
+                if (window.innerWidth > 768) {
+                    searchContainer.classList.add('active');
+                }
+            });
+
+            searchContainer.addEventListener('mouseleave', function() {
+                if (window.innerWidth > 768 && searchInput.value === '') {
+                    searchContainer.classList.remove('active');
+                }
+            });
+        }
+    });
+    </script>

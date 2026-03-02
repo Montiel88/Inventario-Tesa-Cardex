@@ -84,5 +84,6 @@
     
     <!-- JS personalizado -->
     <script src="/inventario_ti/assets/js/funciones.js"></script>
+    <?php ob_end_flush(); ?>
 </body>
 </html>
