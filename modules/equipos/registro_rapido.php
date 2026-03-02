@@ -1,20 +1,10 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
-    exit();
-}
+require_once '../../config/permisos.php';
+verificarSesion();
+requiereAdmin(); // Solo admin puede usar registro rápido
 
-// Verificar roles si es necesario
-$es_admin = ($_SESSION['user_rol'] == 'admin');
-
-// Solo admin puede acceder a ciertas funciones
-if (!$es_admin && strpos($_SERVER['PHP_SELF'], 'eliminar.php') !== false) {
-    header('Location: dashboard.php?error=No tienes permisos');
-    exit();
-}
-?>
-<?php
+require_once '../../config/database.php';
 include '../../includes/header.php';
 ?>
 

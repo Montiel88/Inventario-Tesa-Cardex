@@ -1,14 +1,15 @@
 <?php
 session_start();
+
+// Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
     header('Location: /inventario_ti/login.php');
     exit();
 }
 
-// Verificar roles si es necesario
-$es_admin = ($_SESSION['user_rol'] == 'admin');
-?>
-<?php
+// Verificar rol (1 = admin, 2 = lector)
+$es_admin = ($_SESSION['user_rol'] == 1);
+
 require_once '../../config/database.php';
 include '../../includes/header.php';
 
@@ -25,15 +26,33 @@ $result = $conn->query($sql);
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0"><i class="fas fa-laptop me-2"></i>Listado de Equipos</h4>
+            
+            <!-- AVISO PARA LECTORES -->
+            <?php if (!$es_admin): ?>
+            <div class="alert alert-info d-flex align-items-center mb-4" style="border-left: 4px solid #28a745;">
+                <i class="fas fa-info-circle fa-2x me-3 text-success"></i>
+                <div>
+                    <strong>Modo solo lectura activo</strong>
+                    <p class="mb-0">Puedes ver todos los equipos, pero no puedes agregar, editar o eliminar registros.</p>
                 </div>
+            </div>
+            <?php endif; ?>
+            
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-laptop me-2"></i>Listado de Equipos</h4>
+                    
+                    <!-- Botón AGREGAR - Solo visible para admin -->
+                    <?php if ($es_admin): ?>
+                    <a href="agregar.php" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Agregar Nuevo Equipo
+                    </a>
+                    <?php endif; ?>
+                </div>
+                
                 <div class="card-body">
                     
-                    <!-- ============================================ -->
-                    <!-- MENSAJES DE ÉXITO O ERROR (AGREGADO) -->
-                    <!-- ============================================ -->
+                    <!-- Mensajes de éxito/error -->
                     <?php if (isset($_GET['mensaje'])): ?>
                         <div class="alert alert-success alert-dismissible fade show">
                             <i class="fas fa-check-circle me-2"></i><?php echo htmlspecialchars($_GET['mensaje']); ?>
@@ -48,10 +67,6 @@ $result = $conn->query($sql);
                         </div>
                     <?php endif; ?>
                     
-                    <a href="agregar.php" class="btn btn-primary mb-3">
-                        <i class="fas fa-plus-circle me-2"></i>Agregar Nuevo Equipo
-                    </a>
-                    
                     <?php if ($result && $result->num_rows > 0): ?>
                         <div class="table-responsive">
                             <table class="table table-hover">
@@ -62,7 +77,7 @@ $result = $conn->query($sql);
                                         <th>Marca</th>
                                         <th>Modelo</th>
                                         <th>Estado</th>
-                                        <th>Acciones</th>
+                                        <th class="text-center">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -80,27 +95,45 @@ $result = $conn->query($sql);
                                                 <?php echo $row['estado'] ?? 'N/A'; ?>
                                             </span>
                                         </td>
-                                        <td data-label="ACCIONES">
-                                            <div class="d-flex gap-1 justify-content-center">
-                                                <a href="editar.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning" title="Editar equipo">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <?php if ($es_admin): ?>
-                                                <a href="eliminar.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-danger" title="Eliminar equipo" onclick="return confirm('¿Estás seguro de eliminar este equipo?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                                <?php endif; ?>
-                                            </div>
+                                        <td data-label="ACCIONES" class="text-center">
+                                            <?php if ($es_admin): ?>
+                                                <!-- ADMIN: Ve todos los botones -->
+                                                <div class="d-flex gap-1 justify-content-center">
+                                                    <a href="editar.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning" title="Editar equipo">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="eliminar.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-danger" title="Eliminar equipo" onclick="return confirm('¿Estás seguro de eliminar este equipo?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            <?php else: ?>
+                                                <!-- LECTOR: Solo puede ver (sin acciones) -->
+                                                <span class="badge bg-secondary">Solo lectura</span>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <!-- Total de registros -->
+                        <div class="mt-3 text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Total de equipos: <strong><?php echo $result->num_rows; ?></strong>
+                            <?php if (!$es_admin): ?>
+                                <span class="ms-3 badge bg-success">Modo lectura</span>
+                            <?php endif; ?>
+                        </div>
+                        
                     <?php else: ?>
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>No hay equipos registrados. 
-                            <a href="agregar.php" class="alert-link">Agrega el primero</a>
+                            <i class="fas fa-info-circle me-2"></i>No hay equipos registrados.
+                            <?php if ($es_admin): ?>
+                                <a href="agregar.php" class="alert-link ms-2">Agrega el primero</a>
+                            <?php else: ?>
+                                <span class="d-block mt-2">Contacta al administrador para agregar equipos.</span>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </div>

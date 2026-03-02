@@ -87,11 +87,13 @@ $result_movimientos = $conn->query($sql_movimientos);
     transform: rotate(-5deg);
     pointer-events: none;
     z-index: 0;
+    
 }
 
 .brand-watermark .content {
     position: relative;
     z-index: 1;
+    
 }
 
 .institution-title {

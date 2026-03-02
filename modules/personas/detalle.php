@@ -4,6 +4,10 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: /inventario_ti/login.php');
     exit();
 }
+
+// Verificar rol (1 = admin, 2 = lector)
+$es_admin = ($_SESSION['user_rol'] == 1);
+
 require_once '../../config/database.php';
 include '../../includes/header.php';
 
@@ -42,10 +46,8 @@ $sql_historial = "SELECT m.*, e.tipo_equipo, e.codigo_barras
                   LIMIT 20";
 $historial = $conn->query($sql_historial);
 
-// ============================================
-// IP DEL SERVIDOR CORREGIDA (IPv4)
-// ============================================
-$ip_servidor = '192.168.101.25'; // TU IP FIJA
+// IP DEL SERVIDOR (puedes cambiarla si es necesario)
+$ip_servidor = '186.4.141.11'; // TU IP FIJA
 $puerto = $_SERVER['SERVER_PORT'];
 $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
 ?>
@@ -82,13 +84,25 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
     margin-bottom: 20px;
 }
 
-.qr-modal-content #qrcode-container {
+/* Contenedor del QR centrado */
+#qrcode-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin: 20px 0;
     padding: 20px;
     background: #f8f9fc;
     border-radius: 15px;
+    min-height: 300px;
 }
 
+#qrcode-container canvas {
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Botón cerrar centrado */
 .qr-modal-content .btn-close {
     background: #dc3545;
     color: white;
@@ -97,6 +111,12 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
     border-radius: 30px;
     font-weight: 600;
     margin-top: 15px;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+    text-align: center;
 }
 
 .qr-modal-content .btn-close:hover {
@@ -104,81 +124,62 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
 }
 
 /* ============================================ */
-/* RESPONSIVE PARA MÓVILES - DETALLE DE PERSONA */
+/* RESPONSIVE - (se mantiene igual que el original) */
 /* ============================================ */
 @media (max-width: 768px) {
-    /* Ajustes generales */
     .container-fluid {
         padding-left: 10px !important;
         padding-right: 10px !important;
     }
-    
-    /* Cabecera con botones */
     .card-header {
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 10px !important;
     }
-    
     .card-header div {
         display: flex !important;
         flex-wrap: wrap !important;
         gap: 5px !important;
         width: 100% !important;
     }
-    
     .card-header .btn {
         flex: 1 1 auto !important;
         font-size: 0.85rem !important;
         padding: 8px 10px !important;
         margin: 0 !important;
     }
-    
-    /* Tabla de datos personales */
     .table-bordered {
         font-size: 14px !important;
     }
-    
     .table-bordered th,
     .table-bordered td {
         padding: 8px !important;
     }
-    
     .table-bordered th {
         width: 35% !important;
     }
-    
-    /* Cuadro de equipos asignados */
     .col-md-6 .card.bg-light {
         margin-top: 15px !important;
     }
-    
     .col-md-6 .card-body {
         padding: 15px !important;
     }
-    
     .col-md-6 h3 {
         font-size: 2rem !important;
     }
-    
     .btn-success {
         font-size: 1rem !important;
         padding: 12px !important;
     }
-    
-    /* Tabla de equipos actuales */
     .table-responsive {
         border: none !important;
     }
-    
     .table {
         min-width: auto !important;
     }
-    
     .table thead {
         display: none !important;
     }
-    
     .table tbody tr {
         display: block !important;
         margin-bottom: 20px !important;
@@ -188,7 +189,6 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
         background: white !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
-    
     .table tbody td {
         display: flex !important;
         justify-content: space-between !important;
@@ -198,11 +198,9 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
         border-bottom: 1px dashed #eee !important;
         font-size: 14px !important;
     }
-    
     .table tbody td:last-child {
         border-bottom: none !important;
     }
-    
     .table tbody td:before {
         content: attr(data-label) !important;
         font-weight: 700 !important;
@@ -211,83 +209,74 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
         min-width: 100px !important;
         font-size: 13px !important;
     }
-    
-    /* Botones de acciones en la tabla */
     .table tbody td .btn-sm {
         padding: 5px 10px !important;
         font-size: 12px !important;
     }
-    
-    /* Historial de movimientos */
     .list-group-item {
         padding: 12px !important;
         font-size: 13px !important;
     }
-    
     .list-group-item .d-flex {
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 5px !important;
     }
-    
     .list-group-item .badge {
         font-size: 11px !important;
         padding: 3px 6px !important;
     }
-    
     .list-group-item small {
         font-size: 11px !important;
     }
 }
 
-/* Para teléfonos muy pequeños */
 @media (max-width: 480px) {
     .card-header h4 {
         font-size: 1.2rem !important;
     }
-    
     .card-header .btn {
         font-size: 0.75rem !important;
         padding: 6px 8px !important;
     }
-    
     .table-bordered {
         font-size: 12px !important;
     }
-    
     .table-bordered th,
     .table-bordered td {
         padding: 6px !important;
     }
-    
     .table tbody td {
         font-size: 12px !important;
         padding: 8px 5px !important;
     }
-    
     .table tbody td:before {
         min-width: 80px !important;
         font-size: 11px !important;
     }
-    
     .btn-sm {
         padding: 4px 8px !important;
         font-size: 11px !important;
     }
-    
     .col-md-6 h3 {
         font-size: 1.8rem !important;
     }
 }
 </style>
 
-<!-- MODAL PARA MOSTRAR QR -->
+<!-- MODAL PARA MOSTRAR QR - SIN URL -->
 <div id="qrModal" class="qr-modal">
     <div class="qr-modal-content">
         <h4><i class="fas fa-qrcode me-2"></i>Código QR de <?php echo $persona['nombres']; ?></h4>
-        <div id="qrcode-container"></div>
+        
+        <!-- Contenedor del QR (se generará aquí) -->
+        <div id="qrcode-container" style="display: flex; justify-content: center; align-items: center; min-height: 250px;">
+            <!-- QR aparecerá aquí -->
+        </div>
+        
         <p class="text-muted">Escanea este código para ver los equipos de la persona</p>
-        <div id="qr-url-info" class="alert alert-info mt-2" style="font-size: 12px; word-break: break-all; display: none;"></div>
+        
+        <!-- Botón cerrar centrado -->
         <button class="btn-close" onclick="cerrarModalQR()">Cerrar</button>
     </div>
 </div>
@@ -299,20 +288,17 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4><i class="fas fa-user me-2"></i>Detalle de Persona</h4>
                     <div>
-                        <!-- Botón VER QR (abre modal) -->
                         <button onclick="generarQR(<?php echo $id; ?>)" class="btn btn-info">
                             <i class="fas fa-qrcode me-2"></i>Ver QR
                         </button>
-                        
-                        <!-- Botón DESCARGAR QR (descarga imagen) -->
                         <a href="/inventario_ti/api/generar_qr_persona.php?id=<?php echo $id; ?>" class="btn btn-warning" download="qr_persona_<?php echo $id; ?>.png">
                             <i class="fas fa-download me-2"></i>Descargar QR
                         </a>
-                        
-                        <!-- Botones de acción -->
+                        <?php if ($es_admin): ?>
                         <a href="editar.php?id=<?php echo $id; ?>" class="btn btn-primary">
                             <i class="fas fa-edit me-2"></i>Editar
                         </a>
+                        <?php endif; ?>
                         <a href="listar.php" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Volver
                         </a>
@@ -324,26 +310,11 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <table class="table table-bordered">
-                                <tr>
-                                    <th width="30%">Cédula</th>
-                                    <td><?php echo $persona['cedula']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Nombres</th>
-                                    <td><?php echo $persona['nombres']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Cargo</th>
-                                    <td><?php echo $persona['cargo']; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Correo</th>
-                                    <td><?php echo $persona['correo'] ?: 'No registrado'; ?></td>
-                                </tr>
-                                <tr>
-                                    <th>Teléfono</th>
-                                    <td><?php echo $persona['telefono'] ?: 'No registrado'; ?></td>
-                                </tr>
+                                <tr><th width="30%">Cédula</th><td><?php echo $persona['cedula']; ?></td></tr>
+                                <tr><th>Nombres</th><td><?php echo $persona['nombres']; ?></td></tr>
+                                <tr><th>Cargo</th><td><?php echo $persona['cargo']; ?></td></tr>
+                                <tr><th>Correo</th><td><?php echo $persona['correo'] ?: 'No registrado'; ?></td></tr>
+                                <tr><th>Teléfono</th><td><?php echo $persona['telefono'] ?: 'No registrado'; ?></td></tr>
                             </table>
                         </div>
                         
@@ -352,10 +323,15 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                                 <div class="card-body text-center">
                                     <h3><?php echo $equipos_asignados->num_rows; ?></h3>
                                     <p>Equipos asignados actualmente</p>
-                                    <!-- BOTÓN DE ASIGNAR NUEVO EQUIPO -->
+                                    <?php if ($es_admin): ?>
                                     <a href="../asignaciones/cargar_equipos.php?persona_id=<?php echo $id; ?>" class="btn btn-success btn-lg w-100">
                                         <i class="fas fa-plus-circle me-2"></i>Asignar nuevo equipo
                                     </a>
+                                    <?php else: ?>
+                                    <button class="btn btn-secondary btn-lg w-100" disabled>
+                                        <i class="fas fa-ban me-2"></i>Asignar (solo admin)
+                                    </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -371,14 +347,7 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                                 <div class="table-responsive">
                                     <table class="table table-hover">
                                         <thead>
-                                            <tr>
-                                                <th>Código</th>
-                                                <th>Tipo</th>
-                                                <th>Marca/Modelo</th>
-                                                <th>Serie</th>
-                                                <th>Fecha Asignación</th>
-                                                <th>Acciones</th>
-                                            </tr>
+                                            <tr><th>Código</th><th>Tipo</th><th>Marca/Modelo</th><th>Serie</th><th>Fecha Asignación</th><th>Acciones</th></tr>
                                         </thead>
                                         <tbody>
                                             <?php while($eq = $equipos_asignados->fetch_assoc()): ?>
@@ -390,12 +359,10 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                                                 <td data-label="FECHA"><?php echo date('d/m/Y', strtotime($eq['fecha_asignacion'])); ?></td>
                                                 <td data-label="ACCIONES">
                                                     <div class="d-flex gap-1">
-                                                        <a href="../movimientos/devolucion.php?equipo_id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-warning" title="Registrar devolución">
-                                                            <i class="fas fa-undo-alt"></i>
-                                                        </a>
-                                                        <a href="../equipos/detalle.php?id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-info" title="Ver equipo">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
+                                                        <?php if ($es_admin): ?>
+                                                        <a href="../movimientos/devolucion.php?equipo_id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-warning" title="Registrar devolución"><i class="fas fa-undo-alt"></i></a>
+                                                        <?php endif; ?>
+                                                        <a href="../equipos/detalle.php?id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-info" title="Ver equipo"><i class="fas fa-eye"></i></a>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -408,9 +375,15 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                                     <i class="fas fa-info-circle fa-2x mb-3"></i><br>
                                     Esta persona no tiene equipos asignados actualmente.
                                     <br>
+                                    <?php if ($es_admin): ?>
                                     <a href="../asignaciones/cargar_equipos.php?persona_id=<?php echo $id; ?>" class="btn btn-success mt-3">
                                         <i class="fas fa-plus-circle me-2"></i>Asignar primer equipo
                                     </a>
+                                    <?php else: ?>
+                                    <button class="btn btn-secondary mt-3" disabled>
+                                        <i class="fas fa-ban me-2"></i>Asignar (solo admin)
+                                    </button>
+                                    <?php endif; ?>
                                 </p>
                             <?php endif; ?>
                         </div>
@@ -425,8 +398,7 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                             <?php if ($historial->num_rows > 0): ?>
                                 <div class="list-group">
                                     <?php while($h = $historial->fetch_assoc()): 
-                                        $clase = $h['tipo_movimiento'] == 'ASIGNACION' ? 'success' : 
-                                                ($h['tipo_movimiento'] == 'DEVOLUCION' ? 'warning' : 'info');
+                                        $clase = $h['tipo_movimiento'] == 'ASIGNACION' ? 'success' : ($h['tipo_movimiento'] == 'DEVOLUCION' ? 'warning' : 'info');
                                     ?>
                                         <div class="list-group-item list-group-item-<?php echo $clase; ?>">
                                             <div class="d-flex justify-content-between">
@@ -459,34 +431,12 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <script>
-// ============================================
-// FUNCIONES PARA EL MODAL QR - CORREGIDO CON TU IP
-// ============================================
 function generarQR(id) {
-    // Mostrar modal
     document.getElementById('qrModal').style.display = 'flex';
-    
-    // Limpiar contenedor anterior
     document.getElementById('qrcode-container').innerHTML = '';
-    
-    // ============================================
-    // URL CORREGIDA CON TU IP 192.168.101.25
-    // ============================================
-    var ipServidor = '192.168.101.25'; // TU IP FIJA
+    var ipServidor = '186.4.141.11';
     var puerto = '<?php echo $puerto_texto; ?>';
-    
-    // Construir URL con IP en lugar de localhost
     const url = 'http://' + ipServidor + puerto + '/inventario_ti/modules/personas/ver_equipos_qr.php?id=' + id;
-    
-    // Mostrar la URL en consola para debug
-    console.log('URL del QR CORREGIDA:', url);
-    console.log('IP utilizada:', ipServidor);
-    
-    // Mostrar la URL en el modal (opcional)
-    document.getElementById('qr-url-info').style.display = 'block';
-    document.getElementById('qr-url-info').innerHTML = '<small>URL: ' + url + '</small>';
-    
-    // Generar QR
     new QRCode(document.getElementById("qrcode-container"), {
         text: url,
         width: 250,
@@ -501,7 +451,6 @@ function cerrarModalQR() {
     document.getElementById('qrModal').style.display = 'none';
 }
 
-// Cerrar modal si se hace clic fuera
 window.onclick = function(event) {
     const modal = document.getElementById('qrModal');
     if (event.target == modal) {

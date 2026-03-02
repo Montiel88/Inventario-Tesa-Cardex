@@ -1,21 +1,17 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
-    exit();
-}
+require_once '../../config/permisos.php';
+verificarSesion();
+requiereAdmin(); // Solo admin puede agregar equipos
+
 require_once '../../config/database.php';
 include '../../includes/header.php';
 
 $mensaje = '';
 $error = '';
 
-// ============================================
-// PROCESAR EL FORMULARIO CUANDO SE ENVÍA
-// ============================================
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
-    // Obtener datos del formulario
     $codigo_barras = $conn->real_escape_string($_POST['codigo_barras'] ?? '');
     $tipo_equipo = $conn->real_escape_string($_POST['tipo_equipo'] ?? '');
     $marca = $conn->real_escape_string($_POST['marca'] ?? '');
@@ -24,12 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $especificaciones = $conn->real_escape_string($_POST['especificaciones'] ?? '');
     $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
     
-    // Validar que el tipo de equipo no esté vacío
     if (empty($tipo_equipo)) {
         $error = "❌ El tipo de equipo es obligatorio";
     } else {
         
-        // Generar código automático si está vacío
         if (empty($codigo_barras)) {
             $result = $conn->query("SELECT MAX(id) as max_id FROM equipos");
             $row = $result->fetch_assoc();
@@ -37,12 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $codigo_barras = 'PRO-' . str_pad($next_id, 6, '0', STR_PAD_LEFT);
         }
         
-        // Insertar en la base de datos
         $sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, observaciones, estado) 
                 VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$numero_serie', '$especificaciones', '$observaciones', 'Disponible')";
         
         if ($conn->query($sql)) {
-            $equipo_id = $conn->insert_id;
             $mensaje = "✅ Equipo registrado exitosamente. Código: $codigo_barras";
         } else {
             $error = "❌ Error al guardar: " . $conn->error;
@@ -51,9 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-<!-- ============================================ -->
-<!-- HTML DEL FORMULARIO (AHORA SÍ SE VERÁ) -->
-<!-- ============================================ -->
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
@@ -63,22 +52,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="card-body">
                     
-                    <!-- Mostrar mensajes -->
                     <?php if ($mensaje): ?>
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <div class="alert alert-success alert-dismissible fade show">
                             <i class="fas fa-check-circle me-2"></i><?php echo $mensaje; ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <?php endif; ?>
                     
                     <?php if ($error): ?>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="alert alert-danger alert-dismissible fade show">
                             <i class="fas fa-exclamation-triangle me-2"></i><?php echo $error; ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <?php endif; ?>
                     
-                    <!-- Formulario -->
                     <form method="POST" action="">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -134,9 +121,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <button type="submit" class="btn btn-primary btn-lg px-5">
                                 <i class="fas fa-save me-2"></i>Guardar Equipo
                             </button>
-                            <button type="reset" class="btn btn-secondary btn-lg px-5">
-                                <i class="fas fa-undo me-2"></i>Limpiar
-                            </button>
+                            <a href="listar.php" class="btn btn-secondary btn-lg px-5">
+                                <i class="fas fa-arrow-left me-2"></i>Cancelar
+                            </a>
                         </div>
                     </form>
                 </div>

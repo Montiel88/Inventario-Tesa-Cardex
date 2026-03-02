@@ -761,18 +761,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
                     
-                    <div class="input-group">
-                        <label for="password">Contraseña</label>
-                        <div class="input-wrapper">
-                            <i class="bi bi-lock-fill"></i>
-                            <input type="password" 
-                                   id="password" 
-                                   name="password" 
-                                   placeholder="••••••••" 
-                                   required>
-                            <i class="bi bi-eye-slash toggle-password" id="togglePassword"></i>
-                        </div>
-                    </div>
+                <div class="input-group">
+    <label for="password">Contraseña</label>
+    <div class="input-wrapper">
+        <input type="password" id="password" name="password" placeholder="••••••••" required>
+        <i class="bi bi-eye-slash toggle-password" id="togglePassword"></i>
+    </div>
+</div>
                     
                     <button type="submit" class="btn-login">
                         <i class="bi bi-box-arrow-in-right"></i>
