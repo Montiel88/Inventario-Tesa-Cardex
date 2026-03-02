@@ -1,9 +1,9 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
-    exit();
-}
+require_once '../../config/permisos.php';
+verificarSesion();
+requiereAdmin(); // Solo admin puede asignar equipos
+
 require_once '../../config/database.php';
 include '../../includes/header.php';
 
@@ -13,18 +13,23 @@ $error = '';
 // Obtener persona_id de la URL si viene
 $persona_id_seleccionada = isset($_GET['persona_id']) ? intval($_GET['persona_id']) : 0;
 
+// Obtener lista de personas y ubicaciones
+$personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
+$ubicaciones = $conn->query("SELECT id, codigo_ubicacion, nombre FROM ubicaciones ORDER BY nombre");
+
 // ============================================
 // PROCESAR EL FORMULARIO
 // ============================================
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
-    $tipo_equipo = $_POST['tipo_equipo'] ?? '';
-    $marca = $_POST['marca'] ?? '';
-    $modelo = $_POST['modelo'] ?? '';
-    $serie = $_POST['numero_serie'] ?? '';
-    $codigo_barras = $_POST['codigo_barras'] ?? '';
-    $especificaciones = $_POST['especificaciones'] ?? '';
+    $tipo_equipo = $conn->real_escape_string($_POST['tipo_equipo'] ?? '');
+    $marca = $conn->real_escape_string($_POST['marca'] ?? '');
+    $modelo = $conn->real_escape_string($_POST['modelo'] ?? '');
+    $serie = $conn->real_escape_string($_POST['numero_serie'] ?? '');
+    $codigo_barras = $conn->real_escape_string($_POST['codigo_barras'] ?? '');
+    $especificaciones = $conn->real_escape_string($_POST['especificaciones'] ?? '');
     $persona_id = intval($_POST['persona_id'] ?? 0);
+    $ubicacion_id = !empty($_POST['ubicacion_id']) ? intval($_POST['ubicacion_id']) : 'NULL';
     
     if (empty($tipo_equipo)) {
         $error = "❌ El tipo de equipo es obligatorio";
@@ -39,16 +44,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $codigo_barras = 'PRO-' . str_pad($next_id, 6, '0', STR_PAD_LEFT);
         }
         
-        $sql_equipo = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, estado) 
-                       VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$serie', '$especificaciones', 'Asignado')";
+        // Insertar equipo con ubicación
+        $sql_equipo = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, ubicacion_id, estado) 
+                       VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$serie', '$especificaciones', $ubicacion_id, 'Asignado')";
         
         if ($conn->query($sql_equipo)) {
             $equipo_id = $conn->insert_id;
             
+            // Crear asignación
             $sql_asignacion = "INSERT INTO asignaciones (equipo_id, persona_id, fecha_asignacion) 
                               VALUES ($equipo_id, $persona_id, NOW())";
             
             if ($conn->query($sql_asignacion)) {
+                // Registrar movimiento
                 $sql_movimiento = "INSERT INTO movimientos (equipo_id, persona_id, tipo_movimiento) 
                                  VALUES ($equipo_id, $persona_id, 'ASIGNACION')";
                 $conn->query($sql_movimiento);
@@ -62,8 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 }
-
-$personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
 ?>
 
 <style>
@@ -202,7 +208,20 @@ $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
                                 <input type="text" name="numero_serie" id="numero_serie" class="form-control" placeholder="Serie del fabricante">
                             </div>
                             
+                            <!-- Campo de ubicación -->
                             <div class="col-md-6 mb-3">
+                                <label class="form-label">Ubicación</label>
+                                <select name="ubicacion_id" class="form-control">
+                                    <option value="">-- Sin ubicación --</option>
+                                    <?php while($ub = $ubicaciones->fetch_assoc()): ?>
+                                        <option value="<?php echo $ub['id']; ?>">
+                                            <?php echo $ub['codigo_ubicacion'] . ' - ' . $ub['nombre']; ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
                                 <label class="form-label">Especificaciones</label>
                                 <textarea name="especificaciones" class="form-control" rows="2" placeholder="RAM, disco, etc." id="especificaciones"></textarea>
                             </div>
@@ -240,14 +259,12 @@ function abrirScanner() {
     container.style.display = 'block';
     escaneando = true;
     
-    // Verificar soporte
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         alert('❌ Tu navegador no soporta cámara');
         cerrarScanner();
         return;
     }
     
-    // Configuración optimizada
     const config = {
         fps: 30,
         qrbox: { width: 300, height: 150 },
@@ -265,7 +282,6 @@ function abrirScanner() {
         ]
     };
     
-    // Obtener cámaras
     Html5Qrcode.getCameras().then(cameras => {
         if (cameras.length === 0) {
             alert('❌ No hay cámaras disponibles');
@@ -273,7 +289,6 @@ function abrirScanner() {
             return;
         }
         
-        // Buscar cámara trasera
         const backCamera = cameras.find(c => 
             c.label.toLowerCase().includes('back') || 
             c.label.toLowerCase().includes('trasera') ||
@@ -288,52 +303,35 @@ function abrirScanner() {
             cameraId,
             config,
             (decodedText) => {
-                // ============================================
-                // CLASIFICACIÓN INTELIGENTE DEL CÓDIGO
-                // ============================================
-                
-                // 1. Verificar si es un código de equipo PRO-XXXXXX
-                if (decodedText.startsWith('PRO-')) {
-                    document.getElementById('codigo_barras').value = decodedText;
-                    alert('✅ Código de barras detectado: ' + decodedText);
-                }
-                // 2. Verificar si es un QR con JSON (viene de generar_qr_persona)
-                else if (decodedText.startsWith('http') && decodedText.includes('ver_equipos_qr')) {
-                    // Es un QR de persona, no es relevante aquí
-                    alert('⚠️ Este es un QR de persona, no de equipo');
-                }
-                // 3. Intentar parsear como JSON (datos completos de equipo)
-                else {
-                    try {
-                        const datos = JSON.parse(decodedText);
-                        // Si tiene estructura de equipo, rellenar campos
-                        if (datos.codigo || datos.serie || datos.marca || datos.modelo) {
-                            if (datos.codigo) document.getElementById('codigo_barras').value = datos.codigo;
-                            if (datos.serie) document.getElementById('numero_serie').value = datos.serie;
-                            if (datos.marca) document.getElementById('marca').value = datos.marca;
-                            if (datos.modelo) document.getElementById('modelo').value = datos.modelo;
-                            if (datos.especificaciones) document.getElementById('especificaciones').value = datos.especificaciones;
-                            alert('✅ Datos de equipo cargados desde QR');
-                        } else {
-                            // Es JSON pero no de equipo, lo ponemos en número de serie
-                            document.getElementById('numero_serie').value = decodedText;
-                            alert('✅ Número de serie detectado: ' + decodedText);
-                        }
-                    } catch (e) {
-                        // 4. Si no es JSON, asumimos que es número de serie
+                // Intentar parsear JSON
+                try {
+                    const datos = JSON.parse(decodedText);
+                    if (datos.codigo) document.getElementById('codigo_barras').value = datos.codigo;
+                    if (datos.serie) document.getElementById('numero_serie').value = datos.serie;
+                    if (datos.marca) document.getElementById('marca').value = datos.marca;
+                    if (datos.modelo) document.getElementById('modelo').value = datos.modelo;
+                    if (datos.especificaciones) document.getElementById('especificaciones').value = datos.especificaciones;
+                    // Si incluye ubicación (por ejemplo, datos.ubicacion_id) podríamos seleccionarla
+                    if (datos.ubicacion_nombre) {
+                        // Buscar en el select por texto (opcional)
+                    }
+                    alert('✅ Datos cargados desde QR');
+                } catch (e) {
+                    // No es JSON, verificar si es código PRO-
+                    if (decodedText.startsWith('PRO-')) {
+                        document.getElementById('codigo_barras').value = decodedText;
+                        alert('✅ Código de barras: ' + decodedText);
+                    } else {
+                        // Asumir número de serie
                         document.getElementById('numero_serie').value = decodedText;
-                        alert('✅ Número de serie detectado: ' + decodedText);
+                        alert('✅ Número de serie: ' + decodedText);
                     }
                 }
                 
                 cerrarScanner();
-                
-                // Vibración en móviles
                 if (navigator.vibrate) navigator.vibrate(100);
             },
-            (errorMessage) => {
-                console.log('Buscando códigos...');
-            }
+            (errorMessage) => {}
         ).catch(err => {
             alert('❌ Error al iniciar: ' + err);
             cerrarScanner();
@@ -357,11 +355,9 @@ function cerrarScanner() {
     }
 }
 
-// Ingreso manual
 function ingresarManual() {
     let codigo = prompt('📝 Ingresa el código manualmente:');
     if (codigo) {
-        // Aplicar la misma lógica de clasificación
         if (codigo.startsWith('PRO-')) {
             document.getElementById('codigo_barras').value = codigo;
         } else {

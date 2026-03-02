@@ -2,7 +2,7 @@
 session_start();
 require_once '../../config/permisos.php';
 verificarSesion();
-requiereAdmin(); // Solo admin puede agregar ubicaciones
+requiereAdmin(); // Solo admin puede agregar
 
 require_once '../../config/database.php';
 include '../../includes/header.php';
@@ -10,27 +10,24 @@ include '../../includes/header.php';
 $error = '';
 $success = '';
 
-// Obtener lista de personas para asignar como responsable
+// Obtener lista de personas para responsable
 $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $codigo = $conn->real_escape_string($_POST['codigo'] ?? '');
+    $codigo_ubicacion = $conn->real_escape_string($_POST['codigo_ubicacion'] ?? '');
     $nombre = $conn->real_escape_string($_POST['nombre'] ?? '');
     $tipo = $conn->real_escape_string($_POST['tipo'] ?? '');
-    $capacidad = intval($_POST['capacidad'] ?? 0);
     $responsable_id = !empty($_POST['responsable_id']) ? intval($_POST['responsable_id']) : 'NULL';
-    $estado = $conn->real_escape_string($_POST['estado'] ?? 'activo');
     $descripcion = $conn->real_escape_string($_POST['descripcion'] ?? '');
 
-    if (empty($codigo) || empty($nombre) || empty($tipo)) {
+    if (empty($codigo_ubicacion) || empty($nombre) || empty($tipo)) {
         $error = "❌ Los campos Código, Nombre y Tipo son obligatorios.";
     } else {
-        $sql = "INSERT INTO ubicaciones (codigo, nombre, tipo, capacidad, responsable_id, estado, descripcion) 
-                VALUES ('$codigo', '$nombre', '$tipo', $capacidad, $responsable_id, '$estado', '$descripcion')";
+        $sql = "INSERT INTO ubicaciones (codigo_ubicacion, nombre, tipo, responsable_id, descripcion) 
+                VALUES ('$codigo_ubicacion', '$nombre', '$tipo', $responsable_id, '$descripcion')";
 
         if ($conn->query($sql)) {
             $success = "✅ Ubicación agregada correctamente.";
-            // Limpiar campos si se desea, o redirigir
             echo "<script>
                 Swal.fire({
                     icon: 'success',
@@ -65,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <form method="POST">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Código *</label>
-                                <input type="text" name="codigo" class="form-control" required>
+                                <label class="form-label">Código de ubicación *</label>
+                                <input type="text" name="codigo_ubicacion" class="form-control" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Nombre *</label>
@@ -74,31 +71,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Tipo *</label>
-                                <select name="tipo" class="form-control" required>
-                                    <option value="">-- Seleccione --</option>
-                                    <option value="salon">Salón</option>
-                                    <option value="laboratorio">Laboratorio</option>
-                                    <option value="biblioteca">Biblioteca</option>
-                                    <option value="oficina">Oficina</option>
-                                    <option value="bodega">Bodega</option>
-                                    <option value="otro">Otro</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Capacidad</label>
-                                <input type="number" name="capacidad" class="form-control" min="0">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Estado</label>
-                                <select name="estado" class="form-control">
-                                    <option value="activo">Activo</option>
-                                    <option value="inactivo">Inactivo</option>
-                                    <option value="mantenimiento">Mantenimiento</option>
-                                </select>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo *</label>
+                            <select name="tipo" class="form-control" required>
+                                <option value="">-- Seleccione --</option>
+                                <option value="salon">Salón</option>
+                                <option value="laboratorio">Laboratorio</option>
+                                <option value="biblioteca">Biblioteca</option>
+                                <option value="oficina">Oficina</option>
+                                <option value="bodega">Bodega</option>
+                                <option value="otro">Otro</option>
+                            </select>
                         </div>
 
                         <div class="mb-3">

@@ -7,6 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 require_once '../../config/database.php';
 include '../../includes/header.php';
 
+// Consulta con JOIN para obtener el nombre del responsable
 $sql = "SELECT u.*, p.nombres as responsable_nombre 
         FROM ubicaciones u
         LEFT JOIN personas p ON u.responsable_id = p.id
@@ -23,7 +24,7 @@ $result = $conn->query($sql);
             <a href="agregar.php" class="btn btn-primary mb-3">
                 <i class="fas fa-plus-circle me-2"></i>Nueva Ubicación
             </a>
-            
+
             <?php if ($result && $result->num_rows > 0): ?>
                 <div class="table-responsive">
                     <table class="table table-hover">
@@ -32,44 +33,37 @@ $result = $conn->query($sql);
                                 <th>Código</th>
                                 <th>Nombre</th>
                                 <th>Tipo</th>
-                                <th>Capacidad</th>
                                 <th>Responsable</th>
-                                <th>Estado</th>
+                                <th>Descripción</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while($row = $result->fetch_assoc()): 
-                                // Determinar clase del badge según tipo
-                                $tipo = isset($row['tipo']) ? $row['tipo'] : '';
-                                $badgeClass = 'secondary';
-                                if ($tipo == 'salon') $badgeClass = 'primary';
-                                elseif ($tipo == 'laboratorio') $badgeClass = 'success';
-                                elseif ($tipo == 'biblioteca') $badgeClass = 'info';
-                                
-                                $estado = isset($row['estado']) ? $row['estado'] : 'inactivo';
-                                $estadoClass = ($estado == 'activo') ? 'success' : 'warning';
-                            ?>
+                            <?php while($row = $result->fetch_assoc()): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($row['codigo'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($row['codigo_ubicacion'] ?? ''); ?></td>
                                 <td><?php echo htmlspecialchars($row['nombre'] ?? ''); ?></td>
                                 <td>
+                                    <?php 
+                                    $tipo = $row['tipo'] ?? '';
+                                    $badgeClass = match($tipo) {
+                                        'salon' => 'primary',
+                                        'laboratorio' => 'success',
+                                        'biblioteca' => 'info',
+                                        default => 'secondary'
+                                    };
+                                    ?>
                                     <span class="badge bg-<?php echo $badgeClass; ?>">
                                         <?php echo ucfirst($tipo); ?>
                                     </span>
                                 </td>
-                                <td><?php echo isset($row['capacidad']) ? $row['capacidad'] : 'N/A'; ?></td>
                                 <td><?php echo htmlspecialchars($row['responsable_nombre'] ?? 'Sin asignar'); ?></td>
+                                <td><?php echo htmlspecialchars($row['descripcion'] ?? ''); ?></td>
                                 <td>
-                                    <span class="badge bg-<?php echo $estadoClass; ?>">
-                                        <?php echo ucfirst($estado); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="editar.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning">
+                                    <a href="editar.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning" title="Editar ubicación">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="equipos.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info" title="Ver equipos">
+                                    <a href="../equipos/listar.php?ubicacion_id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info" title="Ver equipos en esta ubicación">
                                         <i class="fas fa-laptop"></i>
                                     </a>
                                 </td>

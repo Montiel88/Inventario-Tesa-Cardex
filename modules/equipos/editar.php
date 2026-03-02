@@ -28,6 +28,9 @@ $equipo = $result->fetch_assoc();
 $error = '';
 $success = '';
 
+// Obtener lista de ubicaciones para el selector
+$ubicaciones = $conn->query("SELECT id, codigo_ubicacion, nombre FROM ubicaciones ORDER BY nombre");
+
 // Procesar el formulario al enviar
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
@@ -39,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $especificaciones = $conn->real_escape_string($_POST['especificaciones'] ?? '');
     $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
     $estado = $conn->real_escape_string($_POST['estado'] ?? 'Disponible');
+    $ubicacion_id = !empty($_POST['ubicacion_id']) ? intval($_POST['ubicacion_id']) : 'NULL';
     
     if (empty($tipo_equipo)) {
         $error = "❌ El tipo de equipo es obligatorio";
@@ -51,7 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 numero_serie = '$numero_serie',
                 especificaciones = '$especificaciones',
                 observaciones = '$observaciones',
-                estado = '$estado'
+                estado = '$estado',
+                ubicacion_id = $ubicacion_id
                 WHERE id = $id";
         
         if ($conn->query($sql)) {
@@ -134,6 +139,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <option value="Asignado" <?php echo $equipo['estado'] == 'Asignado' ? 'selected' : ''; ?>>Asignado</option>
                                     <option value="Mantenimiento" <?php echo $equipo['estado'] == 'Mantenimiento' ? 'selected' : ''; ?>>Mantenimiento</option>
                                     <option value="Baja" <?php echo $equipo['estado'] == 'Baja' ? 'selected' : ''; ?>>Baja</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Campo de ubicación -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ubicación</label>
+                                <select name="ubicacion_id" class="form-control">
+                                    <option value="">-- Sin ubicación --</option>
+                                    <?php while($ub = $ubicaciones->fetch_assoc()): ?>
+                                        <option value="<?php echo $ub['id']; ?>" 
+                                            <?php echo ($equipo['ubicacion_id'] ?? '') == $ub['id'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($ub['codigo_ubicacion'] . ' - ' . $ub['nombre']); ?>
+                                        </option>
+                                    <?php endwhile; ?>
                                 </select>
                             </div>
                             

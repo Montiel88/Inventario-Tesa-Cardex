@@ -13,8 +13,6 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 }
 
 $id = intval($_GET['id']);
-
-// Obtener datos de la ubicación
 $result = $conn->query("SELECT * FROM ubicaciones WHERE id = $id");
 if ($result->num_rows == 0) {
     header('Location: listar.php');
@@ -22,30 +20,25 @@ if ($result->num_rows == 0) {
 }
 $ubicacion = $result->fetch_assoc();
 
-// Obtener lista de personas para el selector de responsable
 $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
 $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $codigo = $conn->real_escape_string($_POST['codigo'] ?? '');
+    $codigo_ubicacion = $conn->real_escape_string($_POST['codigo_ubicacion'] ?? '');
     $nombre = $conn->real_escape_string($_POST['nombre'] ?? '');
     $tipo = $conn->real_escape_string($_POST['tipo'] ?? '');
-    $capacidad = intval($_POST['capacidad'] ?? 0);
     $responsable_id = !empty($_POST['responsable_id']) ? intval($_POST['responsable_id']) : 'NULL';
-    $estado = $conn->real_escape_string($_POST['estado'] ?? 'activo');
     $descripcion = $conn->real_escape_string($_POST['descripcion'] ?? '');
 
-    if (empty($codigo) || empty($nombre) || empty($tipo)) {
+    if (empty($codigo_ubicacion) || empty($nombre) || empty($tipo)) {
         $error = "❌ Los campos Código, Nombre y Tipo son obligatorios.";
     } else {
         $sql = "UPDATE ubicaciones SET 
-                codigo = '$codigo',
+                codigo_ubicacion = '$codigo_ubicacion',
                 nombre = '$nombre',
                 tipo = '$tipo',
-                capacidad = $capacidad,
                 responsable_id = $responsable_id,
-                estado = '$estado',
                 descripcion = '$descripcion'
                 WHERE id = $id";
 
@@ -79,9 +72,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <form method="POST">
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Código *</label>
-                                <input type="text" name="codigo" class="form-control" 
-                                       value="<?php echo htmlspecialchars($ubicacion['codigo'] ?? ''); ?>" required>
+                                <label class="form-label">Código de ubicación *</label>
+                                <input type="text" name="codigo_ubicacion" class="form-control" 
+                                       value="<?php echo htmlspecialchars($ubicacion['codigo_ubicacion'] ?? ''); ?>" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Nombre *</label>
@@ -90,43 +83,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Tipo *</label>
-                                <select name="tipo" class="form-control" required>
-                                    <option value="">-- Seleccione --</option>
-                                    <option value="salon" <?php echo ($ubicacion['tipo'] ?? '') == 'salon' ? 'selected' : ''; ?>>Salón</option>
-                                    <option value="laboratorio" <?php echo ($ubicacion['tipo'] ?? '') == 'laboratorio' ? 'selected' : ''; ?>>Laboratorio</option>
-                                    <option value="biblioteca" <?php echo ($ubicacion['tipo'] ?? '') == 'biblioteca' ? 'selected' : ''; ?>>Biblioteca</option>
-                                    <option value="oficina" <?php echo ($ubicacion['tipo'] ?? '') == 'oficina' ? 'selected' : ''; ?>>Oficina</option>
-                                    <option value="bodega" <?php echo ($ubicacion['tipo'] ?? '') == 'bodega' ? 'selected' : ''; ?>>Bodega</option>
-                                    <option value="otro" <?php echo ($ubicacion['tipo'] ?? '') == 'otro' ? 'selected' : ''; ?>>Otro</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Capacidad</label>
-                                <input type="number" name="capacidad" class="form-control" min="0"
-                                       value="<?php echo $ubicacion['capacidad'] ?? 0; ?>">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Estado</label>
-                                <select name="estado" class="form-control">
-                                    <option value="activo" <?php echo ($ubicacion['estado'] ?? '') == 'activo' ? 'selected' : ''; ?>>Activo</option>
-                                    <option value="inactivo" <?php echo ($ubicacion['estado'] ?? '') == 'inactivo' ? 'selected' : ''; ?>>Inactivo</option>
-                                    <option value="mantenimiento" <?php echo ($ubicacion['estado'] ?? '') == 'mantenimiento' ? 'selected' : ''; ?>>Mantenimiento</option>
-                                </select>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo *</label>
+                            <select name="tipo" class="form-control" required>
+                                <option value="">-- Seleccione --</option>
+                                <option value="salon" <?php echo ($ubicacion['tipo'] ?? '') == 'salon' ? 'selected' : ''; ?>>Salón</option>
+                                <option value="laboratorio" <?php echo ($ubicacion['tipo'] ?? '') == 'laboratorio' ? 'selected' : ''; ?>>Laboratorio</option>
+                                <option value="biblioteca" <?php echo ($ubicacion['tipo'] ?? '') == 'biblioteca' ? 'selected' : ''; ?>>Biblioteca</option>
+                                <option value="oficina" <?php echo ($ubicacion['tipo'] ?? '') == 'oficina' ? 'selected' : ''; ?>>Oficina</option>
+                                <option value="bodega" <?php echo ($ubicacion['tipo'] ?? '') == 'bodega' ? 'selected' : ''; ?>>Bodega</option>
+                                <option value="otro" <?php echo ($ubicacion['tipo'] ?? '') == 'otro' ? 'selected' : ''; ?>>Otro</option>
+                            </select>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Responsable</label>
                             <select name="responsable_id" class="form-control">
                                 <option value="">-- Sin asignar --</option>
-                                <?php if ($personas): while($p = $personas->fetch_assoc()): ?>
+                                <?php while($p = $personas->fetch_assoc()): ?>
                                     <option value="<?php echo $p['id']; ?>" <?php echo ($ubicacion['responsable_id'] ?? '') == $p['id'] ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($p['nombres']); ?>
+                                        <?php echo $p['nombres']; ?>
                                     </option>
-                                <?php endwhile; endif; ?>
+                                <?php endwhile; ?>
                             </select>
                         </div>
 
