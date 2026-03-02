@@ -136,6 +136,8 @@ body::before {
     border-bottom: 3px solid var(--tesa-gold);
     padding: 15px 0;
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    z-index: 1000 !important;
+    overflow: visible !important;
 }
 
 /* LOGO CON BORDES REDONDEADOS */
@@ -144,7 +146,7 @@ body::before {
     align-items: center;
     background: white;
     padding: 5px 20px 5px 5px;
-    border-radius: 50px; /* Bordes redondeados */
+    border-radius: 50px;
     border: 2px solid var(--tesa-gold);
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     transition: all 0.3s ease;
@@ -159,7 +161,7 @@ body::before {
     height: 45px;
     width: auto;
     margin-right: 12px;
-    border-radius: 30px !important; /* Forzamos bordes redondeados */
+    border-radius: 30px !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
     background: white;
@@ -215,12 +217,14 @@ body::before {
 .navbar-nav {
     display: flex;
     align-items: center;
+    overflow: visible !important;
 }
 
 .navbar-nav .nav-item {
     display: flex;
     align-items: center;
     margin: 0 2px;
+    overflow: visible !important;
 }
 
 .navbar-nav .nav-link,
@@ -311,14 +315,20 @@ body::before {
     font-size: 14px;
 }
 
-/* Dropdown menu */
+/* ===== DROPDOWN MENU - CORREGIDO ===== */
 .dropdown-menu {
     background: white !important;
-    border: 1px solid rgba(90, 45, 140, 0.1);
-    border-radius: 15px;
-    padding: 10px;
+    border: 1px solid var(--tesa-gold) !important;
+    border-radius: 15px !important;
+    padding: 10px !important;
     margin-top: 10px !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    box-shadow: 0 15px 40px rgba(90, 45, 140, 0.2) !important;
+    z-index: 999999 !important;
+    position: absolute !important;
+}
+
+.dropdown-menu.show {
+    display: block !important;
 }
 
 .dropdown-item {
@@ -719,7 +729,7 @@ body::before {
     border-left: 4px solid #17a2b8;
 }
 
-/* ===== FOOTER MORADO (CORREGIDO) ===== */
+/* ===== FOOTER MORADO ===== */
 .main-footer {
     background: linear-gradient(135deg, var(--tesa-purple) 0%, #6f42c1 100%);
     color: white;
@@ -825,6 +835,74 @@ body::before {
 @keyframes fadeInTitle {
     from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================ */
+/* CORRECCIÓN DE BOTONES EN LISTAR PERSONAS */
+/* ============================================ */
+
+/* Contenedor de botones - SIEMPRE EN FILA */
+.d-flex.gap-1 {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 5px !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* Estilo base para botones de acción */
+.d-flex.gap-1 .btn-sm,
+.d-flex.gap-1 .btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+    min-width: 40px !important;
+    height: 35px !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    border-radius: 20px !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+    transition: all 0.2s ease !important;
+}
+
+.d-flex.gap-1 .btn-sm:hover,
+.d-flex.gap-1 .btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(90, 45, 140, 0.2) !important;
+}
+
+/* Colores específicos para botones */
+.d-flex.gap-1 .btn-info {
+    background: #17a2b8 !important;
+    color: white !important;
+    border: none !important;
+}
+
+.d-flex.gap-1 .btn-warning {
+    background: #ffc107 !important;
+    color: #212529 !important;
+    border: none !important;
+}
+
+.d-flex.gap-1 .btn-danger {
+    background: #dc3545 !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* Badge de solo lectura */
+.badge.bg-secondary {
+    background: #6c757d !important;
+    color: white !important;
+    padding: 5px 10px !important;
+    border-radius: 20px !important;
+    font-size: 0.75rem !important;
+    height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -963,6 +1041,7 @@ body::before {
         font-size: 2rem;
     }
     
+    /* ===== TABLA RESPONSIVE CON BOTONES EN FILA ===== */
     .table thead {
         display: none;
     }
@@ -996,6 +1075,26 @@ body::before {
         margin-right: 15px;
         min-width: 100px;
         font-size: 0.85rem;
+    }
+    
+    /* BOTONES EN MÓVIL - FORZAR FILA */
+    .table tbody td .d-flex.gap-1 {
+        justify-content: flex-end !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .d-flex.gap-1 .btn-sm,
+    .d-flex.gap-1 .btn {
+        padding: 5px 10px !important;
+        font-size: 0.8rem !important;
+        min-width: 35px !important;
+        height: 32px !important;
+    }
+    
+    .badge.bg-secondary {
+        font-size: 0.7rem !important;
+        padding: 4px 8px !important;
+        height: 28px !important;
     }
     
     .form-control, .form-select {
@@ -1085,6 +1184,14 @@ body::before {
         font-size: 0.75rem;
     }
     
+    .d-flex.gap-1 .btn-sm,
+    .d-flex.gap-1 .btn {
+        padding: 4px 8px !important;
+        font-size: 0.75rem !important;
+        min-width: 32px !important;
+        height: 30px !important;
+    }
+    
     .institution-title h1 {
         font-size: 1.5rem;
     }
@@ -1099,6 +1206,30 @@ body::before {
     
     .text-mobile-hide {
         display: none;
+    }
+}
+
+@media (max-width: 360px) {
+    .d-flex.gap-1 {
+        gap: 3px !important;
+    }
+    
+    .d-flex.gap-1 .btn-sm,
+    .d-flex.gap-1 .btn {
+        padding: 3px 6px !important;
+        font-size: 0.7rem !important;
+        min-width: 28px !important;
+        height: 28px !important;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .d-flex.gap-1 .btn-sm,
+    .d-flex.gap-1 .btn {
+        padding: 5px 10px !important;
+        font-size: 0.8rem !important;
+        min-width: 38px !important;
+        height: 34px !important;
     }
 }
 
@@ -1154,67 +1285,33 @@ body::before {
 .mb-4 { margin-bottom: 1.5rem; }
 .p-3 { padding: 1rem; }
 .p-4 { padding: 1.5rem; }
-/* ===== SOLUCIÓN DEFINITIVA PARA MENÚ DESPLEGABLE ===== */
-.dropdown-menu {
-    z-index: 999999 !important;
-    position: absolute !important;
-    display: none;
-}
-
-.dropdown.show .dropdown-menu,
-.dropdown-menu.show {
-    display: block !important;
-    z-index: 999999 !important;
-    background: white !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-}
-
-.navbar {
-    z-index: 1000 !important;
-    overflow: visible !important;
-}
-
-.navbar-nav {
-    overflow: visible !important;
-}
-
-.nav-item.dropdown {
-    overflow: visible !important;
-}
 /* ============================================ */
-/* CORRECCIÓN DE BOTONES EN LISTAR PERSONAS */
+/* CORRECCIÓN ESPECÍFICA PARA BOTONES DE ACCIÓN */
 /* ============================================ */
 
-/* Contenedor de botones en fila */
+/* Contenedor de los botones de acción */
 .d-flex.gap-1 {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important; /* Cambiado de wrap a nowrap */
     gap: 5px !important;
     justify-content: center !important;
+    align-items: center !important;
 }
 
-/* Estilo base para todos los botones de acción */
-.d-flex.gap-1 .btn-sm,
-.d-flex.gap-1 .btn {
+/* Botones individuales */
+.d-flex.gap-1 .btn-sm {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 6px 12px !important;
+    padding: 6px 10px !important;
     font-size: 0.85rem !important;
-    min-width: 40px !important;
-    height: 35px !important;
-    white-space: nowrap !important;
+    min-width: 38px !important;
+    height: 36px !important;
     margin: 0 !important;
     border-radius: 20px !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
-    transition: all 0.2s ease !important;
-}
-
-.d-flex.gap-1 .btn-sm:hover,
-.d-flex.gap-1 .btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 8px rgba(90, 45, 140, 0.2) !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important; /* Evita que se encojan */
 }
 
 /* Colores específicos para cada botón */
@@ -1236,63 +1333,75 @@ body::before {
     border: none !important;
 }
 
-/* Para móviles */
+/* Efecto hover */
+.d-flex.gap-1 .btn-sm:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(90, 45, 140, 0.3) !important;
+}
+
+/* Badge de solo lectura */
+.badge.bg-secondary {
+    background: #6c757d !important;
+    color: white !important;
+    padding: 5px 12px !important;
+    border-radius: 20px !important;
+    font-size: 0.75rem !important;
+    height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+}
+
+/* ===== RESPONSIVE PARA MÓVILES ===== */
 @media (max-width: 768px) {
+    /* Forzar que los botones estén en una sola fila */
     .table tbody td .d-flex.gap-1 {
+        flex-wrap: nowrap !important; /* Nunca se envuelven */
         justify-content: flex-end !important;
-        flex-wrap: wrap !important;
+        width: 100% !important;
     }
     
-    .d-flex.gap-1 .btn-sm,
-    .d-flex.gap-1 .btn {
-        padding: 5px 10px !important;
+    .d-flex.gap-1 .btn-sm {
+        padding: 5px 8px !important;
         font-size: 0.8rem !important;
-        min-width: 35px !important;
-        height: 32px !important;
-    }
-    
-    /* Badge de solo lectura en móviles */
-    .badge.bg-secondary {
-        font-size: 0.7rem !important;
-        padding: 4px 8px !important;
-        height: 28px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-    }
-}
-
-/* Para teléfonos muy pequeños */
-@media (max-width: 480px) {
-    .d-flex.gap-1 .btn-sm,
-    .d-flex.gap-1 .btn {
-        padding: 4px 8px !important;
-        font-size: 0.75rem !important;
-        min-width: 32px !important;
-        height: 30px !important;
-    }
-}
-
-/* Para pantallas medianas (tablets) */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .d-flex.gap-1 .btn-sm,
-    .d-flex.gap-1 .btn {
-        padding: 5px 10px !important;
-        font-size: 0.8rem !important;
-        min-width: 38px !important;
+        min-width: 34px !important;
         height: 34px !important;
     }
+    
+    /* Ajustar el espaciado de la celda de acciones */
+    .table tbody td:last-child {
+        padding: 10px 5px !important;
+    }
+    
+    /* Asegurar que la etiqueta "ACCIONES" no ocupe mucho espacio */
+    .table tbody td:last-child:before {
+        min-width: 70px !important;
+        font-size: 0.8rem !important;
+    }
 }
 
-/* Para evitar que los botones se desborden en pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .d-flex.gap-1 .btn-sm {
+        padding: 4px 6px !important;
+        font-size: 0.7rem !important;
+        min-width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .badge.bg-secondary {
+        padding: 4px 8px !important;
+        font-size: 0.7rem !important;
+        height: 28px !important;
+    }
+}
+
 @media (max-width: 360px) {
     .d-flex.gap-1 {
         gap: 3px !important;
     }
     
-    .d-flex.gap-1 .btn-sm,
-    .d-flex.gap-1 .btn {
-        padding: 3px 6px !important;
-        font-size: 0.7rem !important;
+    .d-flex.gap-1 .btn-sm {
+        padding: 3px 5px !important;
         min-width: 28px !important;
         height: 28px !important;
     }
