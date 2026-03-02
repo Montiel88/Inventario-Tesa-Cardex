@@ -24,7 +24,7 @@ $result = $conn->query($sql);
                 <i class="fas fa-plus-circle me-2"></i>Nueva Ubicación
             </a>
             
-            <?php if ($result->num_rows > 0): ?>
+            <?php if ($result && $result->num_rows > 0): ?>
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
@@ -39,24 +39,30 @@ $result = $conn->query($sql);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php while($row = $result->fetch_assoc()): ?>
+                            <?php while($row = $result->fetch_assoc()): 
+                                // Determinar clase del badge según tipo
+                                $tipo = isset($row['tipo']) ? $row['tipo'] : '';
+                                $badgeClass = 'secondary';
+                                if ($tipo == 'salon') $badgeClass = 'primary';
+                                elseif ($tipo == 'laboratorio') $badgeClass = 'success';
+                                elseif ($tipo == 'biblioteca') $badgeClass = 'info';
+                                
+                                $estado = isset($row['estado']) ? $row['estado'] : 'inactivo';
+                                $estadoClass = ($estado == 'activo') ? 'success' : 'warning';
+                            ?>
                             <tr>
-                                <td><?php echo $row['codigo']; ?></td>
-                                <td><?php echo $row['nombre']; ?></td>
+                                <td><?php echo htmlspecialchars($row['codigo'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($row['nombre'] ?? ''); ?></td>
                                 <td>
-                                    <span class="badge bg-<?php 
-                                        echo $row['tipo'] == 'salon' ? 'primary' : 
-                                            ($row['tipo'] == 'laboratorio' ? 'success' : 
-                                            ($row['tipo'] == 'biblioteca' ? 'info' : 'secondary')); 
-                                    ?>">
-                                        <?php echo ucfirst($row['tipo']); ?>
+                                    <span class="badge bg-<?php echo $badgeClass; ?>">
+                                        <?php echo ucfirst($tipo); ?>
                                     </span>
                                 </td>
-                                <td><?php echo $row['capacidad'] ?: 'N/A'; ?></td>
-                                <td><?php echo $row['responsable_nombre'] ?: 'Sin asignar'; ?></td>
+                                <td><?php echo isset($row['capacidad']) ? $row['capacidad'] : 'N/A'; ?></td>
+                                <td><?php echo htmlspecialchars($row['responsable_nombre'] ?? 'Sin asignar'); ?></td>
                                 <td>
-                                    <span class="badge bg-<?php echo $row['estado'] == 'activo' ? 'success' : 'warning'; ?>">
-                                        <?php echo ucfirst($row['estado']); ?>
+                                    <span class="badge bg-<?php echo $estadoClass; ?>">
+                                        <?php echo ucfirst($estado); ?>
                                     </span>
                                 </td>
                                 <td>
