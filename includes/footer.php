@@ -1,6 +1,6 @@
     </main> <!-- Cierra el main del header -->
     
-    <footer class="footer">
+    <footer class="main-footer">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6">
@@ -82,7 +82,7 @@
         });
     </script>
     
-    <!-- JS personalizado - RUTA CORREGIDA -->
+    <!-- JS personalizado -->
     <script src="/inventario_ti/assets/js/funciones.js"></script>
 </body>
 </html>
