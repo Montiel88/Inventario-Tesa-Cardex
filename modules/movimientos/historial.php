@@ -4,6 +4,10 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: /inventario_ti/login.php');
     exit();
 }
+
+// Verificar rol (1 = admin, 2 = lector)
+$es_admin = ($_SESSION['user_rol'] == 1);
+
 require_once '../../config/database.php';
 include '../../includes/header.php';
 
@@ -73,6 +77,18 @@ $result = $conn->query($sql);
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
+            
+            <!-- AVISO PARA LECTORES -->
+            <?php if (!$es_admin): ?>
+            <div class="alert alert-info d-flex align-items-center mb-4" style="border-left: 4px solid #28a745;">
+                <i class="fas fa-info-circle fa-2x me-3 text-success"></i>
+                <div>
+                    <strong>Modo solo lectura activo</strong>
+                    <p class="mb-0">Puedes ver la información pero no puedes realizar acciones como devoluciones.</p>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <div class="card">
                 <div class="card-header">
                     <h4 class="mb-0"><i class="fas fa-history me-2"></i><?php echo $titulo; ?></h4>
@@ -93,6 +109,9 @@ $result = $conn->query($sql);
                                         <?php if ($filtro == 'activos'): ?>
                                             <th>Fecha</th>
                                             <th>Persona</th>
+                                            <?php if ($es_admin): ?>
+                                                <th>Cédula</th>
+                                            <?php endif; ?>
                                             <th>Equipo</th>
                                             <th>Código</th>
                                             <th>Marca/Modelo</th>
@@ -111,18 +130,22 @@ $result = $conn->query($sql);
                                         <?php while($row = $result->fetch_assoc()): ?>
                                         <tr>
                                             <td data-label="FECHA"><?php echo date('d/m/Y H:i', strtotime($row['fecha_asignacion'])); ?></td>
-                                            <td data-label="PERSONA">
-                                                <strong><?php echo htmlspecialchars($row['persona_nombre']); ?></strong><br>
-                                                <small><?php echo $row['cedula']; ?></small>
-                                            </td>
+                                            <td data-label="PERSONA"><?php echo htmlspecialchars($row['persona_nombre']); ?></td>
+                                            <?php if ($es_admin): ?>
+                                                <td data-label="CÉDULA"><?php echo $row['cedula']; ?></td>
+                                            <?php endif; ?>
                                             <td data-label="EQUIPO"><?php echo $row['tipo_equipo']; ?></td>
                                             <td data-label="CÓDIGO"><?php echo $row['codigo_barras']; ?></td>
                                             <td data-label="MARCA/MODELO"><?php echo $row['marca'] . ' ' . $row['modelo']; ?></td>
                                             <td data-label="ACCIONES">
-                                                <a href="../movimientos/devolucion.php?equipo_id=<?php echo $row['equipo_id']; ?>" 
-                                                   class="btn btn-sm btn-success">
-                                                    <i class="fas fa-undo-alt"></i> Devolver
-                                                </a>
+                                                <?php if ($es_admin): ?>
+                                                    <a href="../movimientos/devolucion.php?equipo_id=<?php echo $row['equipo_id']; ?>" 
+                                                       class="btn btn-sm btn-success">
+                                                        <i class="fas fa-undo-alt"></i> Devolver
+                                                    </a>
+                                                <?php else: ?>
+                                                    <span class="badge bg-secondary">Solo admin</span>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
                                         <?php endwhile; ?>
@@ -150,9 +173,15 @@ $result = $conn->query($sql);
                             <h5>No hay <?php echo strtolower($titulo); ?></h5>
                             <?php if ($filtro == 'activos'): ?>
                                 <p>Todos los equipos están disponibles o no hay préstamos registrados.</p>
-                                <a href="../asignaciones/cargar_equipos.php" class="btn btn-primary mt-2">
-                                    <i class="fas fa-plus-circle me-2"></i>Registrar nuevo préstamo
-                                </a>
+                                <?php if ($es_admin): ?>
+                                    <a href="../asignaciones/cargar_equipos.php" class="btn btn-primary mt-2">
+                                        <i class="fas fa-plus-circle me-2"></i>Registrar nuevo préstamo
+                                    </a>
+                                <?php else: ?>
+                                    <button class="btn btn-secondary mt-2" disabled>
+                                        <i class="fas fa-ban me-2"></i>Registrar (solo admin)
+                                    </button>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>

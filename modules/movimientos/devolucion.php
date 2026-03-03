@@ -184,8 +184,7 @@ $equipo_seleccionado = isset($_GET['equipo_id']) ? intval($_GET['equipo_id']) : 
                         <a href="historial.php" class="btn btn-sm btn-secondary me-2">
                             <i class="fas fa-history me-2"></i>Historial
                         </a>
-                        <a href="../reportes/trazabilidad.php" class="btn btn-sm btn-info">
-                            <i class="fas fa-chart-line me-2"></i>Trazabilidad
+                
                         </a>
                     </div>
                 </div>
