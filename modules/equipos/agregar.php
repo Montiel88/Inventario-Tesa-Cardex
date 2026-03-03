@@ -128,8 +128,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <button type="submit" class="btn btn-primary btn-lg px-5">
                                 <i class="fas fa-save me-2"></i>Guardar Equipo
                             </button>
-                            <a href="listar.php" class="btn btn-secondary btn-lg px-5">
-                                <i class="fas fa-arrow-left me-2"></i>Cancelar
+                          
+                     <a href="listar.php" class="btn btn-secondary">Cancelar</a>
                             </a>
                         </div>
                     </form>

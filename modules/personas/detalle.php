@@ -21,21 +21,45 @@ $id = intval($_GET['id']);
 // Obtener datos de la persona
 $sql_persona = "SELECT * FROM personas WHERE id = $id";
 $result_persona = $conn->query($sql_persona);
-
 if ($result_persona->num_rows == 0) {
     header('Location: listar.php');
     exit();
 }
-
 $persona = $result_persona->fetch_assoc();
 
-// Obtener equipos asignados actualmente a esta persona (no devueltos)
+// Obtener equipos asignados actualmente (no devueltos) y almacenar en array
 $sql_equipos = "SELECT e.*, a.fecha_asignacion, a.observaciones as obs_asignacion
                 FROM equipos e
                 JOIN asignaciones a ON e.id = a.equipo_id
                 WHERE a.persona_id = $id AND a.fecha_devolucion IS NULL
                 ORDER BY a.fecha_asignacion DESC";
-$equipos_asignados = $conn->query($sql_equipos);
+$result_equipos = $conn->query($sql_equipos);
+$equipos_asignados = [];
+$equipos_ids = [];
+if ($result_equipos) {
+    while ($row = $result_equipos->fetch_assoc()) {
+        $equipos_asignados[] = $row;
+        $equipos_ids[] = $row['id'];
+    }
+}
+$total_equipos = count($equipos_asignados);
+
+// Obtener componentes de esos equipos
+$componentes_asignados = [];
+if (!empty($equipos_ids)) {
+    $ids_str = implode(',', $equipos_ids);
+    $sql_componentes = "SELECT c.*, e.tipo_equipo, e.codigo_barras as equipo_codigo
+                        FROM componentes c
+                        JOIN equipos e ON c.equipo_id = e.id
+                        WHERE c.equipo_id IN ($ids_str)
+                        ORDER BY e.tipo_equipo, c.tipo";
+    $result_componentes = $conn->query($sql_componentes);
+    if ($result_componentes) {
+        while ($row = $result_componentes->fetch_assoc()) {
+            $componentes_asignados[] = $row;
+        }
+    }
+}
 
 // Obtener historial de movimientos de esta persona (últimos 20)
 $sql_historial = "SELECT m.*, e.tipo_equipo, e.codigo_barras
@@ -61,10 +85,57 @@ $incidencias = $conn->query($sql_incidencias);
 $protocolo = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'];
 $base_url_publica = 'http://192.168.100.154/inventario_ti';
-
 ?>
 
 <style>
+/* ============================================ */
+/* ESTILOS GENERALES Y MEJORAS EN BOTONES */
+/* ============================================ */
+.card-header .btn-group .btn,
+.card-header .btn {
+    border-radius: 30px;
+    padding: 0.4rem 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-width: 2px;
+    margin-left: 5px;
+}
+.card-header .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.card-header .dropdown-menu {
+    border-radius: 15px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    padding: 0.5rem;
+}
+.card-header .dropdown-item {
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+}
+.card-header .dropdown-item:hover {
+    background: linear-gradient(135deg, #f3e9ff, #ffffff);
+    color: #5a2d8c;
+    transform: translateX(5px);
+}
+
+@media (max-width: 768px) {
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .card-header > div {
+        margin-top: 10px;
+        width: 100%;
+    }
+    .card-header .btn-group,
+    .card-header .btn {
+        margin: 2px;
+    }
+}
+
 /* ============================================ */
 /* ESTILOS PARA EL MODAL DEL QR */
 /* ============================================ */
@@ -80,7 +151,6 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     justify-content: center;
     z-index: 10000;
 }
-
 .qr-modal-content {
     background: white;
     padding: 30px;
@@ -90,13 +160,10 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     text-align: center;
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
 }
-
 .qr-modal-content h4 {
     color: #5a2d8c;
     margin-bottom: 20px;
 }
-
-/* Contenedor del QR centrado */
 #qrcode-container {
     display: flex;
     justify-content: center;
@@ -107,14 +174,11 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     border-radius: 15px;
     min-height: 300px;
 }
-
 #qrcode-container canvas {
     margin: 0 auto;
     max-width: 100%;
     height: auto;
 }
-
-/* Botón cerrar centrado */
 .qr-modal-content .btn-close {
     background: #dc3545;
     color: white;
@@ -130,35 +194,17 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     width: fit-content;
     text-align: center;
 }
-
 .qr-modal-content .btn-close:hover {
     background: #c82333;
 }
 
 /* ============================================ */
-/* RESPONSIVE - (se mantiene igual que el original) */
+/* RESPONSIVE (mantenido igual que el original) */
 /* ============================================ */
 @media (max-width: 768px) {
     .container-fluid {
         padding-left: 10px !important;
         padding-right: 10px !important;
-    }
-    .card-header {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 10px !important;
-    }
-    .card-header div {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 5px !important;
-        width: 100% !important;
-    }
-    .card-header .btn {
-        flex: 1 1 auto !important;
-        font-size: 0.85rem !important;
-        padding: 8px 10px !important;
-        margin: 0 !important;
     }
     .table-bordered {
         font-size: 14px !important;
@@ -276,19 +322,12 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
 }
 </style>
 
-<!-- MODAL PARA MOSTRAR QR - CON URL DINÁMICA -->
+<!-- MODAL PARA MOSTRAR QR -->
 <div id="qrModal" class="qr-modal">
     <div class="qr-modal-content">
         <h4><i class="fas fa-qrcode me-2"></i>Código QR de <?php echo $persona['nombres']; ?></h4>
-        
-        <!-- Contenedor del QR (se generará aquí) -->
-        <div id="qrcode-container" style="display: flex; justify-content: center; align-items: center; min-height: 250px;">
-            <!-- QR aparecerá aquí -->
-        </div>
-        
+        <div id="qrcode-container" style="display: flex; justify-content: center; align-items: center; min-height: 250px;"></div>
         <p class="text-muted">Escanea este código para ver los equipos de la persona</p>
-        
-        <!-- Botón cerrar centrado -->
         <button class="btn-close" onclick="cerrarModalQR()">Cerrar</button>
     </div>
 </div>
@@ -297,41 +336,44 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4><i class="fas fa-user me-2"></i>Detalle de Persona</h4>
-                    <div>
-                        <!-- BOTONES DE ACTAS - NUEVOS -->
-                        <a href="/inventario_ti/api/generar_acta_mpdf.php?tipo=ingreso&persona_id=<?php echo $id; ?>" 
-                           class="btn btn-success" target="_blank">
-                            <i class="fas fa-file-pdf me-2"></i>Acta Entrega
-                        </a>
+                <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <h4 class="mb-0"><i class="fas fa-user me-2"></i>Detalle de Persona</h4>
+                    <div class="d-flex flex-wrap gap-2">
+                        <!-- Grupo Actas -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-file-pdf me-1"></i>Actas
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_mpdf.php?tipo=ingreso&persona_id=<?php echo $id; ?>" target="_blank">Acta Entrega</a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_mpdf.php?tipo=devolucion&persona_id=<?php echo $id; ?>" target="_blank">Acta Devolución</a></li>
+                            </ul>
+                        </div>
                         
-                        <a href="/inventario_ti/api/generar_acta_mpdf.php?tipo=devolucion&persona_id=<?php echo $id; ?>" 
-                           class="btn btn-warning" target="_blank">
-                            <i class="fas fa-file-pdf me-2"></i>Acta Devolución
-                        </a>
+                        <!-- Grupo QR -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-qrcode me-1"></i>QR
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" onclick="generarQR(<?php echo $id; ?>); return false;">Ver QR</a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_qr_persona.php?id=<?php echo $id; ?>" download="qr_persona_<?php echo $id; ?>.png">Descargar QR</a></li>
+                            </ul>
+                        </div>
                         
-                        <!-- BOTÓN VER QR (usa la nueva función) -->
-                        <button onclick="generarQR(<?php echo $id; ?>)" class="btn btn-info">
-                            <i class="fas fa-qrcode me-2"></i>Ver QR
-                        </button>
-                        
-                        <a href="/inventario_ti/api/generar_qr_persona.php?id=<?php echo $id; ?>" class="btn btn-warning" download="qr_persona_<?php echo $id; ?>.png">
-                            <i class="fas fa-download me-2"></i>Descargar QR
-                        </a>
-                        
-                        <a href="historial.php?id=<?php echo $id; ?>" class="btn btn-secondary">
-                            <i class="fas fa-history me-2"></i>Historial
+                        <!-- Botones individuales -->
+                        <a href="historial.php?id=<?php echo $id; ?>" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-history me-1"></i>Historial
                         </a>
                         
                         <?php if ($es_admin): ?>
-                        <a href="editar.php?id=<?php echo $id; ?>" class="btn btn-primary">
-                            <i class="fas fa-edit me-2"></i>Editar
+                        <a href="editar.php?id=<?php echo $id; ?>" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i>Editar
                         </a>
                         <?php endif; ?>
                         
-                        <a href="listar.php" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Volver
+                        <a href="listar.php" class="btn btn-sm btn-outline-dark">
+                            <i class="fas fa-arrow-left me-1"></i>Volver
                         </a>
                     </div>
                 </div>
@@ -341,18 +383,22 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <table class="table table-bordered">
+                                <?php if ($es_admin): ?>
                                 <tr><th width="30%">Cédula</th><td><?php echo $persona['cedula']; ?></td></tr>
+                                <?php endif; ?>
                                 <tr><th>Nombres</th><td><?php echo $persona['nombres']; ?></td></tr>
                                 <tr><th>Cargo</th><td><?php echo $persona['cargo']; ?></td></tr>
                                 <tr><th>Correo</th><td><?php echo $persona['correo'] ?: 'No registrado'; ?></td></tr>
+                                <?php if ($es_admin): ?>
                                 <tr><th>Teléfono</th><td><?php echo $persona['telefono'] ?: 'No registrado'; ?></td></tr>
+                                <?php endif; ?>
                             </table>
                         </div>
                         
                         <div class="col-md-6">
                             <div class="card bg-light">
                                 <div class="card-body text-center">
-                                    <h3><?php echo $equipos_asignados->num_rows; ?></h3>
+                                    <h3><?php echo $total_equipos; ?></h3>
                                     <p>Equipos asignados actualmente</p>
                                     <?php if ($es_admin): ?>
                                     <a href="../asignaciones/cargar_equipos.php?persona_id=<?php echo $id; ?>" class="btn btn-success btn-lg w-100">
@@ -368,20 +414,20 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                         </div>
                     </div>
                     
-                    <!-- Equipos actuales -->
+                    <!-- Equipos asignados actualmente -->
                     <div class="card mt-4">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0"><i class="fas fa-laptop me-2"></i>Equipos Asignados Actualmente</h5>
                         </div>
                         <div class="card-body">
-                            <?php if ($equipos_asignados->num_rows > 0): ?>
+                            <?php if ($total_equipos > 0): ?>
                                 <div class="table-responsive">
                                     <table class="table table-hover">
                                         <thead>
                                             <tr><th>Código</th><th>Tipo</th><th>Marca/Modelo</th><th>Serie</th><th>Fecha Asignación</th><th>Acciones</th></tr>
                                         </thead>
                                         <tbody>
-                                            <?php while($eq = $equipos_asignados->fetch_assoc()): ?>
+                                            <?php foreach ($equipos_asignados as $eq): ?>
                                             <tr>
                                                 <td data-label="CÓDIGO"><?php echo $eq['codigo_barras']; ?></td>
                                                 <td data-label="TIPO"><?php echo $eq['tipo_equipo']; ?></td>
@@ -397,7 +443,7 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                                                     </div>
                                                 </td>
                                             </tr>
-                                            <?php endwhile; ?>
+                                            <?php endforeach; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -420,13 +466,62 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                         </div>
                     </div>
                     
+                    <!-- Componentes de los equipos asignados -->
+                    <?php if (!empty($componentes_asignados)): ?>
+                    <div class="card mt-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-microchip me-2"></i>Componentes de los Equipos Asignados</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipo</th>
+                                            <th>Tipo</th>
+                                            <th>Nombre</th>
+                                            <th>Marca/Modelo</th>
+                                            <th>Serie</th>
+                                            <th>Estado</th>
+                                            <th>Instalación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($componentes_asignados as $comp): ?>
+                                        <tr>
+                                            <td><?php echo $comp['tipo_equipo'] . '<br><small>' . $comp['equipo_codigo'] . '</small>'; ?></td>
+                                            <td><?php echo htmlspecialchars($comp['tipo']); ?></td>
+                                            <td><?php echo htmlspecialchars($comp['nombre_componente']); ?></td>
+                                            <td><?php echo htmlspecialchars($comp['marca'] . ' ' . $comp['modelo']); ?></td>
+                                            <td><?php echo htmlspecialchars($comp['numero_serie'] ?? 'N/A'); ?></td>
+                                            <td>
+                                                <?php
+                                                $badge = match($comp['estado']) {
+                                                    'Bueno' => 'success',
+                                                    'Regular' => 'warning',
+                                                    'Malo', 'Por reemplazar' => 'danger',
+                                                    default => 'secondary'
+                                                };
+                                                echo "<span class='badge bg-$badge'>" . htmlspecialchars($comp['estado']) . "</span>";
+                                                ?>
+                                            </td>
+                                            <td><?php echo $comp['fecha_instalacion'] ? date('d/m/Y', strtotime($comp['fecha_instalacion'])) : '-'; ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    
                     <!-- Historial de movimientos -->
                     <div class="card mt-4">
                         <div class="card-header bg-secondary text-white">
                             <h5 class="mb-0"><i class="fas fa-history me-2"></i>Historial de Movimientos</h5>
                         </div>
                         <div class="card-body">
-                            <?php if ($historial->num_rows > 0): ?>
+                            <?php if ($historial && $historial->num_rows > 0): ?>
                                 <div class="list-group">
                                     <?php while($h = $historial->fetch_assoc()): 
                                         $clase = $h['tipo_movimiento'] == 'ASIGNACION' ? 'success' : ($h['tipo_movimiento'] == 'DEVOLUCION' ? 'warning' : 'info');
@@ -452,7 +547,7 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                         </div>
                     </div>
 
-                    <!-- SECCIÓN DE INCIDENCIAS RELACIONADAS -->
+                    <!-- Incidencias recientes -->
                     <?php if ($incidencias && $incidencias->num_rows > 0): ?>
                     <div class="card mt-4">
                         <div class="card-header bg-danger text-white">
@@ -504,16 +599,12 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <script>
-// Variable con la URL base dinámica (inyectada desde PHP)
 const baseUrl = '<?php echo $base_url_publica; ?>';
 
 function generarQR(id) {
     document.getElementById('qrModal').style.display = 'flex';
     document.getElementById('qrcode-container').innerHTML = '';
-    
-    // Construir la URL completa para ver los equipos de la persona
     const url = baseUrl + '/modules/personas/ver_equipos_qr.php?id=' + id;
-    
     new QRCode(document.getElementById("qrcode-container"), {
         text: url,
         width: 250,

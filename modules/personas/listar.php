@@ -87,10 +87,14 @@ if (!$result) {
                             <table class="table table-hover" id="tablaPersonas">
                                 <thead>
                                     <tr>
-                                        <th>Cédula</th>
+                                        <?php if ($es_admin): ?>
+                                            <th>Cédula</th>
+                                        <?php endif; ?>
                                         <th>Nombre</th>
                                         <th>Email</th>
-                                        <th>Teléfono</th>
+                                        <?php if ($es_admin): ?>
+                                            <th>Teléfono</th>
+                                        <?php endif; ?>
                                         <th>Cargo</th>
                                         <th class="text-center">Acciones</th>
                                     </tr>
@@ -98,10 +102,14 @@ if (!$result) {
                                 <tbody>
                                     <?php while($row = $result->fetch_assoc()): ?>
                                     <tr>
-                                        <td data-label="CÉDULA"><?php echo htmlspecialchars($row['cedula']); ?></td>
+                                        <?php if ($es_admin): ?>
+                                            <td data-label="CÉDULA"><?php echo htmlspecialchars($row['cedula']); ?></td>
+                                        <?php endif; ?>
                                         <td data-label="NOMBRE"><?php echo htmlspecialchars($row['nombres']); ?></td>
                                         <td data-label="EMAIL"><?php echo htmlspecialchars($row['correo']); ?></td>
-                                        <td data-label="TELÉFONO"><?php echo htmlspecialchars($row['telefono']); ?></td>
+                                        <?php if ($es_admin): ?>
+                                            <td data-label="TELÉFONO"><?php echo htmlspecialchars($row['telefono']); ?></td>
+                                        <?php endif; ?>
                                         <td data-label="CARGO"><?php echo htmlspecialchars($row['cargo']); ?></td>
                                         <td data-label="ACCIONES" class="text-center">
                                             <?php if ($es_admin): ?>

@@ -44,14 +44,61 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     <!-- AOS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
-    <!-- CSS Personalizado (AHORA SÍ SE VA A VER) -->
+    <!-- CSS Personalizado -->
     <link rel="stylesheet" href="/inventario_ti/assets/css/estilo.css">
     
-    <!-- Estilos adicionales para la lupa de búsqueda -->
+    <!-- Estilos adicionales -->
     <style>
         /* ============================================ */
-        /* BUSCADOR GLOBAL (LUPA EXPANDIBLE) */
+        /* ESTILOS PARA EL BADGE DE ROL */
         /* ============================================ */
+        .rol-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .rol-badge.admin {
+            background: #f3b229;
+            color: #3d1e5e;
+            box-shadow: 0 2px 10px rgba(243, 178, 41, 0.3);
+        }
+
+        .rol-badge.lector {
+            background: #28a745;
+            color: white;
+            box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+        }
+
+        .rol-badge i {
+            margin-right: 5px;
+            font-size: 11px;
+        }
+
+        /* AVISO PARA LECTORES */
+        .lector-alert {
+            background: rgba(40, 167, 69, 0.1);
+            border-left: 4px solid #28a745;
+            border-radius: 10px;
+            padding: 12px 20px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #155724;
+            display: <?php echo $es_lector ? 'block' : 'none'; ?>;
+        }
+
+        .lector-alert i {
+            color: #28a745;
+            margin-right: 8px;
+        }
+
+        /* BUSCADOR GLOBAL (LUPA EXPANDIBLE) */
         .search-global-container {
             display: inline-flex;
             align-items: center;
@@ -139,6 +186,33 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                 padding: 0 10px;
             }
         }
+
+        /* BOTÓN DE SALIR */
+        .btn-logout {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 6px 18px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+            margin-left: 10px;
+        }
+
+        .btn-logout:hover {
+            background: #bb2d3b;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .btn-logout i {
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -150,11 +224,11 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                      onerror="this.onerror=null; this.style.display='none';">
                 <span>TESA Inventario</span>
                 
-                <!-- BADGE DE ROL -->
+                <!-- BADGE DE ROL - MUESTRA ADMIN O INVITADO -->
                 <?php if (isset($_SESSION['user_rol'])): ?>
                 <span class="rol-badge <?php echo $es_admin ? 'admin' : 'lector'; ?>">
                     <i class="fas <?php echo $es_admin ? 'fa-crown' : 'fa-eye'; ?>"></i>
-                    <?php echo $es_admin ? 'ADMIN' : 'LECTOR'; ?>
+                    <?php echo $es_admin ? 'ADMIN' : 'INVITADO'; ?>
                 </span>
                 <?php endif; ?>
             </a>
@@ -304,21 +378,18 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         const searchInput = document.querySelector('.search-global-input');
 
         if (searchContainer && searchIcon && searchInput) {
-            // Al hacer clic en el icono, expandir y enfocar
             searchIcon.addEventListener('click', function(e) {
                 e.stopPropagation();
                 searchContainer.classList.add('active');
                 searchInput.focus();
             });
 
-            // Si el input pierde el foco y está vacío, contraer (solo en desktop)
             searchInput.addEventListener('blur', function() {
                 if (window.innerWidth > 768 && searchInput.value === '') {
                     searchContainer.classList.remove('active');
                 }
             });
 
-            // Hover para expandir
             searchContainer.addEventListener('mouseenter', function() {
                 if (window.innerWidth > 768) {
                     searchContainer.classList.add('active');
