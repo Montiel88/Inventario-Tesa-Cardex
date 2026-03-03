@@ -300,18 +300,25 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4><i class="fas fa-user me-2"></i>Detalle de Persona</h4>
                     <div>
-                        <!-- BOTONES DE ACTAS - NUEVOS -->
-                        <a href="/inventario_ti/api/generar_acta_mpdf.php?tipo=ingreso&persona_id=<?php echo $id; ?>" 
+                        <!-- BOTONES DE ACTAS - CORREGIDOS (usando los nuevos archivos) -->
+                        <a href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $id; ?>" 
                            class="btn btn-success" target="_blank">
                             <i class="fas fa-file-pdf me-2"></i>Acta Entrega
                         </a>
                         
-                        <a href="/inventario_ti/api/generar_acta_mpdf.php?tipo=devolucion&persona_id=<?php echo $id; ?>" 
+                        <a href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $id; ?>" 
                            class="btn btn-warning" target="_blank">
                             <i class="fas fa-file-pdf me-2"></i>Acta Devolución
                         </a>
                         
-                        <!-- BOTÓN VER QR (usa la nueva función) -->
+                        <!-- NUEVO BOTÓN: DESCARGO DE RESPONSABILIDAD -->
+                        <a href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $id; ?>" 
+                           class="btn btn-info" target="_blank"
+                           style="background: #17a2b8; border-color: #17a2b8; color: white;">
+                            <i class="fas fa-file-signature me-2"></i>Descargo
+                        </a>
+                        
+                        <!-- BOTÓN VER QR -->
                         <button onclick="generarQR(<?php echo $id; ?>)" class="btn btn-info">
                             <i class="fas fa-qrcode me-2"></i>Ver QR
                         </button>

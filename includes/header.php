@@ -44,7 +44,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     <!-- AOS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
-    <!-- CSS Personalizado (AHORA SÍ SE VA A VER) -->
+    <!-- CSS Personalizado -->
     <link rel="stylesheet" href="/inventario_ti/assets/css/estilo.css">
     
     <!-- Estilos adicionales para la lupa de búsqueda -->
@@ -251,6 +251,34 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                             <?php endif; ?>
                         </ul>
                     </li>
+                    
+                    <!-- ============================================ -->
+                    <!-- MÓDULO ADMIN - SOLO PARA ADMIN -->
+                    <!-- ============================================ -->
+                    <?php if ($es_admin): ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> Admin
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/inventario_ti/modules/admin/backup.php">
+                                <i class="fas fa-database"></i> Respaldos
+                            </a></li>
+                            <li><a class="dropdown-item" href="/inventario_ti/modules/admin/usuarios.php">
+                                <i class="fas fa-users-cog"></i> Usuarios
+                            </a></li>
+                            
+                            <!-- NUEVO: CONFIGURACIÓN DE ACTAS -->
+                            <li><a class="dropdown-item" href="/inventario_ti/modules/admin/configuracion.php">
+                                <i class="fas fa-file-pdf"></i> Configuración de Actas
+                            </a></li>
+                            
+                            <li><a class="dropdown-item" href="/inventario_ti/modules/admin/logs.php">
+                                <i class="fas fa-history"></i> Logs
+                            </a></li>
+                        </ul>
+                    </li>
+                    <?php endif; ?>
                     
                     <!-- LUPA DE BÚSQUEDA GLOBAL -->
                     <?php if (isset($_SESSION['user_id'])): ?>
