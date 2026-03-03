@@ -4,7 +4,8 @@
     "type": "project",
     "require": {
         "phpoffice/phpspreadsheet": "1.29.5",
-        "endroid/qr-code": "^4.5"
+        "endroid/qr-code": "^4.5",
+        "mpdf/mpdf": "^8.2"
     },
     "config": {
         "audit": {

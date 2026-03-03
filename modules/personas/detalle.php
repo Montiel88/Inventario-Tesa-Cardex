@@ -55,10 +55,13 @@ $sql_incidencias = "SELECT i.*, e.tipo_equipo, e.codigo_barras
                     LIMIT 5";
 $incidencias = $conn->query($sql_incidencias);
 
-// IP DEL SERVIDOR (puedes cambiarla si es necesario)
-$ip_servidor = '186.4.141.11'; // TU IP FIJA
-$puerto = $_SERVER['SERVER_PORT'];
-$puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
+// ============================================
+// URL BASE DINÁMICA PARA EL CÓDIGO QR
+// ============================================
+$protocolo = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$base_url_publica = 'http://192.168.100.154/inventario_ti';
+
 ?>
 
 <style>
@@ -273,7 +276,7 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
 }
 </style>
 
-<!-- MODAL PARA MOSTRAR QR - SIN URL -->
+<!-- MODAL PARA MOSTRAR QR - CON URL DINÁMICA -->
 <div id="qrModal" class="qr-modal">
     <div class="qr-modal-content">
         <h4><i class="fas fa-qrcode me-2"></i>Código QR de <?php echo $persona['nombres']; ?></h4>
@@ -297,21 +300,36 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4><i class="fas fa-user me-2"></i>Detalle de Persona</h4>
                     <div>
+                        <!-- BOTONES DE ACTAS - NUEVOS -->
+                        <a href="/inventario_ti/api/generar_acta_mpdf.php?tipo=ingreso&persona_id=<?php echo $id; ?>" 
+                           class="btn btn-success" target="_blank">
+                            <i class="fas fa-file-pdf me-2"></i>Acta Entrega
+                        </a>
+                        
+                        <a href="/inventario_ti/api/generar_acta_mpdf.php?tipo=devolucion&persona_id=<?php echo $id; ?>" 
+                           class="btn btn-warning" target="_blank">
+                            <i class="fas fa-file-pdf me-2"></i>Acta Devolución
+                        </a>
+                        
+                        <!-- BOTÓN VER QR (usa la nueva función) -->
                         <button onclick="generarQR(<?php echo $id; ?>)" class="btn btn-info">
                             <i class="fas fa-qrcode me-2"></i>Ver QR
                         </button>
+                        
                         <a href="/inventario_ti/api/generar_qr_persona.php?id=<?php echo $id; ?>" class="btn btn-warning" download="qr_persona_<?php echo $id; ?>.png">
                             <i class="fas fa-download me-2"></i>Descargar QR
                         </a>
-                        <!-- NUEVO BOTÓN DE HISTORIAL -->
+                        
                         <a href="historial.php?id=<?php echo $id; ?>" class="btn btn-secondary">
                             <i class="fas fa-history me-2"></i>Historial
                         </a>
+                        
                         <?php if ($es_admin): ?>
                         <a href="editar.php?id=<?php echo $id; ?>" class="btn btn-primary">
                             <i class="fas fa-edit me-2"></i>Editar
                         </a>
                         <?php endif; ?>
+                        
                         <a href="listar.php" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Volver
                         </a>
@@ -434,7 +452,7 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
                         </div>
                     </div>
 
-                    <!-- SECCIÓN DE INCIDENCIAS RELACIONADAS (nuevo) -->
+                    <!-- SECCIÓN DE INCIDENCIAS RELACIONADAS -->
                     <?php if ($incidencias && $incidencias->num_rows > 0): ?>
                     <div class="card mt-4">
                         <div class="card-header bg-danger text-white">
@@ -486,12 +504,16 @@ $puerto_texto = ($puerto == '80' || $puerto == '443') ? '' : ':' . $puerto;
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <script>
+// Variable con la URL base dinámica (inyectada desde PHP)
+const baseUrl = '<?php echo $base_url_publica; ?>';
+
 function generarQR(id) {
     document.getElementById('qrModal').style.display = 'flex';
     document.getElementById('qrcode-container').innerHTML = '';
-    var ipServidor = '186.4.141.11';
-    var puerto = '<?php echo $puerto_texto; ?>';
-    const url = 'http://' + ipServidor + puerto + '/inventario_ti/modules/personas/ver_equipos_qr.php?id=' + id;
+    
+    // Construir la URL completa para ver los equipos de la persona
+    const url = baseUrl + '/modules/personas/ver_equipos_qr.php?id=' + id;
+    
     new QRCode(document.getElementById("qrcode-container"), {
         text: url,
         width: 250,
