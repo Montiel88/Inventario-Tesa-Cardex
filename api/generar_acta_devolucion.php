@@ -39,8 +39,8 @@ $admin_db = $conn->query($sql_admin)->fetch_assoc();
 $admin_nombre = $admin_db["nombre"] ?? $_SESSION["user_name"] ?? "Administrador";
 $admin_email = $admin_db["email"] ?? $_SESSION["user_email"] ?? "";
 
-// Obtener equipos devueltos por esta persona
-$sql_equipos = "SELECT e.*, m.estado_equipo, m.condiciones, m.fecha_movimiento 
+// Consulta corregida: usando e.estado y m.observaciones
+$sql_equipos = "SELECT e.*, e.estado AS estado_equipo, m.observaciones AS condiciones, m.fecha_movimiento 
                 FROM movimientos m
                 JOIN equipos e ON m.equipo_id = e.id
                 WHERE m.persona_id = $persona_id AND m.tipo_movimiento = 'DEVOLUCION'
