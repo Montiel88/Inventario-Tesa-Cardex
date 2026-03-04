@@ -45,25 +45,9 @@
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script>
     console.log('Bootstrap version:', typeof bootstrap !== 'undefined' ? 'cargado' : 'NO CARGADO');
-    // Forzar cierre de modales al hacer clic en cualquier botón con data-bs-dismiss
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('[data-bs-dismiss="modal"]')) {
-            var modal = e.target.closest('.modal');
-            if (modal) {
-                var modalInstance = bootstrap.Modal.getInstance(modal);
-                if (modalInstance) {
-                    modalInstance.hide();
-                } else {
-                    // Intentar cerrar manualmente
-                    modal.classList.remove('show');
-                    modal.style.display = 'none';
-                    document.body.classList.remove('modal-open');
-                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                }
-            }
-        }
-    });
+ 
 </script>
+
     
     <script>
         // Inicializar AOS cuando el DOM esté listo
@@ -106,5 +90,46 @@
     <!-- JS personalizado -->
     <script src="/inventario_ti/assets/js/funciones.js"></script>
     <?php ob_end_flush(); ?>
+    <!-- Modal Asignar Componente (CORREGIDO) -->
+<div class="modal fade" id="assignComponentModal" tabindex="-1" aria-labelledby="assignComponentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="asignar_componente.php">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignComponentModalLabel">Asignar componente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="persona_id" value="<?php echo $id; ?>">
+                    <?php if ($total_componentes_disponibles > 0): ?>
+                        <div class="mb-3">
+                            <label for="componente_id" class="form-label">Componente disponible</label>
+                            <select class="form-select" id="componente_id" name="componente_id" required>
+                                <option value="">-- Seleccione --</option>
+                                <?php foreach ($componentes_disponibles as $c): ?>
+                                    <option value="<?php echo $c['id']; ?>">
+                                        <?php echo htmlspecialchars($c['tipo'] . ' - ' . $c['nombre_componente'] . ' (' . $c['marca'] . ' ' . $c['modelo'] . ')'); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="2"></textarea>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-danger">No hay componentes disponibles para asignar.</p>
+                    <?php endif; ?>
+                </div>
+                <div class="modal-footer">
+                    <?php if ($total_componentes_disponibles > 0): ?>
+                        <button type="submit" class="btn btn-primary">Asignar</button>
+                    <?php endif; ?>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 </body>
 </html>
