@@ -32,15 +32,8 @@ $sql_persona = "SELECT * FROM personas WHERE id = $persona_id";
 $persona = $conn->query($sql_persona)->fetch_assoc();
 if (!$persona) die("Persona no encontrada");
 
-// Obtener datos del ADMIN
-$user_id = $_SESSION["user_id"] ?? 1;
-$sql_admin = "SELECT * FROM usuarios WHERE id = $user_id";
-$admin_db = $conn->query($sql_admin)->fetch_assoc();
-$admin_nombre = $admin_db["nombre"] ?? $_SESSION["user_name"] ?? "Administrador";
-$admin_email = $admin_db["email"] ?? $_SESSION["user_email"] ?? "";
-
-// Obtener equipos devueltos por esta persona
-$sql_equipos = "SELECT e.*, m.estado_equipo, m.condiciones, m.fecha_movimiento 
+// Consulta corregida: usando e.estado y m.observaciones
+$sql_equipos = "SELECT e.*, e.estado AS estado_equipo, m.observaciones AS condiciones, m.fecha_movimiento 
                 FROM movimientos m
                 JOIN equipos e ON m.equipo_id = e.id
                 WHERE m.persona_id = $persona_id AND m.tipo_movimiento = 'DEVOLUCION'
@@ -69,7 +62,7 @@ $equipos_ids_string = implode(',', $equipos_ids_array);
 $check_table = $conn->query("SHOW TABLES LIKE 'actas'");
 if ($check_table && $check_table->num_rows > 0) {
     $sql_insert = "INSERT INTO actas (codigo_acta, tipo_acta, persona_id, usuario_id, fecha_generacion, equipos_ids) 
-                   VALUES ('$codigo_acta', 'devolucion', $persona_id, $user_id, NOW(), '$equipos_ids_string')";
+                   VALUES ('$codigo_acta', 'devolucion', $persona_id, " . ($_SESSION["user_id"] ?? 1) . ", NOW(), '$equipos_ids_string')";
     $conn->query($sql_insert);
 }
 $equipos->data_seek(0);
@@ -104,6 +97,9 @@ if ($equipos->num_rows > 0) {
     $tabla_equipos = "<tr><td colspan='5' style='text-align: center; padding: 15px;'>No hay devoluciones registradas</td></tr>";
 }
 
+// ============================================
+// HTML CORREGIDO - ACTA DE DEVOLUCIÓN
+// ============================================
 $html = "
 <!DOCTYPE html>
 <html>
@@ -241,7 +237,7 @@ $html = "
         </tr>
         <tr>
             <td class=\"label\">FECHA DEVOLUCIÓN:</td>
-            <td>Quito, " . date("d") . " de " . $mes_actual . " de " . date("Y") . "</td>
+            <td>" . $config['ciudad'] . ", " . date("d") . " de " . $mes_actual . " de " . date("Y") . "</td>
         </tr>
     </table>
 
@@ -264,27 +260,40 @@ $html = "
         <strong>CONDICIONES DE DEVOLUCIÓN:</strong> Los equipos fueron devueltos en el estado indicado. El custodio queda liberado de responsabilidad sobre los bienes devueltos.
     </div>
 
+    <!-- ============================================ -->
+    <!-- FIRMAS PRINCIPALES (SIEMPRE VISIBLES) -->
+    <!-- ============================================ -->
     <div class=\"firmas\">
+        <!-- FIRMA DE QUIEN RECIBE LA DEVOLUCIÓN (DESDE CONFIGURACIÓN) -->
         <div class=\"firma-left\">
             <div class=\"linea-firma\"></div>
-            <strong>" . strtoupper($admin_nombre) . "</strong>
-            <div class=\"cargo\">RECIBÍ CONFORME - " . $config['departamento_entrega'] . "</div>
-            <div style=\"font-size:7pt;\">" . $admin_email . "</div>
+            <strong>" . strtoupper($config['aprobador_nombre']) . "</strong>
+            <div class=\"cargo\">RECIBÍ CONFORME - " . $config['aprobador_cargo'] . "</div>
+            <div style=\"font-size:7pt;\">" . ($config['email_entrega'] ?? '') . "</div>
         </div>
+        
+        <!-- FIRMA DE QUIEN DEVUELVE (DESDE BD) -->
         <div class=\"firma-right\">
             <div class=\"linea-firma\"></div>
             <strong>" . strtoupper($persona["nombres"]) . "</strong>
-            <div class=\"cargo\">ENTREGÓ - " . $persona["cargo"] . "</div>
+            <div class=\"cargo\">ENTREGÓ - " . ($persona["cargo"] ?? '') . "</div>
+            <div style=\"font-size:7pt;\">C.I. " . ($persona["cedula"] ?? '') . "</div>
         </div>
-    </div>
+    </div>";
 
+// Verificar si debe mostrar la firma del aprobador
+if (isset($config['mostrar_aprobado']) && $config['mostrar_aprobado'] == '1') {
+    $html .= "
     <div class=\"aprobado\">
         <strong>APROBADO POR:</strong>
         <div class=\"aprobado-linea\"></div>
-        <strong>" . $config['aprobador_nombre'] . "</strong>
-        <div class=\"cargo\">" . $config['aprobador_cargo'] . "</div>
-    </div>
+        <strong>" . ($config['aprobador_aprueba_nombre'] ?? '') . "</strong>
+        <div class=\"cargo\">" . ($config['aprobador_aprueba_cargo'] ?? '') . "</div>
+    </div>";
+}
 
+// Cerrar HTML
+$html .= "
     <div class=\"footer\">
         Documento generado electrónicamente - Sistema de Inventario TESA
     </div>

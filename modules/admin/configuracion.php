@@ -108,23 +108,76 @@ while($row = $result->fetch_assoc()) {
                                 </div>
                             </div>
                             
-                            <!-- APROBADOR -->
+                            <!-- ============================================ -->
+                            <!-- DATOS DE QUIEN ENTREGA (EDITABLE) -->
+                            <!-- ============================================ -->
                             <div class="col-md-6">
                                 <div class="card mb-3">
                                     <div class="card-header bg-success text-white">
-                                        <h5 class="mb-0">Datos del Aprobador</h5>
+                                        <h5 class="mb-0"><i class="fas fa-user-check me-2"></i>Datos de quien ENTREGA</h5>
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-3">
-                                            <label class="form-label">Nombre del Aprobador</label>
+                                            <label class="form-label">Nombre de quien entrega *</label>
                                             <input type="text" name="aprobador_nombre" class="form-control" 
-                                                   value="<?php echo $config['aprobador_nombre']['valor']; ?>">
+                                                   value="<?php echo $config['aprobador_nombre']['valor']; ?>"
+                                                   placeholder="Ej: CYNTHIA VÁZQUEZ JARA">
+                                            <small class="text-muted">Este nombre aparecerá en el acta como "ENTREGÓ"</small>
                                         </div>
                                         
                                         <div class="mb-3">
-                                            <label class="form-label">Cargo del Aprobador</label>
+                                            <label class="form-label">Cargo / Departamento</label>
                                             <input type="text" name="aprobador_cargo" class="form-control" 
-                                                   value="<?php echo $config['aprobador_cargo']['valor']; ?>">
+                                                   value="<?php echo $config['aprobador_cargo']['valor']; ?>"
+                                                   placeholder="Ej: Tecnologías de la Información">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label">Email de contacto</label>
+                                            <input type="email" name="email_entrega" class="form-control" 
+                                                   value="<?php echo isset($config['email_entrega']) ? $config['email_entrega']['valor'] : ''; ?>"
+                                                   placeholder="ejemplo@tesa.edu.ec">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- ============================================ -->
+                            <!-- CONFIGURACIÓN DE FIRMAS (SWITCH APROBADOR) -->
+                            <!-- ============================================ -->
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header bg-secondary text-white">
+                                        <h5 class="mb-0"><i class="fas fa-pen-fancy me-2"></i>Configuración de Firmas</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" name="mostrar_aprobado" id="mostrar_aprobado" value="1"
+                                                       <?php echo (isset($config['mostrar_aprobado']['valor']) && $config['mostrar_aprobado']['valor'] == '1') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label" for="mostrar_aprobado">
+                                                    <strong>Mostrar firma "APROBADO POR"</strong>
+                                                </label>
+                                            </div>
+                                            <small class="text-muted d-block mt-1">Si activas esta opción, aparecerá una tercera firma de aprobación en las actas.</small>
+                                        </div>
+                                        
+                                        <!-- Campos de aprobador (se muestran solo si está activado) -->
+                                        <div id="camposAprobador" style="<?php echo (isset($config['mostrar_aprobado']['valor']) && $config['mostrar_aprobado']['valor'] == '1') ? '' : 'display: none;'; ?>">
+                                            <hr>
+                                            <h6 class="text-muted mb-3">Datos del Aprobador</h6>
+                                            <div class="mb-3">
+                                                <label class="form-label">Nombre del Aprobador</label>
+                                                <input type="text" name="aprobador_aprueba_nombre" class="form-control" 
+                                                       value="<?php echo isset($config['aprobador_aprueba_nombre']) ? $config['aprobador_aprueba_nombre']['valor'] : ''; ?>"
+                                                       placeholder="Ej: Pablo Morales">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Cargo del Aprobador</label>
+                                                <input type="text" name="aprobador_aprueba_cargo" class="form-control" 
+                                                       value="<?php echo isset($config['aprobador_aprueba_cargo']) ? $config['aprobador_aprueba_cargo']['valor'] : ''; ?>"
+                                                       placeholder="Ej: Director Área T.I">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -159,6 +212,7 @@ while($row = $result->fetch_assoc()) {
                                             <label class="form-label">URL del Logo</label>
                                             <input type="text" name="logo_url" class="form-control" 
                                                    value="<?php echo $config['logo_url']['valor']; ?>">
+                                            <small class="text-muted">Ruta ejemplo: /inventario_ti/assets/img/logo-tesa.png</small>
                                         </div>
                                     </div>
                                 </div>
@@ -174,13 +228,29 @@ while($row = $result->fetch_assoc()) {
                     
                     <div class="alert alert-info mt-4">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Nota:</strong> Los cambios realizados aquí afectarán a TODAS las nuevas actas que se generen. 
-                        Las actas ya generadas no se modifican.
+                        <strong>Nota:</strong> 
+                        <ul class="mb-0 mt-2">
+                            <li>Los campos de "Datos de quien ENTREGA" son los que aparecerán en la firma izquierda del acta.</li>
+                            <li>Puedes activar/desactivar la firma "APROBADO POR" según lo necesites.</li>
+                            <li>Si desactivas el switch, la tercera firma no aparecerá en las actas.</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Script para mostrar/ocultar campos de aprobador -->
+<script>
+document.getElementById('mostrar_aprobado').addEventListener('change', function() {
+    const camposAprobador = document.getElementById('camposAprobador');
+    if (this.checked) {
+        camposAprobador.style.display = 'block';
+    } else {
+        camposAprobador.style.display = 'none';
+    }
+});
+</script>
 
 <?php include '../../includes/footer.php'; ?>

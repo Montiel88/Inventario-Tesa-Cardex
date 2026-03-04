@@ -61,10 +61,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="card-body">
                     <?php if ($mensaje): ?>
-                        <div class="alert alert-success"><?php echo $mensaje; ?></div>
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle me-2"></i><?php echo $mensaje; ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
                     <?php endif; ?>
                     <?php if ($error): ?>
-                        <div class="alert alert-danger"><?php echo $error; ?></div>
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-triangle me-2"></i><?php echo $error; ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
                     <?php endif; ?>
 
                     <form method="POST">
@@ -72,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Código de Barras</label>
                                 <input type="text" name="codigo_barras" class="form-control" placeholder="Dejar vacío para generar automático">
-                                <small class="text-muted">Si deja vacío, se generará automáticamente</small>
+                                <small class="text-muted">Si deja vacío, se generará automáticamente (ej: PRO-000001)</small>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Tipo de Equipo *</label>
@@ -94,11 +100,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Marca</label>
-                                <input type="text" name="marca" class="form-control" placeholder="Ej: HP, Dell">
+                                <input type="text" name="marca" class="form-control" placeholder="Ej: HP, Dell, Logitech">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Modelo</label>
-                                <input type="text" name="modelo" class="form-control" placeholder="Ej: Pavilion">
+                                <input type="text" name="modelo" class="form-control" placeholder="Ej: Pavilion, Latitude">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Número de Serie</label>
@@ -128,8 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <button type="submit" class="btn btn-primary btn-lg px-5">
                                 <i class="fas fa-save me-2"></i>Guardar Equipo
                             </button>
-                          
-                     <a href="listar.php" class="btn btn-secondary">Cancelar</a>
+                            <a href="listar.php" class="btn btn-secondary btn-lg px-5">
+                                <i class="fas fa-arrow-left me-2"></i>Cancelar
                             </a>
                         </div>
                     </form>

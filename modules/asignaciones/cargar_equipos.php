@@ -18,58 +18,127 @@ $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
 $ubicaciones = $conn->query("SELECT id, codigo_ubicacion, nombre FROM ubicaciones ORDER BY nombre");
 
 // ============================================
-// PROCESAR EL FORMULARIO
+// LISTA COMPLETA DE TIPOS DE EQUIPOS
 // ============================================
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+$tipos_equipos = [
+    // 💻 COMPUTADORAS Y PORTÁTILES
+    'Laptop' => '💻 Laptop',
+    'Desktop' => '🖥️ Desktop (PC de escritorio)',
+    'All-in-One' => '🖥️ All-in-One',
+    'Tablet' => '📱 Tablet',
+    'iPad' => '📱 iPad',
+    'Chromebook' => '💻 Chromebook',
     
-    $tipo_equipo = $conn->real_escape_string($_POST['tipo_equipo'] ?? '');
-    $marca = $conn->real_escape_string($_POST['marca'] ?? '');
-    $modelo = $conn->real_escape_string($_POST['modelo'] ?? '');
-    $serie = $conn->real_escape_string($_POST['numero_serie'] ?? '');
-    $codigo_barras = $conn->real_escape_string($_POST['codigo_barras'] ?? '');
-    $especificaciones = $conn->real_escape_string($_POST['especificaciones'] ?? '');
-    $persona_id = intval($_POST['persona_id'] ?? 0);
-    $ubicacion_id = !empty($_POST['ubicacion_id']) ? intval($_POST['ubicacion_id']) : 'NULL';
+    // 🖥️ MONITORES Y PANTALLAS
+    'Monitor' => '🖥️ Monitor',
+    'Monitor Curvo' => '🖥️ Monitor Curvo',
+    'Monitor 4K' => '🖥️ Monitor 4K',
+    'Pantalla Interactiva' => '📺 Pantalla Interactiva',
+    'TV' => '📺 Televisor',
+    'Proyector' => '📽️ Proyector',
+    'Pantalla de Proyección' => '📽️ Pantalla de Proyección',
     
-    if (empty($tipo_equipo)) {
-        $error = "❌ El tipo de equipo es obligatorio";
-    } elseif ($persona_id == 0) {
-        $error = "❌ Debe seleccionar una persona";
-    } else {
-        
-        if (empty($codigo_barras)) {
-            $result = $conn->query("SELECT MAX(id) as max_id FROM equipos");
-            $row = $result->fetch_assoc();
-            $next_id = ($row['max_id'] ?? 0) + 1;
-            $codigo_barras = 'PRO-' . str_pad($next_id, 6, '0', STR_PAD_LEFT);
-        }
-        
-        // Insertar equipo con ubicación
-        $sql_equipo = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, ubicacion_id, estado) 
-                       VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$serie', '$especificaciones', $ubicacion_id, 'Asignado')";
-        
-        if ($conn->query($sql_equipo)) {
-            $equipo_id = $conn->insert_id;
-            
-            // Crear asignación
-            $sql_asignacion = "INSERT INTO asignaciones (equipo_id, persona_id, fecha_asignacion) 
-                              VALUES ($equipo_id, $persona_id, NOW())";
-            
-            if ($conn->query($sql_asignacion)) {
-                // Registrar movimiento
-                $sql_movimiento = "INSERT INTO movimientos (equipo_id, persona_id, tipo_movimiento) 
-                                 VALUES ($equipo_id, $persona_id, 'ASIGNACION')";
-                $conn->query($sql_movimiento);
-                
-                $mensaje = "✅ Equipo asignado correctamente. Código: $codigo_barras";
-            } else {
-                $error = "❌ Error al asignar: " . $conn->error;
-            }
-        } else {
-            $error = "❌ Error al guardar equipo: " . $conn->error;
-        }
-    }
-}
+    // 🖱️ PERIFÉRICOS
+    'Mouse' => '🖱️ Mouse',
+    'Mouse Inalámbrico' => '🖱️ Mouse Inalámbrico',
+    'Teclado' => '⌨️ Teclado',
+    'Teclado Inalámbrico' => '⌨️ Teclado Inalámbrico',
+    'Kit Teclado + Mouse' => '⌨️🖱️ Kit Teclado + Mouse',
+    'Parlantes' => '🔊 Parlantes',
+    'Audífonos' => '🎧 Audífonos',
+    'Micrófono' => '🎤 Micrófono',
+    'Webcam' => '📹 Webcam',
+    
+    // 🖨️ IMPRESIÓN
+    'Impresora' => '🖨️ Impresora',
+    'Impresora Multifuncional' => '🖨️ Impresora Multifuncional',
+    'Impresora Láser' => '🖨️ Impresora Láser',
+    'Impresora de Tickets' => '🧾 Impresora de Tickets',
+    'Plotter' => '📐 Plotter',
+    'Scanner' => '📠 Escáner',
+    'Multifuncional' => '🖨️📠 Multifuncional',
+    
+    // 📡 REDES Y CONECTIVIDAD
+    'Router' => '📶 Router',
+    'Switch' => '🔀 Switch',
+    'Access Point' => '📡 Access Point',
+    'Repetidor WiFi' => '📶 Repetidor WiFi',
+    'Módem' => '📟 Módem',
+    'Firewall' => '🛡️ Firewall',
+    'Tarjeta de Red' => '🔌 Tarjeta de Red',
+    'Cable de Red' => '🔌 Cable de Red (UTP)',
+    'Conector RJ45' => '🔌 Conector RJ45',
+    'Patch Panel' => '🔌 Patch Panel',
+    
+    // 📦 ALMACENAMIENTO
+    'Disco Duro Externo' => '💾 Disco Duro Externo',
+    'SSD Externo' => '⚡ SSD Externo',
+    'USB Flash Drive' => '💽 USB Flash Drive',
+    'Tarjeta SD' => '💾 Tarjeta SD',
+    'NAS' => '📦 NAS (Almacenamiento en Red)',
+    
+    // 🔌 ACCESORIOS Y CABLES
+    'Cable HDMI' => '🔌 Cable HDMI',
+    'Cable VGA' => '🔌 Cable VGA',
+    'Cable USB' => '🔌 Cable USB',
+    'Cable de Corriente' => '🔌 Cable de Corriente',
+    'Adaptador HDMI-VGA' => '🔌 Adaptador HDMI a VGA',
+    'Adaptador USB-C' => '🔌 Adaptador USB-C',
+    'Hub USB' => '🔌 Hub USB',
+    'Regulador de Voltaje' => '⚡ Regulador de Voltaje',
+    'UPS' => '🔋 UPS (Respaldo de Energía)',
+    'Extensión Eléctrica' => '🔌 Extensión Eléctrica',
+    'Multicontacto' => '🔌 Multicontacto',
+    
+    // 📱 DISPOSITIVOS MÓVILES
+    'Celular' => '📱 Celular',
+    'Smartphone' => '📱 Smartphone',
+    'Tablet Gráfica' => '✏️ Tablet Gráfica',
+    'Kindle' => '📚 Kindle',
+    
+    // 🎥 VIDEO Y FOTOGRAFÍA
+    'Cámara' => '📷 Cámara',
+    'Cámara IP' => '📹 Cámara IP',
+    'Cámara de Seguridad' => '📹 Cámara de Seguridad',
+    'Grabador de Video' => '📼 Grabador de Video',
+    'Tripie' => '🎥 Trípode',
+    
+    // 🎓 EQUIPOS ESPECIALES
+    'Pizarra Digital' => '📝 Pizarra Digital',
+    'Calculadora Científica' => '🧮 Calculadora Científica',
+    'Impresora 3D' => '🖨️ Impresora 3D',
+    'Escáner 3D' => '📠 Escáner 3D',
+    'Realidad Virtual' => '🥽 Realidad Virtual (VR)',
+    'Dron' => '🚁 Dron',
+    
+    // 🔧 HERRAMIENTAS Y REPUESTOS
+    'Multímetro' => '⚡ Multímetro',
+    'Kit de Herramientas' => '🔧 Kit de Herramientas',
+    'Pulsera Anti-estática' => '⚡ Pulsera Anti-estática',
+    'Soporte para Monitor' => '🖥️ Soporte para Monitor',
+    'Base Refrigerante' => '❄️ Base Refrigerante',
+    
+    // 🪑 MUEBLES Y ESTRUCTURAS
+    'Silla Ergonómica' => '🪑 Silla Ergonómica',
+    'Escritorio' => '🪑 Escritorio',
+    'Rack de Servidor' => '📦 Rack de Servidor',
+    'Gabinete' => '📦 Gabinete',
+    'Stand para Proyector' => '📽️ Stand para Proyector',
+    
+    // 🎛️ EQUIPOS DE SONIDO
+    'Consola de Sonido' => '🎛️ Consola de Sonido',
+    'Amplificador' => '🔊 Amplificador',
+    'Subwoofer' => '🔊 Subwoofer',
+    'Micrófono Inalámbrico' => '🎤 Micrófono Inalámbrico',
+    'Cabina de Sonido' => '🔊 Cabina de Sonido',
+    
+    // 📋 OTROS
+    'Licencia de Software' => '💿 Licencia de Software',
+    'Tarjeta de Acceso' => '💳 Tarjeta de Acceso',
+    'Lector de Código de Barras' => '📟 Lector de Código de Barras',
+    'Impresora de Etiquetas' => '🏷️ Impresora de Etiquetas',
+    'Otro' => '🔧 Otro (especificar en observaciones)'
+];
 ?>
 
 <style>
@@ -103,6 +172,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     .scanner-btn:hover {
         background: #3d1e5e;
         transform: scale(1.05);
+    }
+    
+    /* Estilo para el select con scroll */
+    select[multiple] {
+        height: 200px;
+        padding: 8px;
+    }
+    
+    select option {
+        padding: 5px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    select option:hover {
+        background-color: #5a2d8c;
+        color: white;
     }
 </style>
 
@@ -172,25 +257,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <label class="form-label">Tipo de Equipo *</label>
                                 <select name="tipo_equipo" class="form-control" required>
                                     <option value="">-- Seleccione --</option>
-                                    <option value="Laptop">💻 Laptop</option>
-                                    <option value="Mouse">🖱️ Mouse</option>
-                                    <option value="Teclado">⌨️ Teclado</option>
-                                    <option value="Monitor">🖥️ Monitor</option>
-                                    <option value="Impresora">🖨️ Impresora</option>
-                                    <option value="Proyector">📽️ Proyector</option>
-                                    <option value="Tablet">📱 Tablet</option>
-                                    <option value="Parlantes">🔊 Parlantes</option>
+                                    <?php foreach($tipos_equipos as $valor => $etiqueta): ?>
+                                        <option value="<?php echo $valor; ?>"><?php echo $etiqueta; ?></option>
+                                    <?php endforeach; ?>
                                 </select>
+                                <small class="text-muted">Lista completa de equipos del área TI</small>
                             </div>
                             
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Marca</label>
-                                <input type="text" name="marca" class="form-control" id="marca" placeholder="Ej: HP, Dell">
+                                <input type="text" name="marca" class="form-control" id="marca" placeholder="Ej: HP, Dell, Logitech, Epson">
                             </div>
                             
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Modelo</label>
-                                <input type="text" name="modelo" class="form-control" id="modelo" placeholder="Ej: Pavilion">
+                                <input type="text" name="modelo" class="form-control" id="modelo" placeholder="Ej: Pavilion, Latitude, Pro, MX系列">
                             </div>
                             
                             <div class="col-md-4 mb-3">
@@ -208,7 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <input type="text" name="numero_serie" id="numero_serie" class="form-control" placeholder="Serie del fabricante">
                             </div>
                             
-                            <!-- Campo de ubicación -->
+                            <!-- Campo de ubicación (YA CARGA TODAS LAS UBICACIONES) -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Ubicación</label>
                                 <select name="ubicacion_id" class="form-control">
@@ -219,11 +300,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         </option>
                                     <?php endwhile; ?>
                                 </select>
+                                <small class="text-muted">
+                                    <a href="/inventario_ti/modules/ubicaciones/listar.php" target="_blank">
+                                        <i class="fas fa-external-link-alt me-1"></i>Gestionar ubicaciones
+                                    </a>
+                                </small>
                             </div>
                             
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">Especificaciones</label>
-                                <textarea name="especificaciones" class="form-control" rows="2" placeholder="RAM, disco, etc." id="especificaciones"></textarea>
+                                <textarea name="especificaciones" class="form-control" rows="2" placeholder="RAM, disco, procesador, color, accesorios incluidos, etc." id="especificaciones"></textarea>
                             </div>
                         </div>
                         
@@ -236,6 +322,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </a>
                         </div>
                     </form>
+                    
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>¿No encuentras la ubicación?</strong> Puedes agregar nuevas ubicaciones (Torre A, Torre B, departamentos, etc.) en 
+                        <a href="/inventario_ti/modules/ubicaciones/agregar.php" class="alert-link" target="_blank">Gestión de Ubicaciones</a>.
+                    </div>
+                    
+                    <div class="alert alert-info mt-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>¿No encuentras el tipo de equipo?</strong> Si el equipo que necesitas no está en la lista, selecciona "Otro" y especifica en observaciones.
+                    </div>
                 </div>
             </div>
         </div>
@@ -247,7 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <script>
 // ============================================
-// ESCÁNER INTELIGENTE - DETECTA TIPO DE CÓDIGO
+// ESCÁNER INTELIGENTE
 // ============================================
 let html5QrCode = null;
 let escaneando = false;
@@ -303,7 +400,6 @@ function abrirScanner() {
             cameraId,
             config,
             (decodedText) => {
-                // Intentar parsear JSON
                 try {
                     const datos = JSON.parse(decodedText);
                     if (datos.codigo) document.getElementById('codigo_barras').value = datos.codigo;
@@ -311,18 +407,12 @@ function abrirScanner() {
                     if (datos.marca) document.getElementById('marca').value = datos.marca;
                     if (datos.modelo) document.getElementById('modelo').value = datos.modelo;
                     if (datos.especificaciones) document.getElementById('especificaciones').value = datos.especificaciones;
-                    // Si incluye ubicación (por ejemplo, datos.ubicacion_id) podríamos seleccionarla
-                    if (datos.ubicacion_nombre) {
-                        // Buscar en el select por texto (opcional)
-                    }
                     alert('✅ Datos cargados desde QR');
                 } catch (e) {
-                    // No es JSON, verificar si es código PRO-
                     if (decodedText.startsWith('PRO-')) {
                         document.getElementById('codigo_barras').value = decodedText;
                         alert('✅ Código de barras: ' + decodedText);
                     } else {
-                        // Asumir número de serie
                         document.getElementById('numero_serie').value = decodedText;
                         alert('✅ Número de serie: ' + decodedText);
                     }
@@ -366,7 +456,6 @@ function ingresarManual() {
     }
 }
 
-// Validación del formulario
 document.getElementById('formEquipo').addEventListener('submit', function(e) {
     const persona = document.querySelector('select[name="persona_id"]').value;
     const tipo = document.querySelector('select[name="tipo_equipo"]').value;

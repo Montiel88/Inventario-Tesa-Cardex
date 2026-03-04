@@ -98,7 +98,6 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     font-weight: 500;
     transition: all 0.2s ease;
     border-width: 2px;
-    margin-left: 5px;
 }
 .card-header .btn:hover {
     transform: translateY(-2px);
@@ -121,6 +120,7 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     transform: translateX(5px);
 }
 
+/* Responsive para botones */
 @media (max-width: 768px) {
     .card-header {
         flex-direction: column;
@@ -336,37 +336,37 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4><i class="fas fa-user me-2"></i>Detalle de Persona</h4>
-                    <div>
-                        <!-- BOTONES DE ACTAS CORREGIDOS (apuntan a los nuevos archivos) -->
-                        <a href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $id; ?>" 
-                           class="btn btn-success" target="_blank">
-                            <i class="fas fa-file-pdf me-2"></i>Acta Entrega
-                        </a>
+                <!-- HEADER CON BOTONES MEJORADOS -->
+                <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <h4 class="mb-0"><i class="fas fa-user me-2"></i>Detalle de Persona</h4>
+                    <div class="d-flex flex-wrap gap-2">
+                        <!-- Grupo Actas -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-file-pdf me-1"></i>Actas
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $id; ?>" target="_blank">Acta Entrega</a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $id; ?>" target="_blank">Acta Devolución</a></li>
+                                <!-- Si existe el archivo de descargo, descomentar la siguiente línea -->
+                                <!-- <li><a class="dropdown-item" href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $id; ?>" target="_blank">Descargo</a></li> -->
+                            </ul>
+                        </div>
                         
-                        <a href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $id; ?>" 
-                           class="btn btn-warning" target="_blank">
-                            <i class="fas fa-file-pdf me-2"></i>Acta Devolución
-                        </a>
+                        <!-- Grupo QR -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-qrcode me-1"></i>QR
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" onclick="generarQR(<?php echo $id; ?>); return false;">Ver QR</a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_qr_persona.php?id=<?php echo $id; ?>" download="qr_persona_<?php echo $id; ?>.png">Descargar QR</a></li>
+                            </ul>
+                        </div>
                         
-                        <!-- NUEVO BOTÓN: DESCARGO DE RESPONSABILIDAD -->
-                        <a href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $id; ?>" 
-                           class="btn btn-info" target="_blank">
-                            <i class="fas fa-file-signature me-2"></i>Descargo
-                        </a>
-                        
-                        <!-- BOTÓN VER QR -->
-                        <button onclick="generarQR(<?php echo $id; ?>)" class="btn btn-info">
-                            <i class="fas fa-qrcode me-2"></i>Ver QR
-                        </button>
-                        
-                        <a href="/inventario_ti/api/generar_qr_persona.php?id=<?php echo $id; ?>" class="btn btn-warning" download="qr_persona_<?php echo $id; ?>.png">
-                            <i class="fas fa-download me-2"></i>Descargar QR
-                        </a>
-                        
-                        <a href="historial.php?id=<?php echo $id; ?>" class="btn btn-secondary">
-                            <i class="fas fa-history me-2"></i>Historial
+                        <!-- Botones individuales -->
+                        <a href="historial.php?id=<?php echo $id; ?>" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-history me-1"></i>Historial
                         </a>
                         
                         <?php if ($es_admin): ?>
@@ -380,6 +380,8 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                         </a>
                     </div>
                 </div>
+                <!-- FIN HEADER -->
+                
                 <div class="card-body">
                     
                     <!-- Datos de la persona -->

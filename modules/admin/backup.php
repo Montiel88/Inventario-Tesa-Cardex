@@ -49,4 +49,4 @@ include '../../includes/header.php';
     </div>
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+<?php include '../../includes/footer.php'; ?>notepad C:\xampp\htdocs\inventario_ti\modules\admin\logs.php
