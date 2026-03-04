@@ -262,6 +262,12 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                             <?php endif; ?>
                         </ul>
                     </li>
+                    <!-- COMPONENTES -->
+<li class="nav-item">
+    <a class="nav-link" href="/inventario_ti/modules/componentes/listar.php">
+        <i class="fas fa-microchip me-1"></i> Componentes
+    </a>
+</li>
                     
                     <!-- EQUIPOS -->
                     <li class="nav-item dropdown">

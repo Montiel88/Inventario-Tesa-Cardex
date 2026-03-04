@@ -1,36 +1,40 @@
 <?php
 session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: /inventario_ti/login.php');
+    exit();
+}
+if ($_SESSION['user_rol'] != 1) {
+    header('Location: listar.php?error=No tienes permisos');
+    exit();
+}
+
 require_once '../../config/database.php';
 
-// Solo admin puede eliminar
-if ($_SESSION['user_rol'] != 1) {
-    header('Location: listar.php?error=No tienes permisos para eliminar');
-    exit();
-}
-
 $id = intval($_GET['id'] ?? 0);
-if ($id <= 0) {
-    header('Location: listar.php');
+if (!$id) {
+    header('Location: listar.php?error=ID no válido');
     exit();
 }
 
-// Obtener el equipo_id para redirigir al detalle del equipo
-$sql = "SELECT equipo_id FROM componentes WHERE id = $id";
-$result = $conn->query($sql);
-if ($result && $result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $equipo_id = $row['equipo_id'];
-} else {
-    header('Location: listar.php');
+// Verificar si el componente está asignado actualmente
+$check = $conn->query("SELECT COUNT(*) as total FROM movimientos_componentes 
+                       WHERE componente_id = $id AND tipo_movimiento = 'ASIGNACION'
+                       AND NOT EXISTS (
+                           SELECT 1 FROM movimientos_componentes mc2 
+                           WHERE mc2.componente_id = movimientos_componentes.componente_id 
+                             AND mc2.tipo_movimiento = 'DEVOLUCION'
+                             AND mc2.fecha_movimiento > movimientos_componentes.fecha_movimiento
+                       )");
+$row = $check->fetch_assoc();
+if ($row['total'] > 0) {
+    header('Location: listar.php?error=No se puede eliminar un componente asignado');
     exit();
 }
 
-// Eliminar componente
-$sql_delete = "DELETE FROM componentes WHERE id = $id";
-if ($conn->query($sql_delete)) {
-    header("Location: /inventario_ti/modules/equipos/detalle.php?id=$equipo_id&mensaje=Componente eliminado correctamente");
-} else {
-    header("Location: /inventario_ti/modules/equipos/detalle.php?id=$equipo_id&error=Error al eliminar: " . urlencode($conn->error));
-}
+// Eliminar (los movimientos relacionados se borrarán por ON DELETE CASCADE si la FK está configurada)
+$conn->query("DELETE FROM componentes WHERE id = $id");
+
+header('Location: listar.php?mensaje=Componente eliminado correctamente');
 exit();
 ?>

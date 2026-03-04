@@ -61,6 +61,56 @@ if (!empty($equipos_ids)) {
     }
 }
 
+// contar total componentes (de equipos) y preparar para la tarjeta
+$total_componentes_equipos = count($componentes_asignados);
+
+// obtener componentes asignados directamente a la persona (movimientos_componentes)
+$componentes_directos = [];
+$sql_directos = "SELECT c.*, mc.fecha_movimiento
+                  FROM componentes c
+                  JOIN movimientos_componentes mc ON c.id = mc.componente_id
+                  WHERE mc.persona_id = $id
+                    AND mc.tipo_movimiento = 'ASIGNACION'
+                    AND NOT EXISTS (
+                        SELECT 1 FROM movimientos_componentes mc2
+                        WHERE mc2.componente_id = mc.componente_id
+                          AND mc2.tipo_movimiento = 'DEVOLUCION'
+                          AND mc2.fecha_movimiento > mc.fecha_movimiento
+                    )
+                  ORDER BY mc.fecha_movimiento DESC";
+$result_directos = $conn->query($sql_directos);
+if ($result_directos) {
+    while ($row = $result_directos->fetch_assoc()) {
+        $componentes_directos[] = $row;
+    }
+}
+$total_componentes_directos = count($componentes_directos);
+
+// total general de componentes asignados (equipos + directos)
+$total_componentes = $total_componentes_equipos + $total_componentes_directos;
+
+// Obtener componentes libres disponibles para asignación a persona
+$componentes_disponibles = [];
+$sql_disponibles = "SELECT * FROM componentes c
+                    WHERE NOT EXISTS (
+                        SELECT 1 FROM movimientos_componentes mc
+                        WHERE mc.componente_id = c.id
+                          AND mc.tipo_movimiento='ASIGNACION'
+                          AND NOT EXISTS (
+                            SELECT 1 FROM movimientos_componentes mc2
+                            WHERE mc2.componente_id = mc.componente_id
+                              AND mc2.tipo_movimiento='DEVOLUCION'
+                              AND mc2.fecha_movimiento > mc.fecha_movimiento
+                          )
+                    )";
+$result_disp = $conn->query($sql_disponibles);
+if ($result_disp) {
+    while ($row = $result_disp->fetch_assoc()) {
+        $componentes_disponibles[] = $row;
+    }
+}
+$total_componentes_disponibles = count($componentes_disponibles);
+
 // Obtener historial de movimientos de esta persona (últimos 20)
 $sql_historial = "SELECT m.*, e.tipo_equipo, e.codigo_barras
                   FROM movimientos m
@@ -332,6 +382,47 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     </div>
 </div>
 
+<!-- Modal Asignar Componente (CORREGIDO) -->
+<div class="modal fade" id="assignComponentModal" tabindex="-1" aria-labelledby="assignComponentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="asignar_componente.php">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignComponentModalLabel">Asignar componente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="persona_id" value="<?php echo $id; ?>">
+                    <?php if ($total_componentes_disponibles > 0): ?>
+                        <div class="mb-3">
+                            <label for="componente_id" class="form-label">Componente disponible</label>
+                            <select class="form-select" id="componente_id" name="componente_id" required>
+                                <option value="">-- Seleccione --</option>
+                                <?php foreach ($componentes_disponibles as $c): ?>
+                                    <option value="<?php echo $c['id']; ?>">
+                                        <?php echo htmlspecialchars($c['tipo'] . ' - ' . $c['nombre_componente'] . ' (' . $c['marca'] . ' ' . $c['modelo'] . ')'); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="2"></textarea>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-danger">No hay componentes disponibles para asignar.</p>
+                    <?php endif; ?>
+                </div>
+                <div class="modal-footer">
+                    <?php if ($total_componentes_disponibles > 0): ?>
+                        <button type="submit" class="btn btn-primary">Asignar</button>
+                    <?php endif; ?>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
@@ -384,6 +475,19 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                 
                 <div class="card-body">
                     
+                    <!-- mostrar mensajes -->
+                    <?php if (isset($_GET['mensaje'])): ?>
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <?php echo htmlspecialchars($_GET['mensaje']); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php elseif (isset($_GET['error'])): ?>
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <?php echo htmlspecialchars($_GET['error']); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endif; ?>
+
                     <!-- Datos de la persona -->
                     <div class="row mb-4">
                         <div class="col-md-6">
@@ -401,7 +505,7 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                         </div>
                         
                         <div class="col-md-6">
-                            <div class="card bg-light">
+                            <div class="card bg-light mb-3">
                                 <div class="card-body text-center">
                                     <h3><?php echo $total_equipos; ?></h3>
                                     <p>Equipos asignados actualmente</p>
@@ -413,6 +517,28 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                                     <button class="btn btn-secondary btn-lg w-100" disabled>
                                         <i class="fas fa-ban me-2"></i>Asignar (solo admin)
                                     </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <!-- tarjeta componentes asignados -->
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3><?php echo $total_componentes; ?></h3>
+                                    <p>Componentes asignados actualmente</p>
+                                    <?php if ($es_admin): ?>
+                                        <?php if ($total_componentes_disponibles > 0): ?>
+                                            <button class="btn btn-success btn-lg w-100" data-bs-toggle="modal" data-bs-target="#assignComponentModal">
+                                                <i class="fas fa-plus-circle me-2"></i>Asignar componente
+                                            </button>
+                                        <?php else: ?>
+                                            <button class="btn btn-secondary btn-lg w-100" disabled>
+                                                <i class="fas fa-ban me-2"></i>No hay componentes disponibles
+                                            </button>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <button class="btn btn-secondary btn-lg w-100" disabled>
+                                            <i class="fas fa-ban me-2"></i>Asignar (solo admin)
+                                        </button>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -470,7 +596,7 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                             <?php endif; ?>
                         </div>
                     </div>
-                    
+                                            
                     <!-- Componentes de los equipos asignados -->
                     <?php if (!empty($componentes_asignados)): ?>
                     <div class="card mt-4">
@@ -511,6 +637,41 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                                                 ?>
                                             </td>
                                             <td><?php echo $comp['fecha_instalacion'] ? date('d/m/Y', strtotime($comp['fecha_instalacion'])) : '-'; ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <!-- Componentes asignados directamente a la persona -->
+                    <?php if (!empty($componentes_directos)): ?>
+                    <div class="card mt-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-microchip me-2"></i>Componentes Asignados Directamente</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Nombre</th>
+                                            <th>Marca/Modelo</th>
+                                            <th>Serie</th>
+                                            <th>Fecha Asignación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($componentes_directos as $comp): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($comp['tipo']); ?></td>
+                                            <td><?php echo htmlspecialchars($comp['nombre_componente']); ?></td>
+                                            <td><?php echo htmlspecialchars($comp['marca'] . ' ' . $comp['modelo']); ?></td>
+                                            <td><?php echo htmlspecialchars($comp['numero_serie'] ?? 'N/A'); ?></td>
+                                            <td><?php echo date('d/m/Y', strtotime($comp['fecha_movimiento'])); ?></td>
                                         </tr>
                                         <?php endforeach; ?>
                                     </tbody>

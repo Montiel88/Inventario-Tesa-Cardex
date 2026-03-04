@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Verificar rol (1 = admin, 2 = lector) - CORREGIDO
+// Verificar rol (1 = admin, 2 = lector)
 $es_admin = ($_SESSION['user_rol'] == 1);
 
 require_once '../config/database.php';
@@ -25,6 +25,7 @@ $total_personas = 0;
 $total_equipos = 0;
 $total_prestamos = 0;
 $total_disponibles = 0;
+$total_componentes = 0; // Nueva variable para componentes
 
 // Total personas
 $result = $conn->query("SELECT COUNT(*) as total FROM personas");
@@ -54,13 +55,28 @@ if ($result) {
     $total_disponibles = $row['total'];
 }
 
-// Últimos movimientos
+// Total componentes
+$result = $conn->query("SELECT COUNT(*) as total FROM componentes");
+if ($result) {
+    $row = $result->fetch_assoc();
+    $total_componentes = $row['total'];
+}
+
+// Últimos movimientos de equipos
 $sql_movimientos = "SELECT m.*, e.tipo_equipo as equipo, e.codigo_barras, p.nombres as persona 
                    FROM movimientos m 
                    LEFT JOIN equipos e ON m.equipo_id = e.id 
                    LEFT JOIN personas p ON m.persona_id = p.id 
                    ORDER BY m.fecha_movimiento DESC LIMIT 5";
 $result_movimientos = $conn->query($sql_movimientos);
+
+// Últimos movimientos de componentes (opcional)
+$sql_movimientos_componentes = "SELECT mc.*, c.nombre_componente, c.tipo, p.nombres as persona_nombre
+                               FROM movimientos_componentes mc
+                               LEFT JOIN componentes c ON mc.componente_id = c.id
+                               LEFT JOIN personas p ON mc.persona_id = p.id
+                               ORDER BY mc.fecha_movimiento DESC LIMIT 5";
+$result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
 ?>
 
 <!-- ============================================ -->
@@ -87,13 +103,11 @@ $result_movimientos = $conn->query($sql_movimientos);
     transform: rotate(-5deg);
     pointer-events: none;
     z-index: 0;
-    
 }
 
 .brand-watermark .content {
     position: relative;
     z-index: 1;
-    
 }
 
 .institution-title {
@@ -297,6 +311,23 @@ $result_movimientos = $conn->query($sql_movimientos);
                 </div>
             </div>
         </div>
+
+        <!-- Segunda fila de tarjetas (Componentes) -->
+        <div class="row mt-4">
+            <!-- Tarjeta Componentes Totales -->
+            <div class="col-md-3 mb-4">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title"><?php echo $total_componentes; ?></h5>
+                        <p class="card-text">Componentes</p>
+                        <a href="/inventario_ti/modules/componentes/listar.php" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-microchip me-1"></i> Ver componentes
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Puedes agregar más tarjetas de componentes si deseas, por ejemplo: disponibles, etc. -->
+        </div>
         
         <!-- ACCIONES RÁPIDAS - SOLO PARA ADMIN -->
         <?php if ($es_admin): ?>
@@ -345,12 +376,12 @@ $result_movimientos = $conn->query($sql_movimientos);
         </div>
         <?php endif; ?>
         
-        <!-- ÚLTIMOS MOVIMIENTOS -->
+        <!-- ÚLTIMOS MOVIMIENTOS DE EQUIPOS -->
         <div class="row mt-4">
-            <div class="col-12">
+            <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Últimos Movimientos</h5>
+                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Últimos Movimientos de Equipos</h5>
                     </div>
                     <div class="card-body">
                         <?php if ($result_movimientos && $result_movimientos->num_rows > 0): ?>
@@ -369,6 +400,39 @@ $result_movimientos = $conn->query($sql_movimientos);
                                             <?php echo $row['tipo_movimiento']; ?>
                                         </span>
                                         <small class="ms-2"><?php echo $row['persona'] ?? ''; ?></small>
+                                    </div>
+                                </div>
+                                <?php endwhile; ?>
+                            </div>
+                        <?php else: ?>
+                            <p class="text-muted text-center py-3">No hay movimientos registrados</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ÚLTIMOS MOVIMIENTOS DE COMPONENTES -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-microchip me-2"></i>Últimos Movimientos de Componentes</h5>
+                    </div>
+                    <div class="card-body">
+                        <?php if ($result_movimientos_componentes && $result_movimientos_componentes->num_rows > 0): ?>
+                            <div class="list-group">
+                                <?php while($row = $result_movimientos_componentes->fetch_assoc()): ?>
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong><?php echo $row['tipo'] . ': ' . $row['nombre_componente']; ?></strong>
+                                        </div>
+                                        <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($row['fecha_movimiento'])); ?></small>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-<?php echo $row['tipo_movimiento'] == 'ASIGNACION' ? 'warning' : 'success'; ?>">
+                                            <?php echo $row['tipo_movimiento']; ?>
+                                        </span>
+                                        <small class="ms-2"><?php echo $row['persona_nombre'] ?? ''; ?></small>
                                     </div>
                                 </div>
                                 <?php endwhile; ?>

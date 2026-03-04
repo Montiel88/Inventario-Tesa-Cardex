@@ -43,6 +43,27 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script>
+    console.log('Bootstrap version:', typeof bootstrap !== 'undefined' ? 'cargado' : 'NO CARGADO');
+    // Forzar cierre de modales al hacer clic en cualquier botón con data-bs-dismiss
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('[data-bs-dismiss="modal"]')) {
+            var modal = e.target.closest('.modal');
+            if (modal) {
+                var modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                } else {
+                    // Intentar cerrar manualmente
+                    modal.classList.remove('show');
+                    modal.style.display = 'none';
+                    document.body.classList.remove('modal-open');
+                    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                }
+            }
+        }
+    });
+</script>
     
     <script>
         // Inicializar AOS cuando el DOM esté listo
