@@ -25,53 +25,38 @@ $total_personas = 0;
 $total_equipos = 0;
 $total_prestamos = 0;
 $total_disponibles = 0;
-$total_componentes = 0; // Nueva variable para componentes
+$total_componentes = 0;
 
 // Total personas
 $result = $conn->query("SELECT COUNT(*) as total FROM personas");
-if ($result) {
-    $row = $result->fetch_assoc();
-    $total_personas = $row['total'];
-}
+if ($result) $total_personas = $result->fetch_assoc()['total'];
 
 // Total equipos
 $result = $conn->query("SELECT COUNT(*) as total FROM equipos");
-if ($result) {
-    $row = $result->fetch_assoc();
-    $total_equipos = $row['total'];
-}
+if ($result) $total_equipos = $result->fetch_assoc()['total'];
 
 // Préstamos activos
 $result = $conn->query("SELECT COUNT(*) as total FROM asignaciones WHERE fecha_devolucion IS NULL");
-if ($result) {
-    $row = $result->fetch_assoc();
-    $total_prestamos = $row['total'];
-}
+if ($result) $total_prestamos = $result->fetch_assoc()['total'];
 
 // Equipos disponibles
 $result = $conn->query("SELECT COUNT(*) as total FROM equipos WHERE estado = 'Disponible' OR estado IS NULL");
-if ($result) {
-    $row = $result->fetch_assoc();
-    $total_disponibles = $row['total']; 
-}
+if ($result) $total_disponibles = $result->fetch_assoc()['total'];
 
 // Total componentes
 $result = $conn->query("SELECT COUNT(*) as total FROM componentes");
-if ($result) {
-    $row = $result->fetch_assoc();
-    $total_componentes = $row['total'];
-}
+if ($result) $total_componentes = $result->fetch_assoc()['total'];
 
-// Últimos movimientos de equipos
-$sql_movimientos = "SELECT m.*, e.tipo_equipo as equipo, e.codigo_barras, p.nombres as persona 
+// Últimos movimientos de equipos (incluyendo ID del equipo)
+$sql_movimientos = "SELECT m.*, e.tipo_equipo as equipo, e.codigo_barras, p.nombres as persona, e.id as equipo_id
                    FROM movimientos m 
                    LEFT JOIN equipos e ON m.equipo_id = e.id 
                    LEFT JOIN personas p ON m.persona_id = p.id 
                    ORDER BY m.fecha_movimiento DESC LIMIT 5";
 $result_movimientos = $conn->query($sql_movimientos);
 
-// Últimos movimientos de componentes (opcional)
-$sql_movimientos_componentes = "SELECT mc.*, c.nombre_componente, c.tipo, p.nombres as persona_nombre
+// Últimos movimientos de componentes (incluyendo ID del componente)
+$sql_movimientos_componentes = "SELECT mc.*, c.nombre_componente, c.tipo, p.nombres as persona_nombre, c.id as componente_id
                                FROM movimientos_componentes mc
                                LEFT JOIN componentes c ON mc.componente_id = c.id
                                LEFT JOIN personas p ON mc.persona_id = p.id
@@ -89,7 +74,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     overflow: hidden;
     min-height: 200px;
 }
-
 .brand-watermark::before {
     content: '';
     position: absolute;
@@ -104,12 +88,10 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     pointer-events: none;
     z-index: 0;
 }
-
 .brand-watermark .content {
     position: relative;
     z-index: 1;
 }
-
 .institution-title {
     text-align: center;
     margin: 30px 0 40px 0;
@@ -118,7 +100,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     border-radius: 20px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.05);
 }
-
 .institution-title h1 {
     font-size: 2.5rem;
     font-weight: 700;
@@ -130,7 +111,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     margin-bottom: 10px;
     animation: fadeInTitle 1s ease;
 }
-
 .institution-title h2 {
     font-size: 1.8rem;
     color: #5a2d8c;
@@ -138,7 +118,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     letter-spacing: 3px;
     margin-bottom: 10px;
 }
-
 .institution-title .subtitle {
     font-size: 1.2rem;
     color: #666;
@@ -147,7 +126,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     padding-top: 15px;
     display: inline-block;
 }
-
 @keyframes fadeInTitle {
     from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -161,25 +139,21 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
-
 .dashboard-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 30px rgba(90, 45, 140, 0.15);
 }
-
 .dashboard-card .card-body {
     padding: 25px 20px;
     text-align: center;
     background: white;
 }
-
 .dashboard-card .card-title {
     font-size: 2.5rem;
     font-weight: 700;
     color: #5a2d8c;
     margin-bottom: 5px;
 }
-
 .dashboard-card .card-text {
     color: #666;
     font-size: 0.9rem;
@@ -187,7 +161,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     letter-spacing: 1px;
     margin-bottom: 15px;
 }
-
 .dashboard-card .btn-sm {
     border-radius: 20px;
     padding: 5px 15px;
@@ -206,31 +179,14 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
 
 /* Responsive */
 @media (max-width: 768px) {
-    .institution-title h1 {
-        font-size: 1.8rem !important;
-    }
-    
-    .institution-title h2 {
-        font-size: 1.4rem !important;
-    }
-    
-    .dashboard-card .card-title {
-        font-size: 2rem !important;
-    }
-    
-    .dashboard-card .card-body {
-        padding: 15px !important;
-    }
+    .institution-title h1 { font-size: 1.8rem !important; }
+    .institution-title h2 { font-size: 1.4rem !important; }
+    .dashboard-card .card-title { font-size: 2rem !important; }
+    .dashboard-card .card-body { padding: 15px !important; }
 }
-
 @media (max-width: 480px) {
-    .institution-title h1 {
-        font-size: 1.4rem !important;
-    }
-    
-    .institution-title h2 {
-        font-size: 1.1rem !important;
-    }
+    .institution-title h1 { font-size: 1.4rem !important; }
+    .institution-title h2 { font-size: 1.1rem !important; }
 }
 </style>
 
@@ -255,11 +211,8 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         </div>
         <?php endif; ?>
         
-        <!-- ============================================ -->
-        <!-- TARJETAS DE ESTADÍSTICAS -->
-        <!-- ============================================ -->
+        <!-- TARJETAS DE ESTADÍSTICAS (PRIMERA FILA) -->
         <div class="row">
-            <!-- Tarjeta Personas -->
             <div class="col-md-3 mb-4">
                 <div class="card dashboard-card">
                     <div class="card-body">
@@ -271,8 +224,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     </div>
                 </div>
             </div>
-            
-            <!-- Tarjeta Equipos -->
             <div class="col-md-3 mb-4">
                 <div class="card dashboard-card">
                     <div class="card-body">
@@ -284,8 +235,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     </div>
                 </div>
             </div>
-            
-            <!-- Tarjeta Préstamos Activos -->
             <div class="col-md-3 mb-4">
                 <div class="card dashboard-card">
                     <div class="card-body">
@@ -297,8 +246,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     </div>
                 </div>
             </div>
-            
-            <!-- Tarjeta Equipos Disponibles -->
             <div class="col-md-3 mb-4">
                 <div class="card dashboard-card">
                     <div class="card-body">
@@ -312,9 +259,8 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
             </div>
         </div>
 
-        <!-- Segunda fila de tarjetas (Componentes) -->
+        <!-- SEGUNDA FILA (COMPONENTES) -->
         <div class="row mt-4">
-            <!-- Tarjeta Componentes Totales -->
             <div class="col-md-3 mb-4">
                 <div class="card dashboard-card">
                     <div class="card-body">
@@ -326,10 +272,10 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     </div>
                 </div>
             </div>
-            <!-- Puedes agregar más tarjetas de componentes si deseas, por ejemplo: disponibles, etc. -->
+            <!-- Aquí puedes agregar más tarjetas si lo deseas -->
         </div>
         
-        <!-- ACCIONES RÁPIDAS - SOLO PARA ADMIN -->
+        <!-- ACCIONES RÁPIDAS (SOLO ADMIN) -->
         <?php if ($es_admin): ?>
         <div class="row mt-2">
             <div class="col-12">
@@ -365,7 +311,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
             </div>
         </div>
         <?php else: ?>
-        <!-- Mensaje para lectores -->
         <div class="row mt-2">
             <div class="col-12">
                 <div class="alert alert-info">
@@ -376,8 +321,9 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         </div>
         <?php endif; ?>
         
-        <!-- ÚLTIMOS MOVIMIENTOS DE EQUIPOS -->
+        <!-- ÚLTIMOS MOVIMIENTOS (CLIQUEABLES EN TODA LA BARRA) -->
         <div class="row mt-4">
+            <!-- Equipos -->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
@@ -387,21 +333,23 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                         <?php if ($result_movimientos && $result_movimientos->num_rows > 0): ?>
                             <div class="list-group">
                                 <?php while($row = $result_movimientos->fetch_assoc()): ?>
-                                <div class="list-group-item">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <strong><?php echo $row['equipo'] ?? 'N/A'; ?></strong>
-                                            <small class="text-muted ms-2"><?php echo $row['codigo_barras'] ?? ''; ?></small>
+                                    <!-- Contenedor con posición relativa para el stretched-link -->
+                                    <div class="list-group-item" style="position: relative;">
+                                        <a href="/inventario_ti/modules/equipos/detalle.php?id=<?php echo $row['equipo_id']; ?>" class="stretched-link"></a>
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <strong><?php echo htmlspecialchars($row['equipo'] ?? 'N/A'); ?></strong>
+                                                <small class="text-muted ms-2"><?php echo htmlspecialchars($row['codigo_barras'] ?? ''); ?></small>
+                                            </div>
+                                            <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($row['fecha_movimiento'])); ?></small>
                                         </div>
-                                        <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($row['fecha_movimiento'])); ?></small>
+                                        <div>
+                                            <span class="badge bg-<?php echo $row['tipo_movimiento'] == 'ASIGNACION' ? 'warning' : 'success'; ?>">
+                                                <?php echo $row['tipo_movimiento']; ?>
+                                            </span>
+                                            <small class="ms-2"><?php echo htmlspecialchars($row['persona'] ?? ''); ?></small>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="badge bg-<?php echo $row['tipo_movimiento'] == 'ASIGNACION' ? 'warning' : 'success'; ?>">
-                                            <?php echo $row['tipo_movimiento']; ?>
-                                        </span>
-                                        <small class="ms-2"><?php echo $row['persona'] ?? ''; ?></small>
-                                    </div>
-                                </div>
                                 <?php endwhile; ?>
                             </div>
                         <?php else: ?>
@@ -410,8 +358,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     </div>
                 </div>
             </div>
-            
-            <!-- ÚLTIMOS MOVIMIENTOS DE COMPONENTES -->
+            <!-- Componentes -->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
@@ -421,20 +368,21 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                         <?php if ($result_movimientos_componentes && $result_movimientos_componentes->num_rows > 0): ?>
                             <div class="list-group">
                                 <?php while($row = $result_movimientos_componentes->fetch_assoc()): ?>
-                                <div class="list-group-item">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <strong><?php echo $row['tipo'] . ': ' . $row['nombre_componente']; ?></strong>
+                                    <div class="list-group-item" style="position: relative;">
+                                        <a href="/inventario_ti/modules/componentes/detalle.php?id=<?php echo $row['componente_id']; ?>" class="stretched-link"></a>
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <strong><?php echo htmlspecialchars($row['tipo'] . ': ' . $row['nombre_componente']); ?></strong>
+                                            </div>
+                                            <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($row['fecha_movimiento'])); ?></small>
                                         </div>
-                                        <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($row['fecha_movimiento'])); ?></small>
+                                        <div>
+                                            <span class="badge bg-<?php echo $row['tipo_movimiento'] == 'ASIGNACION' ? 'warning' : 'success'; ?>">
+                                                <?php echo $row['tipo_movimiento']; ?>
+                                            </span>
+                                            <small class="ms-2"><?php echo htmlspecialchars($row['persona_nombre'] ?? ''); ?></small>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="badge bg-<?php echo $row['tipo_movimiento'] == 'ASIGNACION' ? 'warning' : 'success'; ?>">
-                                            <?php echo $row['tipo_movimiento']; ?>
-                                        </span>
-                                        <small class="ms-2"><?php echo $row['persona_nombre'] ?? ''; ?></small>
-                                    </div>
-                                </div>
                                 <?php endwhile; ?>
                             </div>
                         <?php else: ?>
