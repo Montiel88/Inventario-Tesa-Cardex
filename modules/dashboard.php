@@ -52,7 +52,7 @@ if ($result) {
 $result = $conn->query("SELECT COUNT(*) as total FROM equipos WHERE estado = 'Disponible' OR estado IS NULL");
 if ($result) {
     $row = $result->fetch_assoc();
-    $total_disponibles = $row['total'];
+    $total_disponibles = $row['total']; 
 }
 
 // Total componentes
