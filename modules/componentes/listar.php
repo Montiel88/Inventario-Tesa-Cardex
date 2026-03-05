@@ -10,7 +10,9 @@ include '../../includes/header.php';
 
 $es_admin = ($_SESSION['user_rol'] == 1);
 
-// Consulta corregida: determina si el componente está asignado actualmente
+// ============================================
+// CONSULTA PRINCIPAL (excluye eliminados)
+// ============================================
 $sql = "SELECT c.*,
                (SELECT COUNT(*) FROM movimientos_componentes mc 
                 WHERE mc.componente_id = c.id 
@@ -23,14 +25,13 @@ $sql = "SELECT c.*,
                   )
                ) as asignado_actualmente
         FROM componentes c
+        WHERE c.fecha_eliminacion IS NULL
         ORDER BY c.tipo, c.nombre_componente";
 $result = $conn->query($sql);
 if (!$result) {
     die("Error en la consulta: " . $conn->error);
 }
 ?>
-
-<!-- ... resto del código (igual) ... -->
 
 <div class="container-fluid py-4">
     <div class="card">
@@ -111,8 +112,15 @@ if (!$result) {
                     </tbody>
                 </table>
             </div>
+            <div class="mt-3 text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Total de componentes activos: <strong><?php echo $result->num_rows; ?></strong>
+                <?php if (!$es_admin): ?>
+                    <span class="ms-3 badge bg-success">Modo lectura</span>
+                <?php endif; ?>
+            </div>
             <?php else: ?>
-                <p class="text-center text-muted">No hay componentes registrados.</p>
+                <p class="text-center text-muted">No hay componentes activos registrados.</p>
             <?php endif; ?>
         </div>
     </div>

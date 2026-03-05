@@ -18,13 +18,20 @@ if (!$conn) {
     die("Error de conexión a la base de datos");
 }
 
-// Consultar personas
-$sql = "SELECT * FROM personas ORDER BY nombres";
+// Consultar personas NO eliminadas
+$sql = "SELECT * FROM personas WHERE fecha_eliminacion IS NULL ORDER BY nombres";
 $result = $conn->query($sql);
 
 // Verificar si la consulta fue exitosa
 if (!$result) {
     die("Error en la consulta: " . $conn->error);
+}
+
+// Contar total de personas eliminadas (opcional para mostrar enlace)
+$total_eliminadas = 0;
+$result_elim = $conn->query("SELECT COUNT(*) as total FROM personas WHERE fecha_eliminacion IS NOT NULL");
+if ($result_elim) {
+    $total_eliminadas = $result_elim->fetch_assoc()['total'];
 }
 ?>
 
@@ -82,6 +89,13 @@ if (!$result) {
                         </div>
                     <?php endif; ?>
 
+                    <!-- Enlace para ver eliminados (solo admin) -->
+                    <?php if ($es_admin && $total_eliminadas > 0): ?>
+                        <div class="mb-3">
+                            <a href="eliminadas.php" class="text-danger"><i class="fas fa-trash-alt me-1"></i>Ver personas eliminadas (<?php echo $total_eliminadas; ?>)</a>
+                        </div>
+                    <?php endif; ?>
+
                     <?php if ($result && $result->num_rows > 0): ?>
                         <div class="table-responsive">
                             <table class="table table-hover" id="tablaPersonas">
@@ -129,7 +143,7 @@ if (!$result) {
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                     
-                                                    <!-- Botón ELIMINAR -->
+                                                    <!-- Botón ELIMINAR (marca como eliminado) -->
                                                     <a href="eliminar.php?id=<?php echo $row['id']; ?>" 
                                                        class="btn btn-sm btn-danger" 
                                                        title="Eliminar"
@@ -155,10 +169,10 @@ if (!$result) {
                             </table>
                         </div>
                         
-                        <!-- Total de registros -->
+                        <!-- Total de registros activos -->
                         <div class="mt-3 text-muted">
                             <i class="fas fa-info-circle me-1"></i>
-                            Total de personas: <strong><?php echo $result->num_rows; ?></strong>
+                            Total de personas activas: <strong><?php echo $result->num_rows; ?></strong>
                             <?php if (!$es_admin): ?>
                                 <span class="ms-3 badge bg-success">Modo lectura</span>
                             <?php endif; ?>
@@ -166,8 +180,11 @@ if (!$result) {
                         
                     <?php else: ?>
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>No hay personas registradas
-                            <?php if ($es_admin): ?>
+                            <i class="fas fa-info-circle me-2"></i>No hay personas activas registradas.
+                            <?php if ($es_admin && $total_eliminadas > 0): ?>
+                                <a href="eliminadas.php" class="alert-link ms-2">Ver personas eliminadas</a>
+                            <?php endif; ?>
+                            <?php if ($es_admin && $total_eliminadas == 0): ?>
                                 <a href="agregar.php" class="alert-link ms-2">Agregar primera persona</a>
                             <?php endif; ?>
                         </div>
@@ -213,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- ESTILOS (se mantienen igual) -->
 <style>
 /* ============================================ */
 /* ESTILOS PARA LOS BOTONES */
@@ -296,12 +314,10 @@ document.addEventListener('DOMContentLoaded', function() {
 /* RESPONSIVE PARA MÓVILES - VERSIÓN TARJETAS MEJORADA */
 /* ============================================ */
 @media (max-width: 768px) {
-    /* Ocultar cabeceras de la tabla */
     .table thead {
         display: none !important;
     }
     
-    /* Cada fila se convierte en tarjeta */
     .table tbody tr {
         display: block !important;
         margin-bottom: 20px !important;
@@ -312,7 +328,6 @@ document.addEventListener('DOMContentLoaded', function() {
         box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
     }
     
-    /* Cada celda se muestra como flex */
     .table tbody td {
         display: flex !important;
         justify-content: space-between !important;
@@ -325,12 +340,10 @@ document.addEventListener('DOMContentLoaded', function() {
         word-break: break-word !important;
     }
     
-    /* Última celda sin borde */
     .table tbody td:last-child {
         border-bottom: none !important;
     }
     
-    /* Mostrar etiqueta antes del valor */
     .table tbody td:before {
         content: attr(data-label) !important;
         font-weight: 700 !important;
@@ -342,15 +355,8 @@ document.addEventListener('DOMContentLoaded', function() {
         letter-spacing: 0.5px !important;
     }
     
-    /* Ajuste para la columna de acciones */
     .table tbody td:last-child:before {
         content: "ACCIONES" !important;
-    }
-    
-    /* Botones en móvil */
-    .table tbody td .d-flex {
-        justify-content: flex-end !important;
-        flex-wrap: wrap !important;
     }
     
     .btn-sm {
@@ -359,14 +365,12 @@ document.addEventListener('DOMContentLoaded', function() {
         margin: 2px !important;
     }
     
-    /* Badge de solo lectura */
     .badge {
         font-size: 11px !important;
         padding: 4px 8px !important;
     }
 }
 
-/* Para teléfonos muy pequeños */
 @media (max-width: 480px) {
     .table tbody td {
         font-size: 13px !important;
@@ -388,12 +392,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
-/* Para pantallas medianas (tablets) */
 @media (min-width: 769px) and (max-width: 1024px) {
     .table {
         font-size: 14px;
     }
-    
     .btn-sm {
         padding: 3px 6px;
         font-size: 0.7rem;

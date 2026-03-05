@@ -20,13 +20,16 @@ if (!$conn) {
 
 // Obtener filtro de ubicación si existe
 $ubicacion_id = isset($_GET['ubicacion_id']) ? intval($_GET['ubicacion_id']) : 0;
-$where = $ubicacion_id > 0 ? "WHERE e.ubicacion_id = $ubicacion_id" : "";
+$where_ubicacion = $ubicacion_id > 0 ? "AND e.ubicacion_id = $ubicacion_id" : "";
 
-// Consultar equipos con JOIN para obtener nombre de ubicación
+// ============================================
+// CONSULTA PRINCIPAL (excluye eliminados)
+// ============================================
 $sql = "SELECT e.*, u.nombre as ubicacion_nombre, u.codigo_ubicacion as ubicacion_codigo 
         FROM equipos e
         LEFT JOIN ubicaciones u ON e.ubicacion_id = u.id
-        $where
+        WHERE e.fecha_eliminacion IS NULL
+        $where_ubicacion
         ORDER BY e.id DESC";
 $result = $conn->query($sql);
 ?>
@@ -58,6 +61,9 @@ $result = $conn->query($sql);
                         </a>
                         <a href="registro_rapido.php" class="btn btn-success">
                             <i class="fas fa-bolt me-2"></i>Rápido
+                        </a>
+                        <a href="listar_eliminados.php" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-trash-restore me-1"></i>Ver eliminados
                         </a>
                     </div>
                     <?php endif; ?>
@@ -142,100 +148,61 @@ $result = $conn->query($sql);
                                             </span>
                                         </td>
                                         <td data-label="ACCIONES" class="text-center">
-                                            <div class="dropdown-container" style="position: relative; display: inline-block;">
-                                                <button class="btn-accion" 
-                                                        style="background: #5a2d8c; color: white; border: 1px solid #f3b229; border-radius: 30px; padding: 6px 15px; cursor: pointer; font-size: 0.85rem;"
-                                                        onclick="abrirDropdown(this)">
-                                                    <i class="fas fa-cog me-1"></i> Acciones
-                                                </button>
-                                                <div class="dropdown-menu-custom" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 2px solid #f3b229; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); padding: 8px; min-width: 220px; z-index: 10000;">
-                                                    <ul style="list-style: none; margin: 0; padding: 0;">
-                                                        
-                                                        <!-- ACTA ENTREGA (solo si está asignado) -->
-                                                        <?php if ($tiene_asignacion && $persona_id > 0): ?>
-                                                        <li>
-                                                            <a href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $persona_id; ?>" target="_blank"
-                                                               style="display: flex; align-items: center; padding: 10px 15px; color: #333; text-decoration: none; border-radius: 10px; font-size: 0.9rem;"
-                                                               onmouseover="this.style.background='#f3e9ff'" 
-                                                               onmouseout="this.style.background='transparent'">
-                                                                <i class="fas fa-file-pdf" style="width: 20px; margin-right: 10px; color: #5a2d8c;"></i> Acta Entrega
-                                                            </a>
-                                                        </li>
-                                                        <?php endif; ?>
-                                                        
-                                                        <!-- ACTA DEVOLUCIÓN -->
-                                                        <li>
-                                                            <a href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $persona_id ?: $row['id']; ?>" target="_blank"
-                                                               style="display: flex; align-items: center; padding: 10px 15px; color: #333; text-decoration: none; border-radius: 10px; font-size: 0.9rem;"
-                                                               onmouseover="this.style.background='#f3e9ff'" 
-                                                               onmouseout="this.style.background='transparent'">
-                                                                <i class="fas fa-file-pdf" style="width: 20px; margin-right: 10px; color: #5a2d8c;"></i> Acta Devolución
-                                                            </a>
-                                                        </li>
-                                                        
-                                                        <!-- DESCARGO -->
-                                                        <li>
-                                                            <a href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $persona_id ?: $row['id']; ?>" target="_blank"
-                                                               style="display: flex; align-items: center; padding: 10px 15px; color: #333; text-decoration: none; border-radius: 10px; font-size: 0.9rem;"
-                                                               onmouseover="this.style.background='#f3e9ff'" 
-                                                               onmouseout="this.style.background='transparent'">
-                                                                <i class="fas fa-file-signature" style="width: 20px; margin-right: 10px; color: #5a2d8c;"></i> Descargo
-                                                            </a>
-                                                        </li>
-                                                        
-                                                        <!-- TRAZABILIDAD -->
-                                                        <li>
-                                                            <a href="../reportes/trazabilidad_equipo.php?id=<?php echo $row['id']; ?>"
-                                                               style="display: flex; align-items: center; padding: 10px 15px; color: #333; text-decoration: none; border-radius: 10px; font-size: 0.9rem;"
-                                                               onmouseover="this.style.background='#f3e9ff'" 
-                                                               onmouseout="this.style.background='transparent'">
-                                                                <i class="fas fa-history" style="width: 20px; margin-right: 10px; color: #5a2d8c;"></i> Trazabilidad
-                                                            </a>
-                                                        </li>
-                                                        
-                                                        <!-- QR -->
-                                                        <li>
-                                                            <a href="/inventario_ti/api/generar_qr_equipo.php?id=<?php echo $row['id']; ?>" download
-                                                               style="display: flex; align-items: center; padding: 10px 15px; color: #333; text-decoration: none; border-radius: 10px; font-size: 0.9rem;"
-                                                               onmouseover="this.style.background='#f3e9ff'" 
-                                                               onmouseout="this.style.background='transparent'">
-                                                                <i class="fas fa-qrcode" style="width: 20px; margin-right: 10px; color: #5a2d8c;"></i> Descargar QR
-                                                            </a>
-                                                        </li>
-                                                        
-                                                        <li style="height: 1px; background: #e0e0e0; margin: 8px 0;"></li>
-                                                        
-                                                        <!-- VER DETALLE -->
-                                                        <li>
-                                                            <a href="detalle.php?id=<?php echo $row['id']; ?>"
-                                                               style="display: flex; align-items: center; padding: 10px 15px; color: #333; text-decoration: none; border-radius: 10px; font-size: 0.9rem;"
-                                                               onmouseover="this.style.background='#f3e9ff'" 
-                                                               onmouseout="this.style.background='transparent'">
-                                                                <i class="fas fa-eye" style="width: 20px; margin-right: 10px; color: #5a2d8c;"></i> Ver Detalle
-                                                            </a>
-                                                        </li>
-                                                        
-                                                        <!-- EDITAR -->
-                                                        <li>
-                                                            <a href="editar.php?id=<?php echo $row['id']; ?>"
-                                                               style="display: flex; align-items: center; padding: 10px 15px; color: #333; text-decoration: none; border-radius: 10px; font-size: 0.9rem;"
-                                                               onmouseover="this.style.background='#f3e9ff'" 
-                                                               onmouseout="this.style.background='transparent'">
-                                                                <i class="fas fa-edit" style="width: 20px; margin-right: 10px; color: #5a2d8c;"></i> Editar
-                                                            </a>
-                                                        </li>
-                                                        
-                                                        <!-- ELIMINAR -->
-                                                        <li>
-                                                            <a href="eliminar.php?id=<?php echo $row['id']; ?>" 
-                                                               onclick="return confirm('⚠️ ¿ELIMINAR?\n\nEquipo: <?php echo addslashes($row['tipo_equipo']); ?>\nCódigo: <?php echo addslashes($row['codigo_barras']); ?>\n\nSe borrará TODO su historial.\n¿Continuar?')"
-                                                               style="display: flex; align-items: center; padding: 10px 15px; color: #dc3545; text-decoration: none; border-radius: 10px; font-size: 0.9rem;"
-                                                               onmouseover="this.style.background='#ffeeee'" 
-                                                               onmouseout="this.style.background='transparent'">
-                                                                <i class="fas fa-trash-alt" style="width: 20px; margin-right: 10px; color: #dc3545;"></i> Eliminar
-                                                            </a>
-                                                        </li>
-                                                    </ul>
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-primary btn-abrir-acciones"
+                                                data-equipo-label="<?php echo htmlspecialchars(($row['tipo_equipo'] ?? 'Equipo') . ' - ' . ($row['codigo_barras'] ?? 'N/A'), ENT_QUOTES, 'UTF-8'); ?>"
+                                                data-template-id="acciones-template-<?php echo (int)$row['id']; ?>"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#accionesModalGlobal">
+                                                <i class="fas fa-cog"></i> Acciones
+                                            </button>
+
+                                            <div id="acciones-template-<?php echo (int)$row['id']; ?>" class="d-none">
+                                                <div class="list-group">
+                                                    <?php if ($tiene_asignacion && $persona_id > 0): ?>
+                                                        <a href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $persona_id; ?>" target="_blank" class="list-group-item list-group-item-action">
+                                                            <i class="fas fa-file-pdf me-2" style="color: #5a2d8c;"></i> Acta Entrega
+                                                        </a>
+                                                    <?php endif; ?>
+                                                    
+                                                    <a href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $persona_id ?: $row['id']; ?>" target="_blank" class="list-group-item list-group-item-action">
+                                                        <i class="fas fa-file-pdf me-2" style="color: #5a2d8c;"></i> Acta Devolución
+                                                    </a>
+                                                    
+                                                    <a href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $persona_id ?: $row['id']; ?>" target="_blank" class="list-group-item list-group-item-action">
+                                                        <i class="fas fa-file-signature me-2" style="color: #5a2d8c;"></i> Descargo
+                                                    </a>
+                                                    
+                                                    <a href="../reportes/trazabilidad_equipo.php?id=<?php echo $row['id']; ?>" class="list-group-item list-group-item-action">
+                                                        <i class="fas fa-history me-2" style="color: #5a2d8c;"></i> Trazabilidad
+                                                    </a>
+                                                    
+                                                    <a href="/inventario_ti/api/generar_qr_equipo.php?id=<?php echo $row['id']; ?>" download class="list-group-item list-group-item-action">
+                                                        <i class="fas fa-qrcode me-2" style="color: #5a2d8c;"></i> Descargar QR
+                                                    </a>
+                                                    
+                                                    <div class="list-group-item list-group-item-action disabled" style="background: #f8f9fa;">
+                                                        <hr class="my-1">
+                                                    </div>
+                                                    
+                                                    <a href="detalle.php?id=<?php echo $row['id']; ?>" class="list-group-item list-group-item-action">
+                                                        <i class="fas fa-eye me-2" style="color: #5a2d8c;"></i> Ver Detalle
+                                                    </a>
+                                                    
+                                                    <a href="editar.php?id=<?php echo $row['id']; ?>" class="list-group-item list-group-item-action">
+                                                        <i class="fas fa-edit me-2" style="color: #5a2d8c;"></i> Editar
+                                                    </a>
+                                                    
+                                                    <?php if (!$tiene_asignacion): ?>
+                                                        <a href="eliminar.php?id=<?php echo $row['id']; ?>" class="list-group-item list-group-item-action text-danger" onclick="return confirm('⚠️ ¿ELIMINAR?\n\nEquipo: <?php echo addslashes($row['tipo_equipo']); ?>\nCódigo: <?php echo addslashes($row['codigo_barras']); ?>\n\nSe marcará como eliminado.\n¿Continuar?')">
+                                                            <i class="fas fa-trash-alt me-2 text-danger"></i> Eliminar
+                                                        </a>
+                                                    <?php else: ?>
+                                                        <span class="list-group-item list-group-item-action disabled text-muted">
+                                                            <i class="fas fa-ban me-2"></i> No se puede eliminar (prestado)
+                                                        </span>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                         </td>
@@ -248,7 +215,7 @@ $result = $conn->query($sql);
                         <!-- Total de registros -->
                         <div class="mt-3 text-muted">
                             <i class="fas fa-info-circle me-1"></i>
-                            Total de equipos: <strong><?php echo $result->num_rows; ?></strong>
+                            Total de equipos activos: <strong><?php echo $result->num_rows; ?></strong>
                             <?php if (!$es_admin): ?>
                                 <span class="ms-3 badge bg-success">Modo lectura</span>
                             <?php endif; ?>
@@ -256,7 +223,7 @@ $result = $conn->query($sql);
                         
                     <?php else: ?>
                         <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>No hay equipos registrados.
+                            <i class="fas fa-info-circle me-2"></i>No hay equipos activos registrados.
                             <?php if ($es_admin): ?>
                                 <a href="agregar.php" class="alert-link ms-2">Agrega el primero</a>
                             <?php else: ?>
@@ -265,6 +232,21 @@ $result = $conn->query($sql);
                         </div>
                     <?php endif; ?>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="accionesModalGlobal" tabindex="-1" aria-labelledby="accionesModalGlobalLabel" aria-hidden="true" data-bs-backdrop="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="accionesModalGlobalLabel">Acciones</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="accionesModalGlobalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -298,54 +280,27 @@ document.addEventListener('DOMContentLoaded', function() {
             fila.style.display = coincide ? '' : 'none';
         }
     });
-});
-</script>
 
-<!-- SCRIPT PARA EL DROPDOWN -->
-<script>
-// Variable para controlar el dropdown abierto
-var dropdownAbierto = null;
+    const modalTitle = document.getElementById('accionesModalGlobalLabel');
+    const modalBody = document.getElementById('accionesModalGlobalBody');
+    const botonesAcciones = document.querySelectorAll('.btn-abrir-acciones');
+    const accionesModal = document.getElementById('accionesModalGlobal');
 
-function abrirDropdown(boton) {
-    var dropdown = boton.nextElementSibling;
-    
-    // Si hay un dropdown abierto y es diferente, cerrarlo
-    if (dropdownAbierto && dropdownAbierto !== dropdown) {
-        dropdownAbierto.style.display = 'none';
+    if (accionesModal) {
+        accionesModal.addEventListener('show.bs.modal', function() {
+            document.querySelectorAll('.modal-backdrop').forEach(function(el) { el.remove(); });
+        });
     }
-    
-    // Si el dropdown actual está visible, ocultarlo
-    if (dropdown.style.display === 'block') {
-        dropdown.style.display = 'none';
-        dropdownAbierto = null;
-    } else {
-        // Ocultar todos primero
-        var todos = document.querySelectorAll('.dropdown-menu-custom');
-        for (var i = 0; i < todos.length; i++) {
-            todos[i].style.display = 'none';
-        }
-        
-        // Mostrar este
-        dropdown.style.display = 'block';
-        dropdownAbierto = dropdown;
-    }
-    
-    // Evitar que el clic se propague
-    event.stopPropagation();
-}
 
-// Cerrar dropdown al hacer clic fuera
-document.addEventListener('click', function() {
-    if (dropdownAbierto) {
-        dropdownAbierto.style.display = 'none';
-        dropdownAbierto = null;
-    }
-});
+    botonesAcciones.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const equipoLabel = btn.getAttribute('data-equipo-label') || 'Equipo';
+            const templateId = btn.getAttribute('data-template-id');
+            const template = templateId ? document.getElementById(templateId) : null;
 
-// Evitar que el dropdown se cierre al hacer clic dentro
-document.querySelectorAll('.dropdown-menu-custom').forEach(function(dropdown) {
-    dropdown.addEventListener('click', function(event) {
-        event.stopPropagation();
+            modalTitle.textContent = 'Acciones para ' + equipoLabel;
+            modalBody.innerHTML = template ? template.innerHTML : '<div class="alert alert-warning mb-0">No se pudieron cargar las acciones.</div>';
+        });
     });
 });
 </script>

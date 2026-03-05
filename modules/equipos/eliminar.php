@@ -14,11 +14,8 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $id = intval($_GET['id']);
 
 // ============================================
-// ELIMINACIÓN TOTAL DEL EQUIPO (CON HISTORIAL)
+// ELIMINACIÓN LÓGICA (SOFT DELETE) DEL EQUIPO
 // ============================================
-
-// Iniciar transacción para asegurar que todo se elimine correctamente
-$conn->begin_transaction();
 
 try {
     // 1. Verificar si el equipo existe
@@ -42,30 +39,39 @@ try {
         throw new Exception("No se puede eliminar un equipo que está actualmente prestado. Primero registre la devolución.");
     }
     
-    // 3. ELIMINAR TODOS LOS REGISTROS RELACIONADOS
+    // 3. Verificar si el equipo ya está eliminado (opcional)
+    $sql_eliminado = "SELECT fecha_eliminacion FROM equipos WHERE id = $id";
+    $result_eliminado = $conn->query($sql_eliminado);
+    $row_eliminado = $result_eliminado->fetch_assoc();
+    if ($row_eliminado['fecha_eliminacion'] !== null) {
+        throw new Exception("El equipo ya ha sido eliminado anteriormente.");
+    }
     
-    // Eliminar movimientos del equipo
-    $conn->query("DELETE FROM movimientos WHERE equipo_id = $id");
+    // 4. Realizar la eliminación lógica
+    $usuario_actual = (int)$_SESSION['user_id'];
+    $check_eliminado_por = $conn->query("SHOW COLUMNS FROM equipos LIKE 'eliminado_por'");
+
+    if ($check_eliminado_por && $check_eliminado_por->num_rows > 0) {
+        $sql_update = "UPDATE equipos SET fecha_eliminacion = NOW(), eliminado_por = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql_update);
+        $stmt->bind_param("ii", $usuario_actual, $id);
+    } else {
+        $sql_update = "UPDATE equipos SET fecha_eliminacion = NOW() WHERE id = ?";
+        $stmt = $conn->prepare($sql_update);
+        $stmt->bind_param("i", $id);
+    }
     
-    // Eliminar asignaciones del equipo (historial de préstamos)
-    $conn->query("DELETE FROM asignaciones WHERE equipo_id = $id");
-    
-    // 4. FINALMENTE ELIMINAR EL EQUIPO
-    $conn->query("DELETE FROM equipos WHERE id = $id");
-    
-    // Confirmar todos los cambios
-    $conn->commit();
+    if (!$stmt->execute()) {
+        throw new Exception("Error al eliminar el equipo: " . $conn->error);
+    }
     
     // Redirigir con mensaje de éxito
-    header('Location: listar.php?mensaje=' . urlencode("✅ Equipo eliminado permanentemente: $tipo ($codigo)"));
+    header('Location: listar.php?mensaje=' . urlencode("✅ Equipo eliminado (marcado como eliminado): $tipo ($codigo)"));
     
 } catch (Exception $e) {
-    // Revertir cambios en caso de error
-    $conn->rollback();
-    
     // Redirigir con mensaje de error
     header('Location: listar.php?error=' . urlencode("❌ " . $e->getMessage()));
 }
 
 exit();
-?>
+?>  

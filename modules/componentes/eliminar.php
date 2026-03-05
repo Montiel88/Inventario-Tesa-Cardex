@@ -32,9 +32,25 @@ if ($row['total'] > 0) {
     exit();
 }
 
-// Eliminar (los movimientos relacionados se borrarán por ON DELETE CASCADE si la FK está configurada)
-$conn->query("DELETE FROM componentes WHERE id = $id");
+// Verificar si ya está eliminado
+$check_eliminado = $conn->query("SELECT fecha_eliminacion FROM componentes WHERE id = $id");
+$row_eliminado = $check_eliminado->fetch_assoc();
+if ($row_eliminado && $row_eliminado['fecha_eliminacion'] !== null) {
+    header('Location: listar.php?error=El componente ya ha sido eliminado anteriormente');
+    exit();
+}
 
-header('Location: listar.php?mensaje=Componente eliminado correctamente');
+// Eliminación lógica (soft delete)
+$usuario_actual = $_SESSION['user_id'];
+$sql = "UPDATE componentes SET fecha_eliminacion = NOW(), eliminado_por = ? WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ii", $usuario_actual, $id);
+
+if ($stmt->execute()) {
+    header('Location: listar.php?mensaje=Componente eliminado correctamente (marcado como eliminado)');
+} else {
+    header('Location: listar.php?error=' . urlencode("Error al eliminar: " . $conn->error));
+}
+$stmt->close();
 exit();
 ?>

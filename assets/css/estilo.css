@@ -1427,3 +1427,25 @@ body::before {
 .d-flex.gap-1 .btn-sm.btn-success:hover {
     background: #218838 !important;
 }
+/* Evitar que el dropdown se corte dentro de .table-responsive */
+@media (max-width: 767px) {
+    .table-responsive .dropdown-menu-custom {
+        position: static !important;
+        z-index: 10000;
+    }
+}
+
+@media (min-width: 768px) {
+    .table-responsive {
+        overflow: visible !important;
+    }
+}
+
+/* Forzar orden correcto entre modal y backdrop para evitar bloqueos de clics */
+.modal {
+    z-index: 2000001 !important;
+}
+
+.modal-backdrop {
+    z-index: 2000000 !important;
+}

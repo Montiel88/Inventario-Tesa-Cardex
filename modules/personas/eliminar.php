@@ -57,15 +57,18 @@ if ($tiene_movimientos || $tiene_asignaciones) {
 }
 
 // ============================================
-// ELIMINACIÓN SIMPLE (SIN MOVIMIENTOS)
+// ELIMINACIÓN LÓGICA (SOFT DELETE)
 // ============================================
-$sql = "DELETE FROM personas WHERE id = $id";
+$usuario_actual = $_SESSION['user_id'];
+$sql = "UPDATE personas SET fecha_eliminacion = NOW(), eliminado_por = ? WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ii", $usuario_actual, $id);
 
-if ($conn->query($sql)) {
-    header('Location: listar.php?mensaje=' . urlencode("✅ Persona eliminada: $nombre_persona"));
+if ($stmt->execute()) {
+    header('Location: listar.php?mensaje=' . urlencode("✅ Persona eliminada (lógicamente): $nombre_persona"));
 } else {
     header('Location: listar.php?error=' . urlencode("❌ Error al eliminar: " . $conn->error));
 }
-
+$stmt->close();
 exit();
 ?>

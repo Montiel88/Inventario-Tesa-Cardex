@@ -233,7 +233,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                 <?php endif; ?>
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
@@ -402,39 +402,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     <?php endif; ?>
     
     <!-- EL MAIN SE CIERRA EN EL FOOTER -->
-    <main class="container mt-4">
+   <main class="container mt-4">
 
     <!-- Script para el comportamiento de la lupa -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchContainer = document.getElementById('globalSearchContainer');
-        const searchIcon = document.getElementById('globalSearchIcon');
-        const searchInput = document.querySelector('.search-global-input');
-
-        if (searchContainer && searchIcon && searchInput) {
-            searchIcon.addEventListener('click', function(e) {
-                e.stopPropagation();
-                searchContainer.classList.add('active');
-                searchInput.focus();
-            });
-
-            searchInput.addEventListener('blur', function() {
-                if (window.innerWidth > 768 && searchInput.value === '') {
-                    searchContainer.classList.remove('active');
-                }
-            });
-
-            searchContainer.addEventListener('mouseenter', function() {
-                if (window.innerWidth > 768) {
-                    searchContainer.classList.add('active');
-                }
-            });
-
-            searchContainer.addEventListener('mouseleave', function() {
-                if (window.innerWidth > 768 && searchInput.value === '') {
-                    searchContainer.classList.remove('active');
-                }
-            });
-        }
-    });
-    </script>
+   
