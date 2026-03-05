@@ -283,6 +283,10 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                                 <i class="fas fa-plus-circle"></i> Agregar Equipo
                             </a></li>
                             <?php endif; ?>
+                            <!-- NUEVO: MANTENIMIENTOS -->
+                            <li><a class="dropdown-item" href="/inventario_ti/modules/mantenimientos/listar.php">
+                                <i class="fas fa-tools"></i> Mantenimientos
+                            </a></li>
                         </ul>
                     </li>
                     
@@ -307,6 +311,12 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                             </a></li>
                             
                             <li><hr class="dropdown-divider"></li>
+
+                            <!-- 👇 NUEVA OPCIÓN: PRÉSTAMOS RÁPIDOS -->
+                            <li><a class="dropdown-item" href="/inventario_ti/modules/prestamos_rapidos/listar.php">
+                            <i class="fas fa-hand-holding-heart"></i> Préstamos Rápidos
+                            </a></li>
+                            <!-- 👆 FIN NUEVA OPCIÓN -->
                             
                             <!-- SUBMENÚ DE REPORTES -->
                             <li><h6 class="dropdown-header"><i class="fas fa-chart-bar me-2"></i>REPORTES</h6></li>
