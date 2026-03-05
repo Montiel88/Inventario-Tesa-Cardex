@@ -1,3 +1,6 @@
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 <?php
 session_start();
 require_once '../../config/permisos.php';
@@ -139,6 +142,60 @@ $tipos_equipos = [
     'Impresora de Etiquetas' => '🏷️ Impresora de Etiquetas',
     'Otro' => '🔧 Otro (especificar en observaciones)'
 ];
+
+// ============================================
+// PROCESAR EL FORMULARIO
+// ============================================
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    
+    $tipo_equipo = $conn->real_escape_string($_POST['tipo_equipo'] ?? '');
+    $marca = $conn->real_escape_string($_POST['marca'] ?? '');
+    $modelo = $conn->real_escape_string($_POST['modelo'] ?? '');
+    $serie = $conn->real_escape_string($_POST['numero_serie'] ?? '');
+    $codigo_barras = $conn->real_escape_string($_POST['codigo_barras'] ?? '');
+    $especificaciones = $conn->real_escape_string($_POST['especificaciones'] ?? '');
+    $persona_id = intval($_POST['persona_id'] ?? 0);
+    $ubicacion_id = !empty($_POST['ubicacion_id']) ? intval($_POST['ubicacion_id']) : 'NULL';
+    
+    if (empty($tipo_equipo)) {
+        $error = "❌ El tipo de equipo es obligatorio";
+    } elseif ($persona_id == 0) {
+        $error = "❌ Debe seleccionar una persona";
+    } else {
+        
+        if (empty($codigo_barras)) {
+            $result = $conn->query("SELECT MAX(id) as max_id FROM equipos");
+            $row = $result->fetch_assoc();
+            $next_id = ($row['max_id'] ?? 0) + 1;
+            $codigo_barras = 'PRO-' . str_pad($next_id, 6, '0', STR_PAD_LEFT);
+        }
+        
+        // Insertar equipo con ubicación
+        $sql_equipo = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, ubicacion_id, estado) 
+                       VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$serie', '$especificaciones', $ubicacion_id, 'Asignado')";
+        
+        if ($conn->query($sql_equipo)) {
+            $equipo_id = $conn->insert_id;
+            
+            // Crear asignación
+            $sql_asignacion = "INSERT INTO asignaciones (equipo_id, persona_id, fecha_asignacion) 
+                              VALUES ($equipo_id, $persona_id, NOW())";
+            
+            if ($conn->query($sql_asignacion)) {
+                // Registrar movimiento
+                $sql_movimiento = "INSERT INTO movimientos (equipo_id, persona_id, tipo_movimiento) 
+                                 VALUES ($equipo_id, $persona_id, 'ASIGNACION')";
+                $conn->query($sql_movimiento);
+                
+                $mensaje = "✅ Equipo asignado correctamente. Código: $codigo_barras";
+            } else {
+                $error = "❌ Error al asignar: " . $conn->error;
+            }
+        } else {
+            $error = "❌ Error al guardar equipo: " . $conn->error;
+        }
+    }
+}
 ?>
 
 <style>
@@ -289,7 +346,7 @@ $tipos_equipos = [
                                 <input type="text" name="numero_serie" id="numero_serie" class="form-control" placeholder="Serie del fabricante">
                             </div>
                             
-                            <!-- Campo de ubicación (YA CARGA TODAS LAS UBICACIONES) -->
+                            <!-- Campo de ubicación -->
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Ubicación</label>
                                 <select name="ubicacion_id" class="form-control">

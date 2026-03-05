@@ -62,6 +62,11 @@ $result = $conn->query($sql);
                         <a href="registro_rapido.php" class="btn btn-success">
                             <i class="fas fa-bolt me-2"></i>Rápido
                         </a>
+                        <!-- 👇 NUEVO BOTÓN DE BAJA MASIVA -->
+                        <a href="#" class="btn btn-danger" id="btnBajaMasiva" onclick="procesarBajaMasiva()">
+                            <i class="fas fa-trash-alt me-2"></i>Baja Masiva
+                        </a>
+                        <!-- 👆 FIN NUEVO BOTÓN -->
                         <a href="listar_eliminados.php" class="btn btn-outline-secondary btn-sm">
                             <i class="fas fa-trash-restore me-1"></i>Ver eliminados
                         </a>
@@ -109,6 +114,9 @@ $result = $conn->query($sql);
                             <table class="table table-hover" id="tablaEquipos">
                                 <thead>
                                     <tr>
+                                        <!-- 👇 NUEVA COLUMNA DE SELECCIÓN -->
+                                        <th style="width: 40px;"><input type="checkbox" id="seleccionarTodos"></th>
+                                        <!-- 👆 FIN NUEVA COLUMNA -->
                                         <th>Código</th>
                                         <th>Tipo</th>
                                         <th>Marca</th>
@@ -126,6 +134,11 @@ $result = $conn->query($sql);
                                         $persona_id = $tiene_asignacion ? $check_asignado->fetch_assoc()['persona_id'] : 0;
                                     ?>
                                     <tr>
+                                        <!-- 👇 CHECKBOX POR FILA -->
+                                        <td data-label="SELECCIONAR" style="width: 40px; text-align: center;">
+                                            <input type="checkbox" class="checkbox-equipo" value="<?php echo $row['id']; ?>">
+                                        </td>
+                                        <!-- 👆 FIN CHECKBOX -->
                                         <td data-label="CÓDIGO"><?php echo htmlspecialchars($row['codigo_barras'] ?? 'N/A'); ?></td>
                                         <td data-label="TIPO"><?php echo htmlspecialchars($row['tipo_equipo'] ?? 'N/A'); ?></td>
                                         <td data-label="MARCA"><?php echo htmlspecialchars($row['marca'] ?? 'N/A'); ?></td>
@@ -172,6 +185,11 @@ $result = $conn->query($sql);
                                                     
                                                     <a href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $persona_id ?: $row['id']; ?>" target="_blank" class="list-group-item list-group-item-action">
                                                         <i class="fas fa-file-signature me-2" style="color: #5a2d8c;"></i> Descargo
+                                                    </a>
+
+                                                    <!-- ACTA DE BAJA -->
+                                                    <a href="/inventario_ti/api/generar_acta_baja.php?equipo_id=<?php echo $row['id']; ?>" target="_blank" class="list-group-item list-group-item-action">
+                                                    <i class="fas fa-trash-alt me-2" style="color: #dc3545;"></i> Acta de Baja
                                                     </a>
                                                     
                                                     <a href="../reportes/trazabilidad_equipo.php?id=<?php echo $row['id']; ?>" class="list-group-item list-group-item-action">
@@ -252,7 +270,7 @@ $result = $conn->query($sql);
     </div>
 </div>
 
-<!-- SCRIPT PARA EL BUSCADOR -->
+<!-- SCRIPT PARA EL BUSCADOR Y FUNCIONALIDADES -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const buscador = document.getElementById('buscadorEquipos');
@@ -302,7 +320,38 @@ document.addEventListener('DOMContentLoaded', function() {
             modalBody.innerHTML = template ? template.innerHTML : '<div class="alert alert-warning mb-0">No se pudieron cargar las acciones.</div>';
         });
     });
+
+    // 👇 FUNCIÓN PARA SELECCIONAR TODOS LOS CHECKBOXES
+    const selectAll = document.getElementById('seleccionarTodos');
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.checkbox-equipo');
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = selectAll.checked;
+            });
+        });
+    }
 });
+
+// 👇 FUNCIÓN PARA PROCESAR BAJA MASIVA
+function procesarBajaMasiva() {
+    const checkboxes = document.querySelectorAll('.checkbox-equipo:checked');
+    
+    if (checkboxes.length === 0) {
+        alert('❌ Debe seleccionar al menos un equipo');
+        return;
+    }
+    
+    const ids = [];
+    checkboxes.forEach(function(checkbox) {
+        ids.push(checkbox.value);
+    });
+    
+    const confirmacion = confirm(`¿Está seguro de dar de baja ${ids.length} equipo(s)?`);
+    if (!confirmacion) return;
+    
+    window.location.href = `baja_masiva.php?ids=${ids.join(',')}`;
+}
 </script>
 
 <?php include '../../includes/footer.php'; ?>

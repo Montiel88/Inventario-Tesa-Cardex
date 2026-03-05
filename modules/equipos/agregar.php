@@ -20,7 +20,7 @@ $mensaje = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $codigo_barras = $conn->real_escape_string($_POST['codigo_barras'] ?? '');
+    $codigo_barras = trim($conn->real_escape_string($_POST['codigo_barras'] ?? ''));
     $tipo_equipo = $conn->real_escape_string($_POST['tipo_equipo'] ?? '');
     $marca = $conn->real_escape_string($_POST['marca'] ?? '');
     $modelo = $conn->real_escape_string($_POST['modelo'] ?? '');
@@ -33,20 +33,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($tipo_equipo)) {
         $error = "❌ El tipo de equipo es obligatorio";
     } else {
-        if (empty($codigo_barras)) {
+        // 👉 CASO 1: El usuario ingresó un código manualmente
+        if (!empty($codigo_barras)) {
+            // Verificar que el código no exista
+            $check = $conn->query("SELECT id FROM equipos WHERE codigo_barras = '$codigo_barras'");
+            if ($check->num_rows > 0) {
+                $error = "❌ El código de barras '$codigo_barras' ya existe. Usa otro o déjalo vacío para generar uno automático.";
+            }
+        } 
+        // 👉 CASO 2: El usuario dejó vacío → generar código interno
+        else {
             $result = $conn->query("SELECT MAX(id) as max_id FROM equipos");
             $row = $result->fetch_assoc();
             $next_id = ($row['max_id'] ?? 0) + 1;
             $codigo_barras = 'PRO-' . str_pad($next_id, 6, '0', STR_PAD_LEFT);
         }
 
-        $sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, observaciones, ubicacion_id, estado) 
-                VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$numero_serie', '$especificaciones', '$observaciones', $ubicacion_id, '$estado')";
+        // Si no hay error, proceder a insertar
+        if (empty($error)) {
+            $sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, observaciones, ubicacion_id, estado) 
+                    VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$numero_serie', '$especificaciones', '$observaciones', $ubicacion_id, '$estado')";
 
-        if ($conn->query($sql)) {
-            $mensaje = "✅ Equipo registrado exitosamente. Código: $codigo_barras";
-        } else {
-            $error = "❌ Error al guardar: " . $conn->error;
+            if ($conn->query($sql)) {
+                $mensaje = "✅ Equipo registrado exitosamente. Código: $codigo_barras";
+            } else {
+                $error = "❌ Error al guardar: " . $conn->error;
+            }
         }
     }
 }
@@ -77,8 +89,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Código de Barras</label>
-                                <input type="text" name="codigo_barras" class="form-control" placeholder="Dejar vacío para generar automático">
-                                <small class="text-muted">Si deja vacío, se generará automáticamente (ej: PRO-000001)</small>
+                                <input type="text" name="codigo_barras" class="form-control" 
+                                       placeholder="Ingrese código del equipo o deje vacío">
+                                <small class="text-muted">
+                                    ✅ Si el equipo tiene su propio código, ingrésalo aquí.<br>
+                                    ✅ Si no tiene o no se puede leer, déjalo vacío y el sistema generará uno interno (ej: PRO-000123).
+                                </small>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Tipo de Equipo *</label>
