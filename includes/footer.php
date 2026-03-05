@@ -139,7 +139,6 @@
         </div>
     </div>
     <?php endif; ?>
-
     <script>
     document.addEventListener('show.bs.modal', function (event) {
         if (!event.target.classList.contains('modal')) return;
@@ -163,31 +162,45 @@
  <script>
     document.addEventListener('DOMContentLoaded', function() {
         const searchContainer = document.getElementById('globalSearchContainer');
-        const searchIcon = document.getElementById('globalSearchIcon');
+        const searchToggle = document.getElementById('globalSearchToggle');
+        const searchClose = document.getElementById('globalSearchClose');
         const searchInput = document.querySelector('.search-global-input');
 
-        if (searchContainer && searchIcon && searchInput) {
-            searchIcon.addEventListener('click', function(e) {
+        if (searchContainer && searchToggle && searchInput) {
+            const closeSearch = function(forceClose) {
+                if (forceClose || searchInput.value.trim() === '') {
+                    searchContainer.classList.remove('active');
+                }
+            };
+
+            searchToggle.addEventListener('click', function(e) {
                 e.stopPropagation();
+                if (searchContainer.classList.contains('active')) {
+                    closeSearch(true);
+                    return;
+                }
                 searchContainer.classList.add('active');
                 searchInput.focus();
             });
 
-            searchInput.addEventListener('blur', function() {
-                if (window.innerWidth > 768 && searchInput.value === '') {
-                    searchContainer.classList.remove('active');
+            if (searchClose) {
+                searchClose.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    searchInput.value = '';
+                    closeSearch(true);
+                });
+            }
+
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    searchInput.blur();
+                    closeSearch(true);
                 }
             });
 
-            searchContainer.addEventListener('mouseenter', function() {
-                if (window.innerWidth > 768) {
-                    searchContainer.classList.add('active');
-                }
-            });
-
-            searchContainer.addEventListener('mouseleave', function() {
-                if (window.innerWidth > 768 && searchInput.value === '') {
-                    searchContainer.classList.remove('active');
+            document.addEventListener('click', function(e) {
+                if (!searchContainer.contains(e.target)) {
+                    closeSearch(false);
                 }
             });
         }

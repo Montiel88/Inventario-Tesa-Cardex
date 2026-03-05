@@ -27,19 +27,17 @@ if ($result_equipo->num_rows == 0) {
 $equipo = $result_equipo->fetch_assoc();
 
 // Obtener historial de movimientos
-$sql_movimientos = "SELECT m.*, p.nombres as persona_nombre, u.nombre as usuario_nombre
+$sql_movimientos = "SELECT m.*, p.nombres as persona_nombre
                     FROM movimientos m
                     LEFT JOIN personas p ON m.persona_id = p.id
-                    LEFT JOIN usuarios u ON m.usuario_registro = u.id
                     WHERE m.equipo_id = $id
                     ORDER BY m.fecha_movimiento DESC";
 $movimientos = $conn->query($sql_movimientos);
 
 // Obtener historial de incidencias
-$sql_incidencias = "SELECT i.*, p.nombres as persona_nombre, u.nombre as usuario_nombre
+$sql_incidencias = "SELECT i.*, p.nombres as persona_nombre
                     FROM incidencias i
                     LEFT JOIN personas p ON i.persona_id = p.id
-                    LEFT JOIN usuarios u ON i.usuario_registro = u.id
                     WHERE i.equipo_id = $id
                     ORDER BY i.fecha_reporte DESC";
 $incidencias = $conn->query($sql_incidencias);
@@ -88,9 +86,7 @@ $incidencias = $conn->query($sql_incidencias);
                         </div>
                     </div>
 
-                    <!-- ============================================ -->
                     <!-- MOVIMIENTOS -->
-                    <!-- ============================================ -->
                     <div class="d-flex justify-content-between align-items-center mt-4">
                         <h5><i class="fas fa-list me-2"></i>Movimientos registrados</h5>
                         <?php if ($es_admin): ?>
@@ -128,7 +124,7 @@ $incidencias = $conn->query($sql_incidencias);
                                         <td><?php echo $mov['persona_nombre'] ?? '-'; ?></td>
                                         <td><?php echo nl2br($mov['observaciones'] ?? ''); ?></td>
                                         <td><?php echo nl2br($mov['descripcion'] ?? ''); ?></td>
-                                        <td><?php echo $mov['usuario_nombre'] ?? 'Sistema'; ?></td>
+                                        <td>Sistema</td>
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>
@@ -138,9 +134,7 @@ $incidencias = $conn->query($sql_incidencias);
                         <p class="text-muted">No hay movimientos registrados para este equipo.</p>
                     <?php endif; ?>
 
-                    <!-- ============================================ -->
                     <!-- INCIDENCIAS -->
-                    <!-- ============================================ -->
                     <div class="d-flex justify-content-between align-items-center mt-5">
                         <h5><i class="fas fa-exclamation-triangle me-2"></i>Incidencias reportadas</h5>
                         <?php if ($es_admin): ?>
@@ -159,7 +153,6 @@ $incidencias = $conn->query($sql_incidencias);
                                         <th>Descripción</th>
                                         <th>Estado</th>
                                         <th>Persona</th>
-                                        <th>Fecha resolución</th>
                                         <th>Observaciones</th>
                                     </tr>
                                 </thead>
@@ -185,7 +178,6 @@ $incidencias = $conn->query($sql_incidencias);
                                             </span>
                                         </td>
                                         <td><?php echo $inc['persona_nombre'] ?? '-'; ?></td>
-                                        <td><?php echo $inc['fecha_resolucion'] ? date('d/m/Y H:i', strtotime($inc['fecha_resolucion'])) : '-'; ?></td>
                                         <td><?php echo nl2br($inc['observaciones'] ?? ''); ?></td>
                                     </tr>
                                     <?php endwhile; ?>
