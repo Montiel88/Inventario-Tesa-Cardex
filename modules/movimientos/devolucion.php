@@ -42,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
                 $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
                 
                 if(in_array($ext, $allowed)) {
-                    // Crear carpeta si no existe
                     $carpeta_fotos = '../../uploads/devoluciones/';
                     if (!file_exists($carpeta_fotos)) {
                         mkdir($carpeta_fotos, 0777, true);
@@ -70,20 +69,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
                 // 2. ACTUALIZAR ESTADO Y CREAR MANTENIMIENTO SI ES NECESARIO
                 // ============================================
                 if ($estado_equipo == 'BUENO') {
-                    // Equipo en buen estado, disponible
                     $nuevo_estado = 'Disponible';
-                    // No crear mantenimiento
                 } else {
-                    // Equipo dañado, pasa a mantenimiento
                     $nuevo_estado = 'En mantenimiento';
                     
-                    // Crear descripción para el mantenimiento
                     $descripcion_manto = "Equipo ingresado a mantenimiento por devolución en estado: $estado_equipo";
                     if (!empty($condiciones)) {
                         $descripcion_manto .= " - Condiciones: $condiciones";
                     }
                     
-                    // Insertar en mantenimientos
                     $sql_mantenimiento = "INSERT INTO mantenimientos 
                         (equipo_id, fecha_ingreso, tipo_mantenimiento, descripcion, observaciones, created_by) 
                         VALUES 
@@ -94,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
                 $sql_equipo = "UPDATE equipos SET estado = '$nuevo_estado' WHERE id = $equipo_id";
                 $conn->query($sql_equipo);
                 
-                // 3. Registrar en movimientos con TODOS los datos de trazabilidad
+                // 3. Registrar en movimientos
                 $sql_movimiento = "INSERT INTO movimientos 
                                   (equipo_id, persona_id, tipo_movimiento, observaciones, estado_equipo, condiciones, foto_devolucion) 
                                   VALUES ($equipo_id, " . $asignacion['persona_id'] . ", 'DEVOLUCION', '$observacion', '$estado_equipo', '$condiciones', '$foto_devolucion')";
@@ -106,7 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
                 $conn->commit();
                 $mensaje = "✅ Devolución registrada correctamente";
                 
-                // Mensaje adicional si se creó mantenimiento
                 $mensaje_adicional = ($estado_equipo != 'BUENO') ? ' Se ha creado un registro automático en Mantenimientos.' : '';
                 
                 echo "<script>
@@ -165,5 +158,186 @@ $result_prestados = $conn->query($sql_prestados);
 $equipo_seleccionado = isset($_GET['equipo_id']) ? intval($_GET['equipo_id']) : 0;
 ?>
 
-<!-- El resto del HTML y JavaScript se mantiene IGUAL -->
-<!-- ... (todo el código de estilos, HTML y JavaScript que ya tenías) ... -->
+<!-- ============================================ -->
+<!-- ESTILOS ADICIONALES PARA EL FORMULARIO -->
+<!-- ============================================ -->
+<style>
+    .devolucion-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    .btn-devolver {
+        border-radius: 30px;
+        padding: 8px 20px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .btn-devolver:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(90,45,140,0.3);
+    }
+    .estado-badge {
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+    /* Estilo para el formulario de devolución */
+    #formularioDevolucion {
+        background: #f8f9fc;
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+        border: 1px solid #e0e0e0;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card devolucion-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-undo-alt me-2"></i>Registrar Devolución de Equipo</h4>
+                    <a href="historial.php" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-history me-1"></i> Historial
+                    </a>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- Mensajes de éxito/error (se muestran con SweetAlert, pero también aquí por si acaso) -->
+                    <?php if ($error): ?>
+                        <div class="alert alert-danger"><?php echo $error; ?></div>
+                    <?php endif; ?>
+                    <?php if ($mensaje): ?>
+                        <div class="alert alert-success"><?php echo $mensaje; ?></div>
+                    <?php endif; ?>
+
+                    <!-- Tabla de equipos prestados -->
+                    <?php if ($result_prestados && $result_prestados->num_rows > 0): ?>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Equipo</th>
+                                        <th>Persona</th>
+                                        <th>Fecha préstamo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php while($row = $result_prestados->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['codigo_barras']); ?></td>
+                                        <td>
+                                            <?php echo htmlspecialchars($row['tipo_equipo'] . ' ' . $row['marca'] . ' ' . $row['modelo']); ?>
+                                            <br><small><?php echo htmlspecialchars($row['numero_serie'] ?? 'N/A'); ?></small>
+                                        </td>
+                                        <td>
+                                            <?php echo htmlspecialchars($row['nombres']); ?>
+                                            <br><small><?php echo htmlspecialchars($row['cedula']); ?></small>
+                                        </td>
+                                        <td><?php echo date('d/m/Y H:i', strtotime($row['fecha_asignacion'])); ?></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-warning btn-devolver" 
+                                                    data-equipo-id="<?php echo $row['equipo_id']; ?>"
+                                                    data-equipo-nombre="<?php echo htmlspecialchars($row['tipo_equipo'] . ' ' . $row['marca'] . ' ' . $row['modelo']); ?>"
+                                                    data-persona-nombre="<?php echo htmlspecialchars($row['nombres']); ?>">
+                                                <i class="fas fa-undo-alt"></i> Devolver
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <div class="alert alert-info text-center py-4">
+                            <i class="fas fa-info-circle fa-3x mb-3"></i>
+                            <h5>No hay equipos prestados actualmente</h5>
+                            <p>Todos los equipos están disponibles o no hay préstamos registrados.</p>
+                            <a href="prestamo.php" class="btn btn-primary mt-2">
+                                <i class="fas fa-hand-holding me-2"></i>Registrar nuevo préstamo
+                            </a>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Formulario de devolución (oculto inicialmente, se muestra al hacer clic en un botón) -->
+                    <div id="formularioDevolucion" style="display: none;">
+                        <h5 class="mb-3"><i class="fas fa-undo-alt me-2"></i>Detalles de la devolución</h5>
+                        <form method="POST" enctype="multipart/form-data" id="devolucionForm">
+                            <input type="hidden" name="equipo_id" id="equipo_id" value="">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Estado del equipo <span class="text-danger">*</span></label>
+                                    <select name="estado_equipo" id="estado_equipo" class="form-control" required>
+                                        <option value="">-- Seleccione --</option>
+                                        <option value="BUENO">✅ Bueno</option>
+                                        <option value="REGULAR">⚠️ Regular</option>
+                                        <option value="MALO">❌ Malo</option>
+                                        <option value="DAÑADO">🔧 Dañado (requiere mantenimiento)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Condiciones adicionales</label>
+                                    <select name="condiciones" class="form-control">
+                                        <option value="">-- Normal --</option>
+                                        <option value="CON_ACCESORIOS">Con accesorios completos</option>
+                                        <option value="SIN_ACCESORIOS">Sin accesorios</option>
+                                        <option value="CON_FALLAS">Con fallas</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Foto del equipo (opcional)</label>
+                                    <input type="file" name="foto_equipo" class="form-control" accept="image/*">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Observaciones</label>
+                                <textarea name="observacion" class="form-control" rows="2" placeholder="Detalles adicionales..."></textarea>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-secondary" id="cancelarDevolucion">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Registrar devolución</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para manejar el formulario de devolución -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const botones = document.querySelectorAll('.btn-devolver');
+    const formulario = document.getElementById('formularioDevolucion');
+    const equipoIdInput = document.getElementById('equipo_id');
+    const cancelarBtn = document.getElementById('cancelarDevolucion');
+    
+    botones.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const equipoId = this.getAttribute('data-equipo-id');
+            const equipoNombre = this.getAttribute('data-equipo-nombre');
+            const personaNombre = this.getAttribute('data-persona-nombre');
+            
+            equipoIdInput.value = equipoId;
+            
+            // Mostrar el formulario y hacer scroll hacia él
+            formulario.style.display = 'block';
+            formulario.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Opcional: mostrar información del equipo seleccionado
+            // Podrías agregar un texto informativo
+        });
+    });
+    
+    cancelarBtn.addEventListener('click', function() {
+        formulario.style.display = 'none';
+        equipoIdInput.value = '';
+        document.getElementById('devolucionForm').reset();
+    });
+});
+</script>
+
+<?php include '../../includes/footer.php'; ?>
