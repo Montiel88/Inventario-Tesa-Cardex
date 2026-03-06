@@ -43,7 +43,7 @@ $sql_historial = "SELECT m.*, p.nombres as persona_nombre
                   LIMIT 10";
 $historial = $conn->query($sql_historial);
 
-// Obtener componentes del equipo (corregido: ordenar por nombre_componente)
+// Obtener componentes del equipo
 $sql_componentes = "SELECT * FROM componentes WHERE equipo_id = $id ORDER BY tipo, nombre_componente";
 $componentes = $conn->query($sql_componentes);
 ?>
@@ -65,7 +65,42 @@ $componentes = $conn->query($sql_componentes);
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4><i class="fas fa-laptop me-2"></i>Detalle del Equipo</h4>
-                    <div>
+                    <div class="d-flex gap-2">
+                        <!-- Grupo Actas para EQUIPOS -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-file-pdf me-1"></i>Actas
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" style="max-height: 400px; overflow-y: auto;">
+                                <li><h6 class="dropdown-header">📦 ACTAS DE EQUIPO</h6></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_ingreso.php?equipo_id=<?php echo $id; ?>" target="_blank">
+                                    <i class="fas fa-box-open me-2 text-primary"></i>Acta de Ingreso
+                                </a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_baja.php?equipo_id=<?php echo $id; ?>" target="_blank">
+                                    <i class="fas fa-trash-alt me-2 text-danger"></i>Acta de Baja
+                                </a></li>
+                                
+                                <?php
+                                // Verificar si el equipo está asignado a alguna persona
+                                $check_asignacion = $conn->query("SELECT persona_id FROM asignaciones WHERE equipo_id = $id AND fecha_devolucion IS NULL");
+                                if ($check_asignacion && $check_asignacion->num_rows > 0):
+                                    $persona_id = $check_asignacion->fetch_assoc()['persona_id'];
+                                ?>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">👤 ACTAS DE PERSONA ASIGNADA</h6></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $persona_id; ?>" target="_blank">
+                                    <i class="fas fa-hand-holding me-2 text-success"></i>Acta Entrega
+                                </a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $persona_id; ?>" target="_blank">
+                                    <i class="fas fa-undo-alt me-2 text-warning"></i>Acta Devolución
+                                </a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $persona_id; ?>" target="_blank">
+                                    <i class="fas fa-file-signature me-2 text-info"></i>Descargo
+                                </a></li>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
+                        
                         <a href="#" onclick="generarQR(<?php echo $id; ?>)" class="btn btn-info btn-sm">
                             <i class="fas fa-qrcode me-1"></i>Ver QR
                         </a>
@@ -82,6 +117,7 @@ $componentes = $conn->query($sql_componentes);
                         <?php endif; ?>
                     </div>
                 </div>
+                
                 <div class="card-body">
                     <!-- Datos del equipo en tabla -->
                     <table class="table table-bordered">
@@ -126,7 +162,7 @@ $componentes = $conn->query($sql_componentes);
                         </div>
                     <?php endif; ?>
 
-                    <!-- SECCIÓN DE COMPONENTES (AGREGADA) -->
+                    <!-- SECCIÓN DE COMPONENTES -->
                     <div class="card mt-4">
                         <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                             <h5 class="mb-0"><i class="fas fa-microchip me-2"></i>Componentes del Equipo</h5>

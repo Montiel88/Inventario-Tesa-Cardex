@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 ini_set("display_errors", 1);
 ini_set("display_startup_errors", 1);
 error_reporting(E_ALL);
@@ -27,6 +30,22 @@ if (!$persona_id) die("ID de persona no válido");
 
 $config = cargarConfiguracion();
 
+// ===== NUEVO: Cargar logo en Base64 =====
+$ruta_logo_fisica = BASE_PATH . 'assets/img/logo-tesa.png';
+$logo_base64 = '';
+if (file_exists($ruta_logo_fisica)) {
+    $imageData = base64_encode(file_get_contents($ruta_logo_fisica));
+    $logo_base64 = 'data:image/png;base64,' . $imageData;
+} else {
+    // Intentar ruta alternativa por si acaso
+    $ruta_alternativa = __DIR__ . '/../assets/img/logo-tesa.png';
+    if (file_exists($ruta_alternativa)) {
+        $imageData = base64_encode(file_get_contents($ruta_alternativa));
+        $logo_base64 = 'data:image/png;base64,' . $imageData;
+    }
+}
+// ===== FIN NUEVO =====
+
 // Obtener datos de la persona
 $sql_persona = "SELECT * FROM personas WHERE id = $persona_id";
 $persona = $conn->query($sql_persona)->fetch_assoc();
@@ -37,15 +56,6 @@ $sql_equipos = "SELECT e.* FROM equipos e
                 JOIN asignaciones a ON e.id = a.equipo_id
                 WHERE a.persona_id = $persona_id AND a.fecha_devolucion IS NULL";
 $equipos = $conn->query($sql_equipos);
-
-$codigo_acta = generarCodigoActa('entrega');
-
-$meses = array(
-    "January" => "ENERO", "February" => "FEBRERO", "March" => "MARZO",
-    "April" => "ABRIL", "May" => "MAYO", "June" => "JUNIO",
-    "July" => "JULIO", "August" => "AGOSTO", "September" => "SEPTIEMBRE",
-    "October" => "OCTUBRE", "November" => "NOVIEMBRE", "December" => "DICIEMBRE"
-);
 $mes_actual = $meses[date("F")];
 
 // Guardar en BD
@@ -212,7 +222,7 @@ $html = "
 </head>
 <body>
     <div class=\"header\">
-        <img src=\"" . $config['logo_url'] . "\" alt=\"Logo TESA\">
+        <img src=\"" . $logo_base64 . "\" alt=\"Logo TESA\">
         <h1>" . $config['institucion_nombre'] . "</h1>
         <h2>ACTA ENTREGA-RECEPCIÓN DE MATERIALES</h2>
         <div class=\"codigo\">Código: <strong>$codigo_acta</strong></div>

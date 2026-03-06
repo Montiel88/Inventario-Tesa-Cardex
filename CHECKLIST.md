@@ -17,7 +17,7 @@
 - [x] CRUD completo de equipos
 - [x] Códigos únicos (PRO-XXXXXX)
 - [x] Escáner QR/código de barras
-- [x] Subida de fotos
+- [x] Subida de fotos (PENDIENTE - verificar)
 - [x] Estados: Disponible, Asignado, En mantenimiento, Baja
 - [x] Componentes asociados a equipos
 - [x] Trazabilidad completa (movimientos)
@@ -27,19 +27,21 @@
 - [x] Asignar equipo a persona (con acta)
 - [x] Devolución de equipos (con acta)
 - [x] Préstamos rápidos (sin acta)
-- [x] Alertas de préstamos vencidos
+- [x] Alertas de préstamos vencidos (NO - verificar)
 - [x] Traspaso de custodio (básico)
 
 ### V. ACTAS Y DOCUMENTOS
 - [x] Acta de entrega (generar_acta_entrega.php)
 - [x] Acta de devolución (generar_acta_devolucion.php)
 - [x] Descargo de responsabilidad (generar_descargo.php)
+- [x] Acta de baja (generar_acta_baja.php)
+- [x] Acta de baja masiva (generar_acta_baja_masiva.php)
 - [x] Configuración de firmantes (admin/configuracion.php)
 - [x] Códigos QR para equipos
 
 ### VI. MANTENIMIENTO
 - [x] Módulo de mantenimientos
-- [x] Registro automático desde devoluciones
+- [x] Registro automático desde devoluciones (VERIFICAR)
 
 ### VII. UBICACIONES
 - [x] CRUD de ubicaciones
@@ -54,27 +56,26 @@
 ## 🚧 PENDIENTE (POR IMPLEMENTAR)
 
 ### I. ACTAS FALTANTES
-- [ ] Acta de ingreso de inventario (cuando se crea equipo)
-- [ ] Acta de traspaso (cambio de custodio)
-- [ ] Acta de baja (cuando se da de baja)
+- [x] Acta de ingreso de inventario (cuando se crea equipo)
+- [x] Acta de traspaso (cambio de custodio)
 
 ### II. MEJORAS EN PRÉSTAMOS
 - [ ] Traspaso múltiple de dispositivos
-- [ ] Vista de equipos por persona
+- [ ] Vista de equipos por persona (YA EXISTE en detalle de persona)
 
 ### III. DOCUMENTOS ADJUNTOS
 - [ ] Subir documentos firmados (PDF)
 - [ ] Ver documentos en historial
 
 ### IV. REPORTES AVANZADOS
-- [ ] Exportar a Excel
+- [ ] Exportar a Excel (VERIFICAR si funciona)
 - [ ] Reportes por rango de fechas
 - [ ] Dashboard con gráficos
 
 ### V. NOTIFICACIONES
-- [ ] Alertas por email (opcional)
+- [ ] Alertas por email
 - [ ] Recordatorios de devolución
 
 ### VI. MEJORAS EN SUBARTÍCULOS
-- [ ] Trazabilidad independiente por componente
-- [ ] Historial de reemplazos
+- [ ] Trazabilidad independiente por componente (YA EXISTE en componentes/listar.php)
+- [ ] Historial de reemplazos (YA EXISTE en componentes/trazabilidad.php)

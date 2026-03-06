@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 session_start();
 if (!isset($_SESSION['user_id'])) {
     header('Location: /inventario_ti/login.php');
@@ -249,7 +252,7 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
 }
 
 /* ============================================ */
-/* RESPONSIVE (mantenido igual que el original) */
+/* RESPONSIVE */
 /* ============================================ */
 @media (max-width: 768px) {
     .container-fluid {
@@ -391,18 +394,47 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                 <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
                     <h4 class="mb-0"><i class="fas fa-user me-2"></i>Detalle de Persona</h4>
                     <div class="d-flex flex-wrap gap-2">
-                        <!-- Grupo Actas -->
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-file-pdf me-1"></i>Actas
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $id; ?>" target="_blank">Acta Entrega</a></li>
-                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $id; ?>" target="_blank">Acta Devolución</a></li>
-                                <!-- Si existe el archivo de descargo, descomentar la siguiente línea -->
-                                <!-- <li><a class="dropdown-item" href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $id; ?>" target="_blank">Descargo</a></li> -->
-                            </ul>
-                        </div>
+                      <!-- Grupo Actas - VERSIÓN SIMPLE Y FUNCIONAL -->
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="btnActasPersona">
+        <i class="fas fa-file-pdf me-1"></i>Actas
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" id="menuActasPersona" style="max-height: 400px; overflow-y: auto;">
+        <?php
+        // Opción 1: Cargar estático (seguro)
+        $id_actual = $id;
+        ?>
+        <li><h6 class="dropdown-header">📋 ACTAS DE PERSONA</h6></li>
+        <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $id_actual; ?>" target="_blank">
+            <i class="fas fa-hand-holding me-2 text-success"></i>Acta Entrega
+        </a></li>
+        <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $id_actual; ?>" target="_blank">
+            <i class="fas fa-undo-alt me-2 text-warning"></i>Acta Devolución
+        </a></li>
+        <li><a class="dropdown-item" href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $id_actual; ?>" target="_blank">
+            <i class="fas fa-file-signature me-2 text-info"></i>Descargo
+        </a></li>
+        
+        <?php
+        // Verificar si tiene equipos asignados
+        $check_equipos = $conn->query("SELECT COUNT(*) as total FROM asignaciones WHERE persona_id = $id_actual AND fecha_devolucion IS NULL");
+        $total_equipos_asignados = $check_equipos->fetch_assoc()['total'];
+        
+        if ($total_equipos_asignados > 0): 
+        ?>
+        <li><hr class="dropdown-divider"></li>
+        <li><h6 class="dropdown-header">📦 ACTAS DE EQUIPOS</h6></li>
+        <li><a class="dropdown-item" href="#" onclick="alert('Seleccione un equipo específico para generar esta acta'); return false;">
+            <i class="fas fa-box-open me-2 text-primary"></i>Acta de Ingreso (elegir equipo)
+        </a></li>
+        <li><a class="dropdown-item" href="#" onclick="alert('Seleccione un equipo específico para generar esta acta'); return false;">
+            <i class="fas fa-trash-alt me-2 text-danger"></i>Acta de Baja (elegir equipo)
+        </a></li>
+        <?php endif; ?>
+    </ul>
+</div>
+
+<!-- El resto de tus botones (QR, Historial, etc.) siguen igual -->
                         
                         <!-- Grupo QR -->
                         <div class="btn-group" role="group">
@@ -480,320 +512,141 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <!-- tarjeta componentes asignados -->
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h3><?php echo $total_componentes; ?></h3>
-                                    <p>Componentes asignados actualmente</p>
-                                    <?php if ($es_admin): ?>
-                                        <?php if ($total_componentes_disponibles > 0): ?>
-                                            <button class="btn btn-success btn-lg w-100" data-bs-toggle="modal" data-bs-target="#assignComponentModal">
-                                                <i class="fas fa-plus-circle me-2"></i>Asignar componente
-                                            </button>
-                                        <?php else: ?>
-                                            <button class="btn btn-secondary btn-lg w-100" disabled>
-                                                <i class="fas fa-ban me-2"></i>No hay componentes disponibles
-                                            </button>
-                                        <?php endif; ?>
-                                    <?php else: ?>
-                                        <button class="btn btn-secondary btn-lg w-100" disabled>
-                                            <i class="fas fa-ban me-2"></i>Asignar (solo admin)
-                                        </button>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Equipos asignados actualmente -->
-                    <div class="card mt-4">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fas fa-laptop me-2"></i>Equipos Asignados Actualmente</h5>
-                        </div>
-                        <div class="card-body">
-                            <?php if ($total_equipos > 0): ?>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr><th>Código</th><th>Tipo</th><th>Marca/Modelo</th><th>Serie</th><th>Fecha Asignación</th><th>Acciones</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($equipos_asignados as $eq): ?>
-                                            <tr>
-                                                <td data-label="CÓDIGO"><?php echo $eq['codigo_barras']; ?></td>
-                                                <td data-label="TIPO"><?php echo $eq['tipo_equipo']; ?></td>
-                                                <td data-label="MARCA/MODELO"><?php echo $eq['marca'] . ' ' . $eq['modelo']; ?></td>
-                                                <td data-label="SERIE"><?php echo $eq['numero_serie'] ?: 'N/A'; ?></td>
-                                                <td data-label="FECHA"><?php echo date('d/m/Y', strtotime($eq['fecha_asignacion'])); ?></td>
-                                                <td data-label="ACCIONES">
-                                                    <div class="d-flex gap-1">
-                                                        <?php if ($es_admin): ?>
-                                                        <a href="../movimientos/devolucion.php?equipo_id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-warning" title="Registrar devolución"><i class="fas fa-undo-alt"></i></a>
-                                                        <?php endif; ?>
-                                                        <a href="../equipos/detalle.php?id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-info" title="Ver equipo"><i class="fas fa-eye"></i></a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            <?php else: ?>
-                                <p class="text-muted text-center py-4">
-                                    <i class="fas fa-info-circle fa-2x mb-3"></i><br>
-                                    Esta persona no tiene equipos asignados actualmente.
-                                    <br>
-                                    <?php if ($es_admin): ?>
-                                    <a href="../asignaciones/cargar_equipos.php?persona_id=<?php echo $id; ?>" class="btn btn-success mt-3">
-                                        <i class="fas fa-plus-circle me-2"></i>Asignar primer equipo
-                                    </a>
-                                    <?php else: ?>
-                                    <button class="btn btn-secondary mt-3" disabled>
-                                        <i class="fas fa-ban me-2"></i>Asignar (solo admin)
-                                    </button>
-                                    <?php endif; ?>
-                                </p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                                            
-                    <!-- Componentes de los equipos asignados -->
-                    <?php if (!empty($componentes_asignados)): ?>
-                    <div class="card mt-4">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0"><i class="fas fa-microchip me-2"></i>Componentes de los Equipos Asignados</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Equipo</th>
-                                            <th>Tipo</th>
-                                            <th>Nombre</th>
-                                            <th>Marca/Modelo</th>
-                                            <th>Serie</th>
-                                            <th>Estado</th>
-                                            <th>Instalación</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($componentes_asignados as $comp): ?>
-                                        <tr>
-                                            <td><?php echo $comp['tipo_equipo'] . '<br><small>' . $comp['equipo_codigo'] . '</small>'; ?></td>
-                                            <td><?php echo htmlspecialchars($comp['tipo']); ?></td>
-                                            <td><?php echo htmlspecialchars($comp['nombre_componente']); ?></td>
-                                            <td><?php echo htmlspecialchars($comp['marca'] . ' ' . $comp['modelo']); ?></td>
-                                            <td><?php echo htmlspecialchars($comp['numero_serie'] ?? 'N/A'); ?></td>
-                                            <td>
-                                                <?php
-                                                $badge = match($comp['estado']) {
-                                                    'Bueno' => 'success',
-                                                    'Regular' => 'warning',
-                                                    'Malo', 'Por reemplazar' => 'danger',
-                                                    default => 'secondary'
-                                                };
-                                                echo "<span class='badge bg-$badge'>" . htmlspecialchars($comp['estado']) . "</span>";
-                                                ?>
-                                            </td>
-                                            <td><?php echo $comp['fecha_instalacion'] ? date('d/m/Y', strtotime($comp['fecha_instalacion'])) : '-'; ?></td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
-                    <!-- Componentes asignados directamente a la persona -->
-                    <?php if (!empty($componentes_directos)): ?>
-                    <div class="card mt-4">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0"><i class="fas fa-microchip me-2"></i>Componentes Asignados Directamente</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-sm table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Tipo</th>
-                                            <th>Nombre</th>
-                                            <th>Marca/Modelo</th>
-                                            <th>Serie</th>
-                                            <th>Fecha Asignación</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($componentes_directos as $comp): ?>
-                                        <tr>
-                                            <td><?php echo htmlspecialchars($comp['tipo']); ?></td>
-                                            <td><?php echo htmlspecialchars($comp['nombre_componente']); ?></td>
-                                            <td><?php echo htmlspecialchars($comp['marca'] . ' ' . $comp['modelo']); ?></td>
-                                            <td><?php echo htmlspecialchars($comp['numero_serie'] ?? 'N/A'); ?></td>
-                                            <td><?php echo date('d/m/Y', strtotime($comp['fecha_movimiento'])); ?></td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <!-- Historial de movimientos -->
-                    <div class="card mt-4">
-                        <div class="card-header bg-secondary text-white">
-                            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Historial de Movimientos</h5>
-                        </div>
-                        <div class="card-body">
-                            <?php if ($historial && $historial->num_rows > 0): ?>
-                                <div class="list-group">
-                                    <?php while($h = $historial->fetch_assoc()): 
-                                        $clase = $h['tipo_movimiento'] == 'ASIGNACION' ? 'success' : ($h['tipo_movimiento'] == 'DEVOLUCION' ? 'warning' : 'info');
-                                    ?>
-                                        <div class="list-group-item list-group-item-<?php echo $clase; ?>">
-                                            <div class="d-flex justify-content-between">
-                                                <div>
-                                                    <strong><?php echo $h['tipo_equipo']; ?></strong>
-                                                    <span class="badge bg-<?php echo $clase; ?> ms-2"><?php echo $h['tipo_movimiento']; ?></span>
-                                                    <small class="text-muted ms-2"><?php echo $h['codigo_barras']; ?></small>
-                                                </div>
-                                                <small><?php echo date('d/m/Y H:i', strtotime($h['fecha_movimiento'])); ?></small>
-                                            </div>
-                                            <?php if ($h['observaciones']): ?>
-                                                <p class="mb-0 mt-2"><small><?php echo $h['observaciones']; ?></small></p>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endwhile; ?>
-                                </div>
-                            <?php else: ?>
-                                <p class="text-muted">No hay historial de movimientos</p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <!-- Incidencias recientes -->
-                    <?php if ($incidencias && $incidencias->num_rows > 0): ?>
-                    <div class="card mt-4">
-                        <div class="card-header bg-danger text-white">
-                            <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Incidencias Recientes</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="list-group">
-                                <?php while($inc = $incidencias->fetch_assoc()): 
-                                    $clase_inc = $inc['tipo_incidencia'] == 'daño' ? 'danger' : ($inc['tipo_incidencia'] == 'reparación' ? 'warning' : 'info');
-                                ?>
-                                    <div class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <span class="badge bg-<?php echo $clase_inc; ?>">
-                                                    <?php echo strtoupper($inc['tipo_incidencia']); ?>
-                                                </span>
-                                                <span class="badge bg-<?php 
-                                                    echo $inc['estado'] == 'pendiente' ? 'secondary' : 
-                                                        ($inc['estado'] == 'en proceso' ? 'primary' : 'success'); 
-                                                ?> ms-2">
-                                                    <?php echo $inc['estado']; ?>
-                                                </span>
-                                                <small class="text-muted ms-2">
-                                                    <?php echo $inc['tipo_equipo'] . ' (' . $inc['codigo_barras'] . ')'; ?>
-                                                </small>
-                                            </div>
-                                            <small><?php echo date('d/m/Y', strtotime($inc['fecha_reporte'])); ?></small>
-                                        </div>
-                                        <p class="mb-0 mt-2"><?php echo nl2br($inc['descripcion']); ?></p>
-                                    </div>
-                                <?php endwhile; ?>
-                            </div>
-                            <?php if ($incidencias->num_rows == 5): ?>
-                                <div class="text-center mt-3">
-                                    <a href="historial.php?id=<?php echo $id; ?>" class="btn btn-sm btn-outline-danger">Ver todas las incidencias</a>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
-                </div>
-            </div>
-        </div>
+                          <!-- tarjeta componentes asignados - VERSIÓN SIMPLE -->
+<div class="card bg-light">
+    <div class="card-body text-center">
+        <h3><?php echo $total_componentes; ?></h3>
+        <p>Componentes asignados actualmente</p>
+        
+        <?php if ($es_admin && $total_componentes_disponibles > 0): ?>
+            <!-- Enlace directo a una página de asignación -->
+            <a href="asignar_componente_page.php?persona_id=<?php echo $id; ?>" class="btn btn-success btn-lg w-100">
+                <i class="fas fa-plus-circle me-2"></i>Asignar componente
+            </a>
+        <?php else: ?>
+            <button class="btn btn-secondary btn-lg w-100" disabled>
+                <i class="fas fa-ban me-2"></i>No hay componentes disponibles
+            </button>
+        <?php endif; ?>
     </div>
 </div>
 
-<!-- Librería QR -->
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<script>
-const baseUrl = '<?php echo $base_url_publica; ?>';
-
-function generarQR(id) {
-    document.getElementById('qrModal').style.display = 'flex';
-    document.getElementById('qrcode-container').innerHTML = '';
-    const url = baseUrl + '/modules/personas/ver_equipos_qr.php?id=' + id;
-    new QRCode(document.getElementById("qrcode-container"), {
-        text: url,
-        width: 250,
-        height: 250,
-        colorDark: "#5a2d8c",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-    });
-}
-
-function cerrarModalQR() {
-    document.getElementById('qrModal').style.display = 'none';
-}
-
-window.onclick = function(event) {
-    const modal = document.getElementById('qrModal');
-    if (event.target == modal) {
-        modal.style.display = 'none';
-    }
-}
-</script>
-
+<!-- MODAL ASIGNAR COMPONENTE - VERSIÓN FINAL -->
 <?php if ($es_admin): ?>
-<div class="modal fade" id="assignComponentModal" tabindex="-1" aria-labelledby="assignComponentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<style>
+/* Estilos forzados para el modal */
+.modal {
+    z-index: 999999 !important;
+}
+.modal-backdrop {
+    z-index: 999998 !important;
+}
+.modal-dialog {
+    margin: 1.75rem auto !important;
+    max-width: 500px !important;
+}
+.modal-content {
+    background: white !important;
+    border-radius: 15px !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
+}
+</style>
+
+<div class="modal fade" id="assignComponentModal" tabindex="-1" aria-labelledby="assignComponentModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="assignComponentModalLabel">
+                    <i class="fas fa-microchip me-2"></i>Asignar Componente
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
             <form method="POST" action="asignar_componente.php">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="assignComponentModalLabel">Asignar componente</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
                 <div class="modal-body">
                     <input type="hidden" name="persona_id" value="<?php echo (int)$id; ?>">
+                    
                     <?php if ($total_componentes_disponibles > 0): ?>
                         <div class="mb-3">
-                            <label for="componente_id" class="form-label">Componente disponible</label>
+                            <label for="componente_id" class="form-label fw-bold">Componente disponible</label>
                             <select class="form-select" id="componente_id" name="componente_id" required>
-                                <option value="">-- Seleccione --</option>
+                                <option value="">-- Seleccione un componente --</option>
                                 <?php foreach ($componentes_disponibles as $c): ?>
                                     <option value="<?php echo $c['id']; ?>">
                                         <?php echo htmlspecialchars($c['tipo'] . ' - ' . $c['nombre_componente'] . ' (' . $c['marca'] . ' ' . $c['modelo'] . ')'); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                            <small class="text-muted"><?php echo $total_componentes_disponibles; ?> componente(s) disponible(s)</small>
                         </div>
+                        
                         <div class="mb-3">
-                            <label for="observaciones" class="form-label">Observaciones</label>
-                            <textarea class="form-control" id="observaciones" name="observaciones" rows="2"></textarea>
+                            <label for="observaciones" class="form-label fw-bold">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="3" placeholder="Notas adicionales sobre la asignación..."></textarea>
                         </div>
                     <?php else: ?>
-                        <p class="text-danger">No hay componentes disponibles para asignar.</p>
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            No hay componentes disponibles para asignar.
+                        </div>
                     <?php endif; ?>
                 </div>
                 <div class="modal-footer">
                     <?php if ($total_componentes_disponibles > 0): ?>
-                        <button type="submit" class="btn btn-primary">Asignar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check me-2"></i>Asignar Componente
+                        </button>
                     <?php endif; ?>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+<script>
+
+<script>
+<script>
+
+<script>
+
+<!-- Botón simple que abre el modal -->
+<button class="btn btn-success btn-lg w-100" onclick="document.getElementById('miModal').style.display='block'">
+    <i class="fas fa-plus-circle me-2"></i>Asignar componente
+</button>
+
+<!-- Modal simple sin Bootstrap -->
+<div id="miModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
+    <div style="background-color:white; margin:15% auto; padding:20px; width:80%; max-width:500px; border-radius:10px;">
+        <h4>Asignar Componente</h4>
+        <form method="POST" action="asignar_componente.php">
+            <input type="hidden" name="persona_id" value="<?php echo (int)$id; ?>">
+            
+            <div class="mb-3">
+                <label>Componente disponible</label>
+                <select class="form-control" name="componente_id" required>
+                    <option value="">-- Seleccione --</option>
+                    <?php foreach ($componentes_disponibles as $c): ?>
+                        <option value="<?php echo $c['id']; ?>">
+                            <?php echo $c['tipo'] . ' - ' . $c['nombre_componente']; ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label>Observaciones</label>
+                <textarea class="form-control" name="observaciones" rows="2"></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Asignar</button>
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('miModal').style.display='none'">Cancelar</button>
+        </form>
+    </div>
+</div>
+
 <?php endif; ?>
-
 <?php include '../../includes/footer.php'; ?>
-

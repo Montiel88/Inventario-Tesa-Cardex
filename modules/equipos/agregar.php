@@ -11,7 +11,11 @@ if (!$es_admin) {
 }
 
 require_once '../../config/database.php';
+require_once '../../config/listas.php'; // ← AGREGADO: Lista completa de equipos
 include '../../includes/header.php';
+
+// Asegurar que SweetAlert2 esté disponible
+echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
 
 // Obtener lista de ubicaciones para el selector
 $ubicaciones = $conn->query("SELECT id, codigo_ubicacion, nombre FROM ubicaciones ORDER BY nombre");
@@ -55,7 +59,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$numero_serie', '$especificaciones', '$observaciones', $ubicacion_id, '$estado')";
 
             if ($conn->query($sql)) {
+                $equipo_id = $conn->insert_id;
                 $mensaje = "✅ Equipo registrado exitosamente. Código: $codigo_barras";
+                
+                // Script para preguntar si generar acta de ingreso
+                echo "<script>
+                    Swal.fire({
+                        title: '¿Generar acta de ingreso?',
+                        text: 'Equipo guardado correctamente',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, generar acta',
+                        cancelButtonText: 'No, solo guardar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.open('/inventario_ti/api/generar_acta_ingreso.php?equipo_id=$equipo_id', '_blank');
+                        }
+                        window.location.href = 'listar.php?mensaje=Equipo agregado correctamente';
+                    });
+                </script>";
+                
             } else {
                 $error = "❌ Error al guardar: " . $conn->error;
             }
@@ -72,12 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Agregar Nuevo Equipo</h4>
                 </div>
                 <div class="card-body">
+                    
                     <?php if ($mensaje): ?>
                         <div class="alert alert-success alert-dismissible fade show">
                             <i class="fas fa-check-circle me-2"></i><?php echo $mensaje; ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <?php endif; ?>
+                    
                     <?php if ($error): ?>
                         <div class="alert alert-danger alert-dismissible fade show">
                             <i class="fas fa-exclamation-triangle me-2"></i><?php echo $error; ?>
@@ -96,23 +121,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     ✅ Si no tiene o no se puede leer, déjalo vacío y el sistema generará uno interno (ej: PRO-000123).
                                 </small>
                             </div>
+                            
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Tipo de Equipo *</label>
                                 <select name="tipo_equipo" class="form-control" required>
                                     <option value="">-- Seleccione --</option>
-                                    <option value="Laptop">💻 Laptop</option>
-                                    <option value="Mouse">🖱️ Mouse</option>
-                                    <option value="Teclado">⌨️ Teclado</option>
-                                    <option value="Monitor">🖥️ Monitor</option>
-                                    <option value="Impresora">🖨️ Impresora</option>
-                                    <option value="Proyector">📽️ Proyector</option>
-                                    <option value="Tablet">📱 Tablet</option>
-                                    <option value="Parlantes">🔊 Parlantes</option>
-                                    <option value="Cámara">📷 Cámara</option>
-                                    <option value="Otro">🔧 Otro</option>
+                                    <?php foreach($tipos_equipos as $valor => $etiqueta): ?>
+                                        <option value="<?php echo $valor; ?>"><?php echo $etiqueta; ?></option>
+                                    <?php endforeach; ?>
                                 </select>
+                                <small class="text-muted">📋 <?php echo count($tipos_equipos); ?> tipos disponibles</small>
                             </div>
                         </div>
+                        
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Marca</label>
@@ -127,14 +148,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <input type="text" name="numero_serie" class="form-control" placeholder="Serie del fabricante">
                             </div>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">Especificaciones</label>
                             <textarea name="especificaciones" class="form-control" rows="3" placeholder="RAM, procesador, disco duro, etc."></textarea>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">Observaciones</label>
                             <textarea name="observaciones" class="form-control" rows="2" placeholder="Notas adicionales"></textarea>
                         </div>
+                        
                         <div class="mb-3">
                             <label class="form-label">Ubicación</label>
                             <select name="ubicacion_id" class="form-control">
@@ -146,6 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <?php endwhile; ?>
                             </select>
                         </div>
+                        
                         <div class="text-center mt-3">
                             <button type="submit" class="btn btn-primary btn-lg px-5">
                                 <i class="fas fa-save me-2"></i>Guardar Equipo
