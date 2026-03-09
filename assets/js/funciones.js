@@ -43,11 +43,20 @@ function formatearFecha(fecha) {
 
 // Validar cédula ecuatoriana
 function validarCedula(cedula) {
-    if (cedula.length !== 10) return false;
-    
-    // Aquí puedes implementar la validación completa
-    // Por ahora solo validamos que sea numérica
-    return /^\d+$/.test(cedula);
+    if (cedula.length !== 10 || !/^\d+$/.test(cedula)) return false;
+    const digitoVerificador = parseInt(cedula[9]);
+    let suma = 0;
+    for (let i = 0; i < 9; i++) {
+        let digito = parseInt(cedula[i]);
+        if (i % 2 === 0) {
+            digito *= 2;
+            if (digito > 9) digito -= 9;
+        }
+        suma += digito;
+    }
+    const resto = suma % 10;
+    const resultado = resto === 0 ? 0 : 10 - resto;
+    return resultado === digitoVerificador;
 }
 
 // Inicializar tooltips de Bootstrap

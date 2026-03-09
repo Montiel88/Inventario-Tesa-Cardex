@@ -64,19 +64,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar'])) {
                 
                 $conn->commit();
                 
-                $conn->commit();
-
-                // Guardar en sesión para generar el acta después
-                $_SESSION['baja_masiva_ids'] = $ids_string;
-                $_SESSION['baja_masiva_motivo'] = $motivo;
-                $_SESSION['baja_masiva_observaciones'] = $observaciones;
-
-// ✅ ABRIR PDF EN NUEVA PESTAÑA Y REDIRIGIR
-echo "<script>
-    window.open('/inventario_ti/api/generar_acta_baja_masiva.php', '_blank');
-    window.location.href = 'listar.php?mensaje=" . urlencode("✅ Baja procesada correctamente. Se generó el acta en una nueva pestaña.") . "';
-</script>";
-exit();
+                // ✅ ABRIR PDF EN NUEVA PESTAÑA Y REDIRIGIR
+                echo "<script>
+                    window.open('/inventario_ti/api/generar_acta_baja_masiva.php', '_blank');
+                    window.location.href = 'listar.php?mensaje=" . urlencode("✅ Baja procesada correctamente. Se generó el acta en una nueva pestaña.") . "';
+                </script>";
+                exit();
+            } catch (Exception $e) {
+                $conn->rollback();
+                $error = "❌ Error al procesar la baja: " . $e->getMessage();
+            }
+        }
+    }
+}
 
 // Obtener datos de los equipos seleccionados
 $equipos_data = [];
