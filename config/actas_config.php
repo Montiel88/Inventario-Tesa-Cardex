@@ -94,7 +94,15 @@ function generarCodigoActa($tipo) {
     // Cargar configuración
     $config = cargarConfiguracion();
     
-    $prefijo = $config['formulario_' . $tipo] ?? 'FOR-TH-00';
+    // Si es ingreso, usar formulario_ingreso o un valor por defecto
+    if ($tipo == 'ingreso') {
+        $prefijo = $config['formulario_ingreso'] ?? 'FOR-TH-01';
+    } elseif ($tipo == 'traspaso') {
+        $prefijo = $config['formulario_traspaso'] ?? 'FOR-TH-02';
+    } else {
+        $prefijo = $config['formulario_' . $tipo] ?? 'FOR-TH-00';
+    }
+    
     $version = $config['version'] ?? '01';
     $secuencia = obtenerSecuencia();
     $anio = date('Y');

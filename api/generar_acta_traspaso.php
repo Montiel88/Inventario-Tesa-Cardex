@@ -1,7 +1,7 @@
 <?php
-ini_set("display_errors", 1);
-ini_set("display_startup_errors", 1);
 error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 
 session_start();
 
@@ -18,41 +18,52 @@ if (!isset($_SESSION["user_id"]) && php_sapi_name() !== 'cli') {
 require_once BASE_PATH . 'vendor/autoload.php';
 use Mpdf\Mpdf;
 
-if (php_sapi_name() === 'cli') {
-    parse_str(implode('&', array_slice($argv, 1)), $_GET);
-}
+// Obtener parámetros
+$asignacion_id = intval($_GET["asignacion_id"] ?? 0);
+$nueva_persona_id = intval($_GET["nueva_persona_id"] ?? 0);
 
-$equipo_id = intval($_GET["equipo_id"] ?? 0);
-if (!$equipo_id) die("ID de equipo no válido");
+if (!$asignacion_id || !$nueva_persona_id) {
+    die("Parámetros incompletos");
+}
 
 $config = cargarConfiguracion();
 
-// ===== NUEVO: Cargar logo en Base64 =====
+// ===== Logo en Base64 =====
 $ruta_logo_fisica = BASE_PATH . 'assets/img/logo-tesa.png';
 $logo_base64 = '';
 if (file_exists($ruta_logo_fisica)) {
     $imageData = base64_encode(file_get_contents($ruta_logo_fisica));
     $logo_base64 = 'data:image/png;base64,' . $imageData;
-} else {
-    $ruta_alternativa = __DIR__ . '/../assets/img/logo-tesa.png';
-    if (file_exists($ruta_alternativa)) {
-        $imageData = base64_encode(file_get_contents($ruta_alternativa));
-        $logo_base64 = 'data:image/png;base64,' . $imageData;
-    }
 }
-// ===== FIN NUEVO =====
 
-// Obtener datos del equipo
+// Obtener datos de la asignación actual
+$sql_asignacion = "SELECT a.*, 
+                          e.codigo_barras, e.tipo_equipo, e.marca, e.modelo, e.numero_serie,
+                          p_anterior.nombres as persona_anterior_nombre, 
+                          p_anterior.cedula as persona_anterior_cedula,
+                          p_anterior.cargo as persona_anterior_cargo
+                   FROM asignaciones a
+                   JOIN equipos e ON a.equipo_id = e.id
+                   JOIN personas p_anterior ON a.persona_id = p_anterior.id
+                   WHERE a.id = $asignacion_id";
+$asignacion = $conn->query($sql_asignacion)->fetch_assoc();
+if (!$asignacion) die("Asignación no encontrada");
 
-// Obtener datos del ADMIN
+// Obtener datos de la nueva persona
+$sql_nueva = "SELECT * FROM personas WHERE id = $nueva_persona_id";
+$nueva_persona = $conn->query($sql_nueva)->fetch_assoc();
+if (!$nueva_persona) die("Persona nueva no encontrada");
+
+// Obtener datos del usuario que registra el traspaso
 $user_id = $_SESSION["user_id"] ?? 1;
-$sql_admin = "SELECT * FROM usuarios WHERE id = $user_id";
-$admin_db = $conn->query($sql_admin)->fetch_assoc();
-$admin_nombre = $admin_db["nombre"] ?? $_SESSION["user_name"] ?? "Administrador";
-$admin_email = $admin_db["email"] ?? $_SESSION["user_email"] ?? "";
+$sql_admin = "SELECT nombre FROM usuarios WHERE id = $user_id";
+$admin = $conn->query($sql_admin)->fetch_assoc();
+$registrador = $admin["nombre"] ?? $_SESSION["user_name"] ?? "Administrador";
 
-$codigo_acta = generarCodigoActa('baja');
+// Generar código de acta
+$codigo_acta = generarCodigoActa('traspaso');
 
+// Meses en español
 $meses = array(
     "January" => "ENERO", "February" => "FEBRERO", "March" => "MARZO",
     "April" => "ABRIL", "May" => "MAYO", "June" => "JUNIO",
@@ -61,42 +72,15 @@ $meses = array(
 );
 $mes_actual = $meses[date("F")];
 
-// Guardar en BD (versión corregida)
-$check_table = $conn->query("SHOW TABLES LIKE 'actas'");
-if ($check_table && $check_table->num_rows > 0) {
-    // Verificar qué columnas tiene la tabla actas
-    $columnas = $conn->query("SHOW COLUMNS FROM actas");
-    $tiene_equipo_id = false;
-    $tiene_persona_id = false;
-    
-    while($col = $columnas->fetch_assoc()) {
-        if ($col['Field'] == 'equipo_id') $tiene_equipo_id = true;
-        if ($col['Field'] == 'persona_id') $tiene_persona_id = true;
-    }
-    
-    if ($tiene_equipo_id) {
-        // Si tiene equipo_id, insertamos con ese campo
-        $sql_insert = "INSERT INTO actas (codigo_acta, tipo_acta, equipo_id, usuario_id, fecha_generacion) 
-                       VALUES ('$codigo_acta', 'baja', $equipo_id, $user_id, NOW())";
-        $conn->query($sql_insert);
-    } elseif ($tiene_persona_id) {
-        // Si tiene persona_id, insertamos el ID del admin (usuario que genera el acta)
-        $sql_insert = "INSERT INTO actas (codigo_acta, tipo_acta, persona_id, usuario_id, fecha_generacion) 
-                       VALUES ('$codigo_acta', 'baja', $user_id, $user_id, NOW())";
-        $conn->query($sql_insert);
-    }
-    // Si no tiene ninguna, no insertamos
-}
-
 // ============================================
-// HTML - ACTA DE BAJA
+// HTML - ACTA DE TRASPASO
 // ============================================
 $html = "
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset=\"UTF-8\">
-    <title>Acta de Baja</title>
+    <title>Acta de Traspaso</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -144,25 +128,19 @@ $html = "
             background-color: #f0f0f0;
             width: 25%;
         }
-        .observaciones {
-            margin: 15px 0;
-            border: 1px solid #000;
-            padding: 8px;
-            background-color: #f9f9f9;
-            font-size: 9pt;
-        }
         .firmas {
-            margin-top: 30px;
+            margin-top: 40px;
             width: 100%;
             overflow: hidden;
         }
-        .firma-left, .firma-right {
+        .firma-left, .firma-center, .firma-right {
             float: left;
-            width: 48%;
+            width: 31%;
             text-align: center;
+            margin-right: 2%;
         }
-        .firma-left {
-            margin-right: 4%;
+        .firma-right {
+            margin-right: 0;
         }
         .linea-firma {
             border-top: 1px solid #000;
@@ -185,60 +163,68 @@ $html = "
     <div class=\"header\">
         <img src=\"" . $logo_base64 . "\" alt=\"Logo TESA\">
         <h1>" . $config['institucion_nombre'] . "</h1>
-        <h2>ACTA DE BAJA DE EQUIPO</h2>
+        <h2>ACTA DE TRASPASO DE CUSTODIO</h2>
         <div class=\"codigo\">Código: <strong>$codigo_acta</strong></div>
     </div>
 
     <p style=\"text-align: justify;\">
-        Por medio de la presente, se deja constancia de la <strong>baja definitiva</strong> del equipo detallado a continuación, 
-        por las razones expuestas. El bien deja de formar parte del inventario institucional, pero su registro histórico 
-        se mantiene para efectos de trazabilidad.
+        Por medio de la presente, se deja constancia del traspaso de custodia del equipo detallado a continuación, 
+        transfiriéndose la responsabilidad del mismo de un custodio a otro, según las políticas institucionales.
     </p>
 
     <table class=\"info-table\">
         <tr>
             <td class=\"label\">EQUIPO:</td>
-            <td><strong>" . strtoupper($equipo["tipo_equipo"]) . " " . $equipo["marca"] . " " . $equipo["modelo"] . "</strong></td>
+            <td><strong>" . strtoupper($asignacion["tipo_equipo"] . " " . $asignacion["marca"] . " " . $asignacion["modelo"]) . "</strong></td>
         </tr>
         <tr>
             <td class=\"label\">CÓDIGO DE BARRAS:</td>
-            <td>" . $equipo["codigo_barras"] . "</td>
+            <td>" . $asignacion["codigo_barras"] . "</td>
         </tr>
         <tr>
             <td class=\"label\">NÚMERO DE SERIE:</td>
-            <td>" . ($equipo["numero_serie"] ?: "N/A") . "</td>
+            <td>" . ($asignacion["numero_serie"] ?: "N/A") . "</td>
+        </tr>
+    </table>
+
+    <h3>DATOS DEL TRASPASO</h3>
+    
+    <table class=\"info-table\">
+        <tr>
+            <td class=\"label\" style=\"width: 20%;\">CUSTODIO ANTERIOR:</td>
+            <td><strong>" . strtoupper($asignacion["persona_anterior_nombre"]) . "</strong><br>
+                C.I. " . $asignacion["persona_anterior_cedula"] . "<br>
+                Cargo: " . $asignacion["persona_anterior_cargo"] . "
+            </td>
         </tr>
         <tr>
-            <td class=\"label\">UBICACIÓN ACTUAL:</td>
-            <td>" . ($equipo["ubicacion_nombre"] ? $equipo["ubicacion_codigo"] . " - " . $equipo["ubicacion_nombre"] : "Sin ubicación") . "</td>
+            <td class=\"label\">NUEVO CUSTODIO:</td>
+            <td><strong>" . strtoupper($nueva_persona["nombres"]) . "</strong><br>
+                C.I. " . $nueva_persona["cedula"] . "<br>
+                Cargo: " . $nueva_persona["cargo"] . "
+            </td>
         </tr>
         <tr>
-            <td class=\"label\">FECHA DE BAJA:</td>
+            <td class=\"label\">FECHA:</td>
             <td>" . $config['ciudad'] . ", " . date("d") . " de " . $mes_actual . " de " . date("Y") . "</td>
         </tr>
     </table>
 
-    <div class=\"observaciones\">
-        <strong>MOTIVO DE LA BAJA:</strong> 
-        " . ($_GET["motivo"] ?? "No especificado") . "
-    </div>
-
-    <div class=\"observaciones\">
-        <strong>OBSERVACIONES:</strong> 
-        " . ($_GET["observaciones"] ?? "Ninguna") . "
-    </div>
-
     <div class=\"firmas\">
         <div class=\"firma-left\">
             <div class=\"linea-firma\"></div>
-            <strong>" . strtoupper($admin_nombre) . "</strong>
-            <div class=\"cargo\">RESPONSABLE DE BAJA - " . $config['departamento_entrega'] . "</div>
-            <div style=\"font-size:7pt;\">" . $admin_email . "</div>
+            <strong>" . strtoupper($asignacion["persona_anterior_nombre"]) . "</strong>
+            <div class=\"cargo\">ENTREGÓ - CUSTODIO ANTERIOR</div>
+        </div>
+        <div class=\"firma-center\">
+            <div class=\"linea-firma\"></div>
+            <strong>" . strtoupper($nueva_persona["nombres"]) . "</strong>
+            <div class=\"cargo\">RECIBIÓ - NUEVO CUSTODIO</div>
         </div>
         <div class=\"firma-right\">
             <div class=\"linea-firma\"></div>
-            <strong>" . strtoupper($config['aprobador_nombre']) . "</strong>
-            <div class=\"cargo\">AUTORIZÓ - " . $config['aprobador_cargo'] . "</div>
+            <strong>" . strtoupper($registrador) . "</strong>
+            <div class=\"cargo\">AUTORIZÓ - " . $config['departamento_entrega'] . "</div>
         </div>
     </div>
 
@@ -259,7 +245,8 @@ try {
     ]);
     
     $mpdf->WriteHTML($html);
-    $mpdf->Output("Acta_Baja_" . $equipo["codigo_barras"] . ".pdf", "I");
+    $mpdf->Output("Acta_Traspaso_" . $asignacion["codigo_barras"] . ".pdf", "I");
+    
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
 }

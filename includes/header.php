@@ -421,6 +421,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         </a>
                         <ul class="dropdown-menu">
                             <?php if ($es_admin): ?>
+                                <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/traspaso.php"><i class="fas fa-exchange-alt"></i> Traspaso de Custodio</a></li>
                                 <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/prestamo.php"><i class="fas fa-hand-holding"></i>Registrar Prestamo</a></li>
                                 <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/devolucion.php"><i class="fas fa-undo-alt"></i>Registrar Devolucion</a></li>
                             <?php endif; ?>

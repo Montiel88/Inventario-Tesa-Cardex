@@ -10,7 +10,12 @@ require_once BASE_PATH . 'config/database.php';
 require_once BASE_PATH . 'config/permisos.php';
 require_once BASE_PATH . 'config/actas_config.php';
 
-if (!isset($_SESSION["user_id"])) {
+// Verificar que la función existe
+if (!function_exists('generarCodigoActa')) {
+    die('Error: La función generarCodigoActa no está definida. Revisa config/actas_config.php');
+}
+
+if (!isset($_SESSION["user_id"]) && php_sapi_name() !== 'cli') {
     header("Location: /inventario_ti/login.php");
     exit();
 }
@@ -18,39 +23,39 @@ if (!isset($_SESSION["user_id"])) {
 require_once BASE_PATH . 'vendor/autoload.php';
 use Mpdf\Mpdf;
 
+// Obtener ID del equipo
+$equipo_id = intval($_GET["equipo_id"] ?? 0);
+if (!$equipo_id) die("ID de equipo no válido");
+
+// Cargar configuración
 $config = cargarConfiguracion();
 
-// ===== NUEVO: Cargar logo en Base64 =====
+// ===== Logo en Base64 =====
 $ruta_logo_fisica = BASE_PATH . 'assets/img/logo-tesa.png';
 $logo_base64 = '';
 if (file_exists($ruta_logo_fisica)) {
     $imageData = base64_encode(file_get_contents($ruta_logo_fisica));
     $logo_base64 = 'data:image/png;base64,' . $imageData;
-} else {
-    $ruta_alternativa = __DIR__ . '/../assets/img/logo-tesa.png';
-    if (file_exists($ruta_alternativa)) {
-        $imageData = base64_encode(file_get_contents($ruta_alternativa));
-        $logo_base64 = 'data:image/png;base64,' . $imageData;
-    }
 }
-// ===== FIN NUEVO =====
 
-// Obtener IDs de sesión
+// Obtener datos del equipo
+$sql_equipo = "SELECT e.*, u.nombre as ubicacion_nombre, u.codigo_ubicacion 
+               FROM equipos e
+               LEFT JOIN ubicaciones u ON e.ubicacion_id = u.id
+               WHERE e.id = $equipo_id";
+$equipo = $conn->query($sql_equipo)->fetch_assoc();
+if (!$equipo) die("Equipo no encontrado");
 
-// Obtener datos de los equipos
-$sql = "SELECT e.*, u.nombre as ubicacion_nombre 
-        FROM equipos e
-        LEFT JOIN ubicaciones u ON e.ubicacion_id = u.id
-        WHERE e.id IN ($ids_string)";
-$equipos = $conn->query($sql);
+// Obtener datos del usuario que registra
+$user_id = $_SESSION["user_id"] ?? 1;
+$sql_admin = "SELECT nombre, email FROM usuarios WHERE id = $user_id";
+$admin = $conn->query($sql_admin)->fetch_assoc();
+$registrador = $admin["nombre"] ?? $_SESSION["user_name"] ?? "Administrador";
 
-$user_id = $_SESSION["user_id"];
-$sql_admin = "SELECT * FROM usuarios WHERE id = $user_id";
-$admin_db = $conn->query($sql_admin)->fetch_assoc();
-$admin_nombre = $admin_db["nombre"] ?? $_SESSION["user_name"] ?? "Administrador";
+// Generar código de acta
+$codigo_acta = generarCodigoActa('ingreso');
 
-$codigo_acta = generarCodigoActa('baja_masiva');
-
+// Meses en español
 $meses = array(
     "January" => "ENERO", "February" => "FEBRERO", "March" => "MARZO",
     "April" => "ABRIL", "May" => "MAYO", "June" => "JUNIO",
@@ -59,28 +64,23 @@ $meses = array(
 );
 $mes_actual = $meses[date("F")];
 
-// Construir tabla de equipos
-$tabla_equipos = '';
-$contador = 1;
-while($eq = $equipos->fetch_assoc()) {
-    $tabla_equipos .= "
-    <tr>
-        <td style='text-align: center; width: 8%;'>$contador</td>
-        <td style='width: 30%;'>{$eq['codigo_barras']}</td>
-        <td style='width: 32%;'>{$eq['tipo_equipo']} {$eq['marca']} {$eq['modelo']}</td>
-        <td style='width: 20%;'>" . ($eq['numero_serie'] ?: 'N/A') . "</td>
-        <td style='width: 10%; text-align: center;'>1</td>
-    </tr>";
-    $contador++;
+// Guardar en BD (si existe la tabla actas)
+$check_table = $conn->query("SHOW TABLES LIKE 'actas'");
+if ($check_table && $check_table->num_rows > 0) {
+    $sql_insert = "INSERT INTO actas (codigo_acta, tipo_acta, usuario_id, fecha_generacion) 
+               VALUES ('$codigo_acta', 'ingreso', $user_id, NOW())";
+    $conn->query($sql_insert);
 }
-$total = $contador - 1;
 
+// ============================================
+// HTML - ACTA DE INGRESO
+// ============================================
 $html = "
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset=\"UTF-8\">
-    <title>Acta de Baja Masiva</title>
+    <title>Acta de Ingreso</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -128,24 +128,6 @@ $html = "
             background-color: #f0f0f0;
             width: 25%;
         }
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-            font-size: 9pt;
-        }
-        .items-table th {
-            background-color: #5a2d8c;
-            color: white;
-            font-weight: bold;
-            border: 1px solid #000;
-            padding: 6px;
-            text-align: center;
-        }
-        .items-table td {
-            border: 1px solid #000;
-            padding: 5px;
-        }
         .observaciones {
             margin: 15px 0;
             border: 1px solid #000;
@@ -187,60 +169,59 @@ $html = "
     <div class=\"header\">
         <img src=\"" . $logo_base64 . "\" alt=\"Logo TESA\">
         <h1>" . $config['institucion_nombre'] . "</h1>
-        <h2>ACTA DE BAJA MASIVA DE EQUIPOS</h2>
+        <h2>ACTA DE INGRESO DE INVENTARIO</h2>
         <div class=\"codigo\">Código: <strong>$codigo_acta</strong></div>
     </div>
 
     <p style=\"text-align: justify;\">
-        Por medio de la presente, se deja constancia de la <strong>baja definitiva</strong> de los equipos detallados a continuación, 
-        por las razones expuestas. Los bienes dejan de formar parte del inventario institucional, pero sus registros históricos 
-        se mantienen para efectos de trazabilidad.
+        Por medio de la presente, se deja constancia del ingreso al inventario institucional 
+        del equipo detallado a continuación, el cual queda registrado para su control y 
+        seguimiento.
     </p>
 
     <table class=\"info-table\">
         <tr>
-            <td class=\"label\">FECHA DE BAJA:</td>
-            <td>" . $config['ciudad'] . ", " . date("d") . " de " . $mes_actual . " de " . date("Y") . "</td>
+            <td class=\"label\">EQUIPO:</td>
+            <td><strong>" . strtoupper($equipo["tipo_equipo"] . " " . $equipo["marca"] . " " . $equipo["modelo"]) . "</strong></td>
         </tr>
         <tr>
-            <td class=\"label\">MOTIVO:</td>
-            <td>$motivo</td>
+            <td class=\"label\">CÓDIGO DE BARRAS:</td>
+            <td>" . $equipo["codigo_barras"] . "</td>
         </tr>
-    </table>
-
-    <table class=\"items-table\">
-        <thead>
-            <tr>
-                <th width=\"8%\">NO.</th>
-                <th width=\"30%\">CÓDIGO</th>
-                <th width=\"32%\">EQUIPO</th>
-                <th width=\"20%\">SERIE</th>
-                <th width=\"10%\">CANT.</th>
-            </tr>
-        </thead>
-        <tbody>
-            $tabla_equipos
-            <tr style='font-weight: bold; background-color: #f0f0f0;'>
-                <td colspan='4' style='text-align: right;'>TOTAL:</td>
-                <td style='text-align: center;'>$total</td>
-            </tr>
-        </tbody>
+        <tr>
+            <td class=\"label\">NÚMERO DE SERIE:</td>
+            <td>" . ($equipo["numero_serie"] ?: "N/A") . "</td>
+        </tr>
+        <tr>
+            <td class=\"label\">UBICACIÓN INICIAL:</td>
+            <td>" . ($equipo["ubicacion_nombre"] ? $equipo["ubicacion_codigo"] . " - " . $equipo["ubicacion_nombre"] : "Sin ubicación") . "</td>
+        </tr>
+        <tr>
+            <td class=\"label\">FECHA DE INGRESO:</td>
+            <td>" . $config['ciudad'] . ", " . date("d") . " de " . $mes_actual . " de " . date("Y") . "</td>
+        </tr>
     </table>
 
     <div class=\"observaciones\">
-        <strong>OBSERVACIONES:</strong> $observaciones
+        <strong>ESPECIFICACIONES:</strong> 
+        " . nl2br($equipo["especificaciones"] ?? "No especificadas") . "
+    </div>
+
+    <div class=\"observaciones\">
+        <strong>OBSERVACIONES:</strong> 
+        " . nl2br($equipo["observaciones"] ?? "Ninguna") . "
     </div>
 
     <div class=\"firmas\">
         <div class=\"firma-left\">
             <div class=\"linea-firma\"></div>
-            <strong>" . strtoupper($admin_nombre) . "</strong>
-            <div class=\"cargo\">RESPONSABLE DE BAJA - " . $config['departamento_entrega'] . "</div>
+            <strong>" . strtoupper($registrador) . "</strong>
+            <div class=\"cargo\">REGISTRÓ - " . $config['departamento_entrega'] . "</div>
         </div>
         <div class=\"firma-right\">
             <div class=\"linea-firma\"></div>
             <strong>" . strtoupper($config['aprobador_nombre']) . "</strong>
-            <div class=\"cargo\">AUTORIZÓ - " . $config['aprobador_cargo'] . "</div>
+            <div class=\"cargo\">RECIBÍ CONFORME - " . $config['aprobador_cargo'] . "</div>
         </div>
     </div>
 
@@ -251,14 +232,17 @@ $html = "
 </html>";
 
 try {
-    $mpdf = new Mpdf(["format" => "A4", "margin_top" => 10, "margin_bottom" => 10, "margin_left" => 15, "margin_right" => 15]);
-    $mpdf->WriteHTML($html);
-    $mpdf->Output("Acta_Baja_Masiva_" . date('Ymd_His') . ".pdf", "I");
+    $mpdf = new Mpdf([
+        "format" => "A4",
+        "margin_top" => 10,
+        "margin_bottom" => 10,
+        "margin_left" => 15,
+        "margin_right" => 15,
+        "default_font_size" => 10
+    ]);
     
-    // Limpiar sesión
-    unset($_SESSION['baja_masiva_ids']);
-    unset($_SESSION['baja_masiva_motivo']);
-    unset($_SESSION['baja_masiva_observaciones']);
+    $mpdf->WriteHTML($html);
+    $mpdf->Output("Acta_Ingreso_" . $equipo["codigo_barras"] . ".pdf", "I");
     
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();

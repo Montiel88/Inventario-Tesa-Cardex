@@ -27,6 +27,21 @@ if (!$persona_id) die("ID de persona no válido");
 
 $config = cargarConfiguracion();
 
+// ===== NUEVO: Cargar logo en Base64 =====
+$ruta_logo_fisica = BASE_PATH . 'assets/img/logo-tesa.png';
+$logo_base64 = '';
+if (file_exists($ruta_logo_fisica)) {
+    $imageData = base64_encode(file_get_contents($ruta_logo_fisica));
+    $logo_base64 = 'data:image/png;base64,' . $imageData;
+} else {
+    $ruta_alternativa = __DIR__ . '/../assets/img/logo-tesa.png';
+    if (file_exists($ruta_alternativa)) {
+        $imageData = base64_encode(file_get_contents($ruta_alternativa));
+        $logo_base64 = 'data:image/png;base64,' . $imageData;
+    }
+}
+// ===== FIN NUEVO =====
+
 $sql_persona = "SELECT * FROM personas WHERE id = $persona_id";
 $persona = $conn->query($sql_persona)->fetch_assoc();
 if (!$persona) die("Persona no encontrada");
@@ -228,7 +243,7 @@ $html = "
 <!-- ENCABEZADO -->
 <!-- ============================================ -->
 <div class=\"header\">
-    <img src=\"" . $config['logo_url'] . "\" alt=\"Logo TESA\" onerror=\"this.style.display='none'\">
+    <img src=\"" . $logo_base64 . "\" alt=\"Logo TESA\">
     <h1>" . $config['institucion_nombre'] . "</h1>
     <h2>DESCARGO DE RESPONSABILIDAD</h2>
     <div class=\"codigo\">Código: <strong>$codigo_acta</strong></div>
