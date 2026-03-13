@@ -4,20 +4,26 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
+class ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
+        '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '662a729f963d39afe703c9d9b7ab4a8c' => __DIR__ . '/..' . '/symfony/polyfill-php83/bootstrap.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        'db356362850385d08a5381de2638b5fd' => __DIR__ . '/..' . '/mpdf/mpdf/src/functions.php',
         '61ba3e92ef91a7a0f1cc260ebd9290e4' => __DIR__ . '/..' . '/openai-php/client/src/OpenAI.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        's' =>
+        array (
+            'setasign\\Fpdi\\' => 14,
+        ),
         'c' =>
         array (
             'chillerlan\\Settings\\' => 20,
@@ -49,6 +55,13 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
         array (
             'Nyholm\\Psr7\\' => 12,
         ),
+        'M' =>
+        array (
+            'Mpdf\\PsrLogAwareTrait\\' => 22,
+            'Mpdf\\PsrHttpMessageShim\\' => 24,
+            'Mpdf\\' => 5,
+            'Monolog\\' => 8,
+        ),
         'H' =>
         array (
             'Http\\Message\\MultipartStream\\' => 29,
@@ -64,10 +77,15 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
         'D' =>
         array (
             'Dotenv\\' => 7,
+            'DeepCopy\\' => 9,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'setasign\\Fpdi\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/setasign/fpdi/src',
+        ),
         'chillerlan\\Settings\\' =>
         array (
             0 => __DIR__ . '/..' . '/chillerlan/php-settings-container/src',
@@ -133,6 +151,22 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
         array (
             0 => __DIR__ . '/..' . '/nyholm/psr7/src',
         ),
+        'Mpdf\\PsrLogAwareTrait\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/mpdf/psr-log-aware-trait/src',
+        ),
+        'Mpdf\\PsrHttpMessageShim\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/mpdf/psr-http-message-shim/src',
+        ),
+        'Mpdf\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/mpdf/mpdf/src',
+        ),
+        'Monolog\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
+        ),
         'Http\\Message\\MultipartStream\\' =>
         array (
             0 => __DIR__ . '/..' . '/php-http/multipart-stream-builder/src',
@@ -161,6 +195,10 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
         array (
             0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
         ),
+        'DeepCopy\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
+        ),
     );
 
     public static $classMap = array (
@@ -186,9 +224,9 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda::$classMap;
 
         }, null, ClassLoader::class);
     }

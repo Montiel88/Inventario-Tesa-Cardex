@@ -381,6 +381,8 @@ document.addEventListener('DOMContentLoaded', function() {
     AOS.init({ duration: 800, once: true });
 </script>
 <script src="/inventario_ti/assets/js/funciones.js"></script>
+<!-- Sistema de Alertas -->
+<script src="/inventario_ti/assets/js/alertas_sistema.js"></script>
 <?php ob_end_flush(); ?>
 </body>
 </html>

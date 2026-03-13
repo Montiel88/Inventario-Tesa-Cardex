@@ -47,7 +47,7 @@ $result = $conn->query($sql);
                 </div>
             </div>
             
-            <table class="table table-bordered">
+            <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -56,7 +56,7 @@ $result = $conn->query($sql);
                         <th>Persona</th>
                         <th>Usuario</th>
                         <th>Fecha</th>
-                        <th>Secuencia</th>
+                        <th>Firmado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,7 +75,21 @@ $result = $conn->query($sql);
                         <td><?php echo $row['persona_nombre'] . ' (' . $row['cedula'] . ')'; ?></td>
                         <td><?php echo $row['usuario_nombre']; ?></td>
                         <td><?php echo date('d/m/Y H:i', strtotime($row['fecha_generacion'])); ?></td>
-                        <td><?php echo $row['secuencia']; ?></td>
+                        <td class="text-center">
+                            <?php if (!empty($row['archivo_firmado'])): ?>
+                                <a href="/inventario_ti/<?php echo $row['archivo_firmado']; ?>" target="_blank" class="btn btn-sm btn-success mb-1">
+                                    <i class="fas fa-file-signature me-1"></i>Ver Firmado
+                                </a>
+                                <br>
+                                <button class="btn btn-sm btn-outline-primary btn-upload" data-id="<?php echo $row['id']; ?>" data-codigo="<?php echo $row['codigo_acta']; ?>">
+                                    <i class="fas fa-sync me-1"></i>Reemplazar
+                                </button>
+                            <?php else: ?>
+                                <button class="btn btn-sm btn-outline-danger btn-upload" data-id="<?php echo $row['id']; ?>" data-codigo="<?php echo $row['codigo_acta']; ?>">
+                                    <i class="fas fa-upload me-1"></i>Subir PDF
+                                </button>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                     <?php endwhile; else: ?>
                     <tr><td colspan="7" class="text-center">No hay actas generadas</td></tr>
@@ -85,5 +99,76 @@ $result = $conn->query($sql);
         </div>
     </div>
 </div>
+
+<!-- Modal de Subida -->
+<div class="modal fade" id="modalSubida" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-upload me-2"></i>Subir Acta Firmada</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formSubidaActa" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="acta_id" id="upload_acta_id">
+                    <div class="mb-3">
+                        <label class="form-label">Acta: <strong id="upload_acta_codigo"></strong></label>
+                        <input type="file" name="archivo_firmado" class="form-control" accept=".pdf" required>
+                        <small class="text-muted">Solo se permiten archivos en formato PDF.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Subir Archivo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modalSubida = new bootstrap.Modal(document.getElementById('modalSubida'));
+    const formSubida = document.getElementById('formSubidaActa');
+    
+    document.querySelectorAll('.btn-upload').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('upload_acta_id').value = this.dataset.id;
+            document.getElementById('upload_acta_codigo').innerText = this.dataset.codigo;
+            modalSubida.show();
+        });
+    });
+
+    formSubida.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        Swal.fire({
+            title: 'Subiendo archivo...',
+            didOpen: () => { Swal.showLoading(); },
+            allowOutsideClick: false
+        });
+
+        fetch('../../api/subir_acta_firmada.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('¡Éxito!', data.message, 'success').then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire('Error', data.message, 'error');
+            }
+        })
+        .catch(error => {
+            Swal.fire('Error', 'Hubo un problema con la conexión', 'error');
+        });
+    });
+});
+</script>
 
 <?php include '../../includes/footer.php'; ?>

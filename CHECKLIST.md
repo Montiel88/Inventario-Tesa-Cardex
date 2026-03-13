@@ -17,7 +17,7 @@
 - [x] CRUD completo de equipos
 - [x] Códigos únicos (PRO-XXXXXX)
 - [x] Escáner QR/código de barras
-- [x] Subida de fotos (PENDIENTE - verificar)
+- [x] Subida de fotos (Implementado en agregar/editar equipo y visualización en detalle)
 - [x] Estados: Disponible, Asignado, En mantenimiento, Baja
 - [x] Componentes asociados a equipos
 - [x] Trazabilidad completa (movimientos)
@@ -27,8 +27,8 @@
 - [x] Asignar equipo a persona (con acta)
 - [x] Devolución de equipos (con acta)
 - [x] Préstamos rápidos (sin acta)
-- [x] Alertas de préstamos vencidos (NO - verificar)
-- [x] Traspaso de custodio (básico)
+- [x] Alertas de préstamos vencidos (módulo modules/prestamos_rapidos/vencidos.php)
+- [x] Traspaso de custodio (módulo modules/movimientos/traspaso.php)
 
 ### V. ACTAS Y DOCUMENTOS
 - [x] Acta de entrega (generar_acta_entrega.php)
@@ -41,7 +41,7 @@
 
 ### VI. MANTENIMIENTO
 - [x] Módulo de mantenimientos
-- [x] Registro automático desde devoluciones (VERIFICAR)
+- [x] Registro automático desde devoluciones (Implementado en devolucion.php)
 
 ### VII. UBICACIONES
 - [x] CRUD de ubicaciones
@@ -50,32 +50,33 @@
 ### VIII. REPORTES BÁSICOS
 - [x] Listados generales
 - [x] Filtros por ubicación/estado
+- [x] Exportar a Excel y PDF (módulo reportes/index.php)
 
 ---
 
 ## 🚧 PENDIENTE (POR IMPLEMENTAR)
 
 ### I. ACTAS FALTANTES
-- [x] Acta de ingreso de inventario (cuando se crea equipo)
-- [x] Acta de traspaso (cambio de custodio)
+- [x] Acta de ingreso de inventario (api/generar_acta_ingreso.php)
+- [x] Acta de traspaso (api/generar_acta_traspaso.php)
 
 ### II. MEJORAS EN PRÉSTAMOS
 - [ ] Traspaso múltiple de dispositivos
-- [ ] Vista de equipos por persona (YA EXISTE en detalle de persona)
+- [x] Vista de equipos por persona (Implementado en detalle de persona)
 
 ### III. DOCUMENTOS ADJUNTOS
-- [ ] Subir documentos firmados (PDF)
-- [ ] Ver documentos en historial
+- [x] Subir documentos firmados (PDF) (Implementado en actas generadas e historial de movimientos)
+- [x] Ver documentos en historial (Botón "Ver Firmado" en tablas de actas y movimientos)
 
 ### IV. REPORTES AVANZADOS
-- [ ] Exportar a Excel (VERIFICAR si funciona)
+- [x] Exportar a Excel (Funciona en reportes/generar.php)
 - [ ] Reportes por rango de fechas
-- [ ] Dashboard con gráficos
+- [ ] Dashboard con gráficos (Actualmente solo tiene tarjetas de resumen)
 
 ### V. NOTIFICACIONES
 - [ ] Alertas por email
 - [ ] Recordatorios de devolución
 
 ### VI. MEJORAS EN SUBARTÍCULOS
-- [ ] Trazabilidad independiente por componente (YA EXISTE en componentes/listar.php)
-- [ ] Historial de reemplazos (YA EXISTE en componentes/trazabilidad.php)
+- [x] Trazabilidad independiente por componente (Implementado en componentes/listar.php)
+- [x] Historial de reemplazos (Implementado en componentes/trazabilidad.php)
