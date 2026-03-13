@@ -3,7 +3,7 @@
         'name' => '__root__',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '02dd42e474fc51663d8ba030f528ec88764f2212',
+        'reference' => '8c8c97232c6b6e81af466a35250fcaf3d10f88c9',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         '__root__' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '02dd42e474fc51663d8ba030f528ec88764f2212',
+            'reference' => '8c8c97232c6b6e81af466a35250fcaf3d10f88c9',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -127,15 +127,6 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'openai-php/client' => array(
-            'pretty_version' => 'v0.19.0',
-            'version' => '0.19.0.0',
-            'reference' => 'c52f871fba345c6cbd8a3945c4d167e2e21266fd',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../openai-php/client',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
         'paragonie/random_compat' => array(
             'pretty_version' => 'v9.99.100',
             'version' => '9.99.100.0',
@@ -157,29 +148,11 @@
                 0 => '*',
             ),
         ),
-        'php-http/discovery' => array(
-            'pretty_version' => '1.20.0',
-            'version' => '1.20.0.0',
-            'reference' => '82fe4c73ef3363caed49ff8dd1539ba06044910d',
-            'type' => 'composer-plugin',
-            'install_path' => __DIR__ . '/../php-http/discovery',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
         'php-http/message-factory-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
                 0 => '1.0',
             ),
-        ),
-        'php-http/multipart-stream-builder' => array(
-            'pretty_version' => '1.4.2',
-            'version' => '1.4.2.0',
-            'reference' => '10086e6de6f53489cca5ecc45b6f468604d3460e',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../php-http/multipart-stream-builder',
-            'aliases' => array(),
-            'dev_requirement' => false,
         ),
         'phpoption/phpoption' => array(
             'pretty_version' => '1.9.5',
@@ -211,8 +184,7 @@
         'psr/http-client-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
             ),
         ),
         'psr/http-factory' => array(
@@ -227,8 +199,7 @@
         'psr/http-factory-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
             ),
         ),
         'psr/http-message' => array(
@@ -243,8 +214,7 @@
         'psr/http-message-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
             ),
         ),
         'psr/log' => array(

@@ -16,7 +16,6 @@ class ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda
         '662a729f963d39afe703c9d9b7ab4a8c' => __DIR__ . '/..' . '/symfony/polyfill-php83/bootstrap.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         'db356362850385d08a5381de2638b5fd' => __DIR__ . '/..' . '/mpdf/mpdf/src/functions.php',
-        '61ba3e92ef91a7a0f1cc260ebd9290e4' => __DIR__ . '/..' . '/openai-php/client/src/OpenAI.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -47,10 +46,6 @@ class ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda
             'Psr\\Container\\' => 14,
             'PhpOption\\' => 10,
         ),
-        'O' =>
-        array (
-            'OpenAI\\' => 7,
-        ),
         'N' =>
         array (
             'Nyholm\\Psr7\\' => 12,
@@ -61,11 +56,6 @@ class ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda
             'Mpdf\\PsrHttpMessageShim\\' => 24,
             'Mpdf\\' => 5,
             'Monolog\\' => 8,
-        ),
-        'H' =>
-        array (
-            'Http\\Message\\MultipartStream\\' => 29,
-            'Http\\Discovery\\' => 15,
         ),
         'G' =>
         array (
@@ -143,10 +133,6 @@ class ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
         ),
-        'OpenAI\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/openai-php/client/src',
-        ),
         'Nyholm\\Psr7\\' =>
         array (
             0 => __DIR__ . '/..' . '/nyholm/psr7/src',
@@ -166,14 +152,6 @@ class ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda
         'Monolog\\' =>
         array (
             0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
-        ),
-        'Http\\Message\\MultipartStream\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/php-http/multipart-stream-builder/src',
-        ),
-        'Http\\Discovery\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/php-http/discovery/src',
         ),
         'GuzzleHttp\\Psr7\\' =>
         array (

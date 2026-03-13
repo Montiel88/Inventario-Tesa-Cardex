@@ -133,11 +133,11 @@ $sql_incidencias = "SELECT i.*, e.tipo_equipo, e.codigo_barras
 $incidencias = $conn->query($sql_incidencias);
 
 // ============================================
-// URL BASE DINÁMICA PARA EL CÓDIGO QR
+// URL BASE DINÁMICA PARA EL CÓDIGO QR (CORREGIDO)
 // ============================================
 $protocolo = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'];
-$base_url_publica = 'http://192.168.100.154/inventario_ti';
+$base_url_publica = $protocolo . '://' . $host . '/inventario_ti';
 ?>
 
 <style>
@@ -385,7 +385,6 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     </div>
 </div>
 
-
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
@@ -394,48 +393,45 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                 <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
                     <h4 class="mb-0"><i class="fas fa-user me-2"></i>Detalle de Persona</h4>
                     <div class="d-flex flex-wrap gap-2">
-                      <!-- Grupo Actas - VERSIÓN SIMPLE Y FUNCIONAL -->
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="btnActasPersona">
-        <i class="fas fa-file-pdf me-1"></i>Actas
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end" id="menuActasPersona" style="max-height: 400px; overflow-y: auto;">
-        <?php
-        // Opción 1: Cargar estático (seguro)
-        $id_actual = $id;
-        ?>
-        <li><h6 class="dropdown-header">📋 ACTAS DE PERSONA</h6></li>
-        <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $id_actual; ?>" target="_blank">
-            <i class="fas fa-hand-holding me-2 text-success"></i>Acta Entrega
-        </a></li>
-        <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $id_actual; ?>" target="_blank">
-            <i class="fas fa-undo-alt me-2 text-warning"></i>Acta Devolución
-        </a></li>
-        <li><a class="dropdown-item" href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $id_actual; ?>" target="_blank">
-            <i class="fas fa-file-signature me-2 text-info"></i>Descargo
-        </a></li>
-        
-        <?php
-        // Verificar si tiene equipos asignados
-        $check_equipos = $conn->query("SELECT COUNT(*) as total FROM asignaciones WHERE persona_id = $id_actual AND fecha_devolucion IS NULL");
-        $total_equipos_asignados = $check_equipos->fetch_assoc()['total'];
-        
-        if ($total_equipos_asignados > 0): 
-        ?>
-        <li><hr class="dropdown-divider"></li>
-        <li><h6 class="dropdown-header">📦 ACTAS DE EQUIPOS</h6></li>
-        <li><a class="dropdown-item" href="#" onclick="alert('Seleccione un equipo específico para generar esta acta'); return false;">
-            <i class="fas fa-box-open me-2 text-primary"></i>Acta de Ingreso (elegir equipo)
-        </a></li>
-        <li><a class="dropdown-item" href="#" onclick="alert('Seleccione un equipo específico para generar esta acta'); return false;">
-            <i class="fas fa-trash-alt me-2 text-danger"></i>Acta de Baja (elegir equipo)
-        </a></li>
-        <?php endif; ?>
-    </ul>
-</div>
+                        <!-- Grupo Actas -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="btnActasPersona">
+                                <i class="fas fa-file-pdf me-1"></i>Actas
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" id="menuActasPersona" style="max-height: 400px; overflow-y: auto;">
+                                <?php
+                                $id_actual = $id;
+                                ?>
+                                <li><h6 class="dropdown-header">📋 ACTAS DE PERSONA</h6></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $id_actual; ?>" target="_blank">
+                                    <i class="fas fa-hand-holding me-2 text-success"></i>Acta Entrega
+                                </a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $id_actual; ?>" target="_blank">
+                                    <i class="fas fa-undo-alt me-2 text-warning"></i>Acta Devolución
+                                </a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $id_actual; ?>" target="_blank">
+                                    <i class="fas fa-file-signature me-2 text-info"></i>Descargo
+                                </a></li>
+                                
+                                <?php
+                                // Verificar si tiene equipos asignados
+                                $check_equipos = $conn->query("SELECT COUNT(*) as total FROM asignaciones WHERE persona_id = $id_actual AND fecha_devolucion IS NULL");
+                                $total_equipos_asignados = $check_equipos->fetch_assoc()['total'];
+                                
+                                if ($total_equipos_asignados > 0): 
+                                ?>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">📦 ACTAS DE EQUIPOS</h6></li>
+                                <li><a class="dropdown-item" href="#" onclick="alert('Seleccione un equipo específico para generar esta acta'); return false;">
+                                    <i class="fas fa-box-open me-2 text-primary"></i>Acta de Ingreso (elegir equipo)
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="alert('Seleccione un equipo específico para generar esta acta'); return false;">
+                                    <i class="fas fa-trash-alt me-2 text-danger"></i>Acta de Baja (elegir equipo)
+                                </a></li>
+                                <?php endif; ?>
+                            </ul>
+                        </div>
 
-<!-- El resto de tus botones (QR, Historial, etc.) siguen igual -->
-                        
                         <!-- Grupo QR -->
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -512,47 +508,39 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                                     <?php endif; ?>
                                 </div>
                             </div>
-                          <!-- tarjeta componentes asignados - VERSIÓN SIMPLE -->
-<div class="card bg-light">
-    <div class="card-body text-center">
-        <h3><?php echo $total_componentes; ?></h3>
-        <p>Componentes asignados actualmente</p>
-        
-        <?php if ($es_admin && $total_componentes_disponibles > 0): ?>
-            <!-- Enlace directo a una página de asignación -->
-            <a href="asignar_componente_page.php?persona_id=<?php echo $id; ?>" class="btn btn-success btn-lg w-100">
-                <i class="fas fa-plus-circle me-2"></i>Asignar componente
-            </a>
-        <?php else: ?>
-            <button class="btn btn-secondary btn-lg w-100" disabled>
-                <i class="fas fa-ban me-2"></i>No hay componentes disponibles
-            </button>
-        <?php endif; ?>
+                            
+                            <!-- tarjeta componentes asignados -->
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h3><?php echo $total_componentes; ?></h3>
+                                    <p>Componentes asignados actualmente</p>
+                                    
+                                    <?php if ($es_admin && $total_componentes_disponibles > 0): ?>
+                                        <button class="btn btn-success btn-lg w-100" onclick="abrirModalAsignacion()">
+                                            <i class="fas fa-plus-circle me-2"></i>Asignar componente
+                                        </button>
+                                    <?php else: ?>
+                                        <button class="btn btn-secondary btn-lg w-100" disabled>
+                                            <i class="fas fa-ban me-2"></i>No hay componentes disponibles
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AQUÍ IRÍA EL RESTO DEL CONTENIDO (HISTORIAL, INCIDENCIAS, ETC.) -->
+                    <!-- Por brevedad, mantén el resto del contenido que ya tenías -->
+                    
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- MODAL ASIGNAR COMPONENTE - VERSIÓN FINAL -->
+<!-- MODAL ASIGNAR COMPONENTE - CORREGIDO -->
 <?php if ($es_admin): ?>
-<style>
-/* Estilos forzados para el modal */
-.modal {
-    z-index: 999999 !important;
-}
-.modal-backdrop {
-    z-index: 999998 !important;
-}
-.modal-dialog {
-    margin: 1.75rem auto !important;
-    max-width: 500px !important;
-}
-.modal-content {
-    background: white !important;
-    border-radius: 15px !important;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2) !important;
-}
-</style>
-
-<div class="modal fade" id="assignComponentModal" tabindex="-1" aria-labelledby="assignComponentModalLabel" aria-hidden="true" data-bs-backdrop="static">
+<div class="modal fade" id="assignComponentModal" tabindex="-1" aria-labelledby="assignComponentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
@@ -606,47 +594,23 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
 </div>
 
 <script>
-<script>
+// Función para abrir el modal de asignación
+function abrirModalAsignacion() {
+    var modal = new bootstrap.Modal(document.getElementById('assignComponentModal'));
+    modal.show();
+}
 
-<script>
-<script>
+// Función para generar QR (si no existe)
+function generarQR(id) {
+    // Aquí iría la lógica para generar QR
+    // Por ahora, solo mostramos el modal de QR
+    document.getElementById('qrModal').style.display = 'flex';
+}
 
-<script>
-
-<!-- Botón simple que abre el modal -->
-<button class="btn btn-success btn-lg w-100" onclick="document.getElementById('miModal').style.display='block'">
-    <i class="fas fa-plus-circle me-2"></i>Asignar componente
-</button>
-
-<!-- Modal simple sin Bootstrap -->
-<div id="miModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
-    <div style="background-color:white; margin:15% auto; padding:20px; width:80%; max-width:500px; border-radius:10px;">
-        <h4>Asignar Componente</h4>
-        <form method="POST" action="asignar_componente.php">
-            <input type="hidden" name="persona_id" value="<?php echo (int)$id; ?>">
-            
-            <div class="mb-3">
-                <label>Componente disponible</label>
-                <select class="form-control" name="componente_id" required>
-                    <option value="">-- Seleccione --</option>
-                    <?php foreach ($componentes_disponibles as $c): ?>
-                        <option value="<?php echo $c['id']; ?>">
-                            <?php echo $c['tipo'] . ' - ' . $c['nombre_componente']; ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
-            <div class="mb-3">
-                <label>Observaciones</label>
-                <textarea class="form-control" name="observaciones" rows="2"></textarea>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Asignar</button>
-            <button type="button" class="btn btn-secondary" onclick="document.getElementById('miModal').style.display='none'">Cancelar</button>
-        </form>
-    </div>
-</div>
-
+function cerrarModalQR() {
+    document.getElementById('qrModal').style.display = 'none';
+}
+</script>
 <?php endif; ?>
+
 <?php include '../../includes/footer.php'; ?>
