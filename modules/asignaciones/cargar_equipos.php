@@ -21,48 +21,81 @@ $persona_id_seleccionada = isset($_GET['persona_id']) ? intval($_GET['persona_id
 // Obtener lista de personas
 $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
 
+// Obtener equipos en bodega (disponibles)
+$equipos_bodega = $conn->query("SELECT id, codigo_barras, tipo_equipo, marca, modelo FROM equipos WHERE estado = 'Disponible' ORDER BY codigo_barras");
+
 // ============================================
 // PROCESAR EL FORMULARIO
 // ============================================
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $persona_id = intval($_POST['persona_id'] ?? 0);
-    $tipo_equipo = $conn->real_escape_string($_POST['tipo_equipo'] ?? '');
-    $marca = $conn->real_escape_string($_POST['marca'] ?? '');
-    $modelo = $conn->real_escape_string($_POST['modelo'] ?? '');
-    $serie = $conn->real_escape_string($_POST['numero_serie'] ?? '');
-    $codigo_barras = $conn->real_escape_string($_POST['codigo_barras'] ?? '');
-    $especificaciones = $conn->real_escape_string($_POST['especificaciones'] ?? '');
+    $tipo_asignacion = $_POST['tipo_asignacion'] ?? 'nuevo';
     
     if ($persona_id == 0) {
         $error = "❌ Debe seleccionar una persona";
-    } elseif (empty($tipo_equipo)) {
-        $error = "❌ El tipo de equipo es obligatorio";
     } else {
-        if (empty($codigo_barras)) {
-            $result = $conn->query("SELECT MAX(id) as max_id FROM equipos");
-            $row = $result->fetch_assoc();
-            $next_id = ($row['max_id'] ?? 0) + 1;
-            $codigo_barras = 'PRO-' . str_pad($next_id, 6, '0', STR_PAD_LEFT);
+        if ($tipo_asignacion == 'nuevo') {
+            // PROCESAR EQUIPO NUEVO
+            $tipo_equipo = $conn->real_escape_string($_POST['tipo_equipo'] ?? '');
+            $marca = $conn->real_escape_string($_POST['marca'] ?? '');
+            $modelo = $conn->real_escape_string($_POST['modelo'] ?? '');
+            $serie = $conn->real_escape_string($_POST['numero_serie'] ?? '');
+            $codigo_barras = $conn->real_escape_string($_POST['codigo_barras'] ?? '');
+            $especificaciones = $conn->real_escape_string($_POST['especificaciones'] ?? '');
+
+            if (empty($tipo_equipo)) {
+                $error = "❌ El tipo de equipo es obligatorio";
+            } else {
+                if (empty($codigo_barras)) {
+                    $result = $conn->query("SELECT MAX(id) as max_id FROM equipos");
+                    $row = $result->fetch_assoc();
+                    $next_id = ($row['max_id'] ?? 0) + 1;
+                    $codigo_barras = 'PRO-' . str_pad($next_id, 6, '0', STR_PAD_LEFT);
+                }
+                
+                $sql_equipo = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, estado) 
+                               VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$serie', '$especificaciones', 'Asignado')";
+                
+                if ($conn->query($sql_equipo)) {
+                    $equipo_id = $conn->insert_id;
+                    $success_assignment = true;
+                } else {
+                    $error = "❌ Error al guardar equipo: " . $conn->error;
+                    $success_assignment = false;
+                }
+            }
+        } else {
+            // PROCESAR EQUIPO DE BODEGA
+            $equipo_id = intval($_POST['equipo_bodega_id'] ?? 0);
+            if ($equipo_id == 0) {
+                $error = "❌ Debe seleccionar un equipo de la bodega";
+                $success_assignment = false;
+            } else {
+                // Actualizar estado del equipo a Asignado
+                if ($conn->query("UPDATE equipos SET estado = 'Asignado' WHERE id = $equipo_id")) {
+                    $success_assignment = true;
+                } else {
+                    $error = "❌ Error al actualizar estado del equipo: " . $conn->error;
+                    $success_assignment = false;
+                }
+            }
         }
-        
-        $sql_equipo = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, estado) 
-                       VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$serie', '$especificaciones', 'Asignado')";
-        
-        if ($conn->query($sql_equipo)) {
-            $equipo_id = $conn->insert_id;
-            
+
+        // Si el equipo se creó o se seleccionó correctamente, crear la asignación
+        if (isset($success_assignment) && $success_assignment) {
             $sql_asignacion = "INSERT INTO asignaciones (equipo_id, persona_id, fecha_asignacion) 
                               VALUES ($equipo_id, $persona_id, NOW())";
             
             if ($conn->query($sql_asignacion)) {
-                $conn->query("INSERT INTO movimientos (equipo_id, persona_id, tipo_movimiento) 
-                             VALUES ($equipo_id, $persona_id, 'ASIGNACION')");
-                $mensaje = "✅ Equipo asignado correctamente. Código: $codigo_barras";
+                $conn->query("INSERT INTO movimientos (equipo_id, persona_id, tipo_movimiento, fecha_movimiento) 
+                             VALUES ($equipo_id, $persona_id, 'ASIGNACION', NOW())");
+                
+                $mensaje = "✅ Equipo asignado correctamente.";
+                // Recargar equipos de bodega
+                $equipos_bodega = $conn->query("SELECT id, codigo_barras, tipo_equipo, marca, modelo FROM equipos WHERE estado = 'Disponible' ORDER BY codigo_barras");
             } else {
                 $error = "❌ Error al asignar: " . $conn->error;
             }
-        } else {
-            $error = "❌ Error al guardar equipo: " . $conn->error;
         }
     }
 }
@@ -155,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label">Tipo de Equipo *</label>
-                <select name="tipo_equipo" class="form-control" required>
+                <select name="tipo_equipo" id="tipo_equipo" class="form-control" required>
                     <option value="">-- Seleccione --</option>
                     <?php foreach($tipos_equipos as $valor => $etiqueta): ?>
                         <option value="<?php echo $valor; ?>"><?php echo $etiqueta; ?></option>
@@ -198,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="row">
             <div class="col-md-12 mb-3">
                 <label class="form-label">Seleccionar equipo de bodega *</label>
-                <select name="equipo_bodega_id" class="form-control">
+                <select name="equipo_bodega_id" id="equipo_bodega_id" class="form-control">
                     <option value="">-- Seleccione un equipo disponible --</option>
                     <?php 
                     $equipos_bodega->data_seek(0);
@@ -229,10 +262,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </a>
     </div>
 </form>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function seleccionarOpcion(opcion) {
+    const btnNuevo = document.getElementById('opcionNuevo');
+    const btnBodega = document.getElementById('opcionBodega');
+    const formNuevo = document.getElementById('formNuevo');
+    const formBodega = document.getElementById('formBodega');
+    const tipoAsignacion = document.getElementById('tipo_asignacion');
+    
+    const inputTipoEquipo = document.getElementById('tipo_equipo');
+    const inputEquipoBodega = document.getElementById('equipo_bodega_id');
+
+    if (opcion === 'nuevo') {
+        btnNuevo.classList.add('active');
+        btnBodega.classList.remove('active');
+        formNuevo.style.display = 'block';
+        formBodega.style.display = 'none';
+        tipoAsignacion.value = 'nuevo';
+        
+        inputTipoEquipo.required = true;
+        inputEquipoBodega.required = false;
+    } else {
+        btnNuevo.classList.remove('active');
+        btnBodega.classList.add('active');
+        formNuevo.style.display = 'none';
+        formBodega.style.display = 'block';
+        tipoAsignacion.value = 'bodega';
+        
+        inputTipoEquipo.required = false;
+        inputEquipoBodega.required = true;
+    }
+}
+
+// Inicializar con la opción "nuevo" activa
+document.addEventListener('DOMContentLoaded', function() {
+    seleccionarOpcion('nuevo');
+});
+</script>
 
 <?php include '../../includes/footer.php'; ?>

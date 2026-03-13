@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
+class ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
@@ -89,8 +89,11 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
         'fe43ca06499ac37bc2dedd823af71eb5' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/zip.php',
         '356736db98a6834f0a886b8d509b0ecd' => __DIR__ . '/..' . '/thecodingmachine/safe/generated/zlib.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
+<<<<<<< HEAD
         '0174385c3be07e86008907d06ee66531' => __DIR__ . '/..' . '/sabberworm/php-css-parser/src/Rule/Rule.php',
         '98aea6e41b9cb79b379b10f37ba1f0b7' => __DIR__ . '/..' . '/sabberworm/php-css-parser/src/RuleSet/RuleContainer.php',
+=======
+>>>>>>> 8c8c97232c6b6e81af466a35250fcaf3d10f88c9
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -144,7 +147,11 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
             'Mpdf\\PsrLogAwareTrait\\' => 22,
             'Mpdf\\PsrHttpMessageShim\\' => 24,
             'Mpdf\\' => 5,
+<<<<<<< HEAD
             'Masterminds\\' => 12,
+=======
+            'Monolog\\' => 8,
+>>>>>>> 8c8c97232c6b6e81af466a35250fcaf3d10f88c9
         ),
         'H' =>
         array (
@@ -165,7 +172,10 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
         'D' =>
         array (
             'Dotenv\\' => 7,
+<<<<<<< HEAD
             'Dompdf\\' => 7,
+=======
+>>>>>>> 8c8c97232c6b6e81af466a35250fcaf3d10f88c9
             'DeepCopy\\' => 9,
         ),
     );
@@ -260,9 +270,15 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
         array (
             0 => __DIR__ . '/..' . '/mpdf/mpdf/src',
         ),
+<<<<<<< HEAD
         'Masterminds\\' =>
         array (
             0 => __DIR__ . '/..' . '/masterminds/html5/src',
+=======
+        'Monolog\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
+>>>>>>> 8c8c97232c6b6e81af466a35250fcaf3d10f88c9
         ),
         'Http\\Message\\MultipartStream\\' =>
         array (
@@ -296,10 +312,13 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
         array (
             0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
         ),
+<<<<<<< HEAD
         'Dompdf\\' =>
         array (
             0 => __DIR__ . '/..' . '/dompdf/dompdf/src',
         ),
+=======
+>>>>>>> 8c8c97232c6b6e81af466a35250fcaf3d10f88c9
         'DeepCopy\\' =>
         array (
             0 => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy',
@@ -425,9 +444,9 @@ class ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit08954d6b4c474e5153ac815488d8cb5c::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitb60a2c0eafd865613df3d5b9a0927dda::$classMap;
 
         }, null, ClassLoader::class);
     }

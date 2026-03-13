@@ -44,6 +44,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $estado = $conn->real_escape_string($_POST['estado'] ?? 'Disponible');
     $ubicacion_id = !empty($_POST['ubicacion_id']) ? intval($_POST['ubicacion_id']) : 'NULL';
     
+    // Procesar foto
+    $foto_update_sql = "";
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+        $filename = $_FILES['foto']['name'];
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        if (in_array($ext, $allowed)) {
+            $carpeta_fotos = '../../uploads/equipos/';
+            if (!file_exists($carpeta_fotos)) {
+                mkdir($carpeta_fotos, 0777, true);
+            }
+            
+            // Eliminar foto anterior si existe
+            if (!empty($equipo['foto']) && file_exists('../../' . $equipo['foto'])) {
+                unlink('../../' . $equipo['foto']);
+            }
+
+            $nuevo_nombre = 'equipo_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+            $destino = $carpeta_fotos . $nuevo_nombre;
+            
+            if (move_uploaded_file($_FILES['foto']['tmp_name'], $destino)) {
+                $foto_ruta = 'uploads/equipos/' . $nuevo_nombre;
+                $foto_update_sql = ", foto = '$foto_ruta'";
+            }
+        }
+    }
+
     if (empty($tipo_equipo)) {
         $error = "❌ El tipo de equipo es obligatorio";
     } else {
@@ -57,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 observaciones = '$observaciones',
                 estado = '$estado',
                 ubicacion_id = $ubicacion_id
+                $foto_update_sql
                 WHERE id = $id";
         
         if ($conn->query($sql)) {
@@ -89,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="alert alert-success"><?php echo $success; ?></div>
                     <?php endif; ?>
                     
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Código de Barras</label>
@@ -132,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                        value="<?php echo htmlspecialchars($equipo['numero_serie'] ?? ''); ?>">
                             </div>
                             
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Estado</label>
                                 <select name="estado" class="form-control">
                                     <option value="Disponible" <?php echo $equipo['estado'] == 'Disponible' ? 'selected' : ''; ?>>Disponible</option>
@@ -142,8 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </select>
                             </div>
                             
-                            <!-- Campo de ubicación -->
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Ubicación</label>
                                 <select name="ubicacion_id" class="form-control">
                                     <option value="">-- Sin ubicación --</option>
@@ -155,6 +183,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <?php endwhile; ?>
                                 </select>
                             </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Cambiar Foto (Opcional)</label>
+                                <input type="file" name="foto" class="form-control" accept="image/*">
+                            </div>
+
+                            <?php if (!empty($equipo['foto'])): ?>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label d-block">Foto Actual:</label>
+                                    <img src="../../<?php echo $equipo['foto']; ?>" alt="Equipo" class="img-thumbnail" style="max-height: 200px;">
+                                </div>
+                            <?php endif; ?>
                             
                             <div class="col-12 mb-3">
                                 <label class="form-label">Especificaciones</label>

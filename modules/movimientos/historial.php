@@ -122,6 +122,7 @@ $result = $conn->query($sql);
                                             <th>Equipo</th>
                                             <th>Persona</th>
                                             <th>Observaciones</th>
+                                            <th>Doc. Firmado</th>
                                         <?php endif; ?>
                                     </tr>
                                 </thead>
@@ -154,13 +155,30 @@ $result = $conn->query($sql);
                                         <tr>
                                             <td data-label="FECHA"><?php echo date('d/m/Y H:i', strtotime($row['fecha_movimiento'])); ?></td>
                                             <td data-label="TIPO">
-                                                <span class="badge bg-<?php echo $row['tipo_movimiento'] == 'ASIGNACION' ? 'success' : 'warning'; ?>">
+                                                <span class="badge bg-<?php 
+                                                    echo $row['tipo_movimiento'] == 'ENTRADA' ? 'success' : 
+                                                        ($row['tipo_movimiento'] == 'ASIGNACION' ? 'primary' : 
+                                                        ($row['tipo_movimiento'] == 'DEVOLUCION' ? 'warning' : 'danger')); 
+                                                ?>">
                                                     <?php echo $row['tipo_movimiento']; ?>
                                                 </span>
                                             </td>
                                             <td data-label="EQUIPO"><?php echo $row['tipo_equipo'] . ' - ' . $row['codigo_barras']; ?></td>
                                             <td data-label="PERSONA"><?php echo $row['persona_nombre'] ?? 'N/A'; ?></td>
                                             <td data-label="OBSERVACIONES"><?php echo $row['observaciones'] ?? ''; ?></td>
+                                            <td data-label="DOC. FIRMADO" class="text-center">
+                                                <?php if (!empty($row['acta_firmada'])): ?>
+                                                    <a href="/inventario_ti/<?php echo $row['acta_firmada']; ?>" target="_blank" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-file-pdf"></i> Ver
+                                                    </a>
+                                                <?php elseif ($row['tipo_movimiento'] == 'ASIGNACION' || $row['tipo_movimiento'] == 'DEVOLUCION'): ?>
+                                                    <button class="btn btn-sm btn-outline-danger btn-upload-mov" data-id="<?php echo $row['id']; ?>" data-tipo="<?php echo $row['tipo_movimiento']; ?>">
+                                                        <i class="fas fa-upload"></i> Subir
+                                                    </button>
+                                                <?php else: ?>
+                                                    <span class="text-muted">-</span>
+                                                <?php endif; ?>
+                                            </td>
                                         </tr>
                                         <?php endwhile; ?>
                                     <?php endif; ?>
@@ -236,5 +254,76 @@ $result = $conn->query($sql);
     }
 }
 </style>
+
+<!-- Modal de Subida -->
+<div class="modal fade" id="modalSubidaMov" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-upload me-2"></i>Subir Acta Firmada</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formSubidaActaMov" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="movimiento_id" id="upload_mov_id">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Movimiento: <strong id="upload_mov_tipo"></strong></label>
+                        <input type="file" name="archivo_firmado" class="form-control" accept=".pdf" required>
+                        <small class="text-muted">Adjunta el acta escaneada en formato PDF.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Subir Archivo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modalSubida = new bootstrap.Modal(document.getElementById('modalSubidaMov'));
+    const formSubida = document.getElementById('formSubidaActaMov');
+    
+    document.querySelectorAll('.btn-upload-mov').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('upload_mov_id').value = this.dataset.id;
+            document.getElementById('upload_mov_tipo').innerText = this.dataset.tipo;
+            modalSubida.show();
+        });
+    });
+
+    formSubida.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        Swal.fire({
+            title: 'Subiendo archivo...',
+            didOpen: () => { Swal.showLoading(); },
+            allowOutsideClick: false
+        });
+
+        fetch('../../api/subir_acta_firmada.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('¡Éxito!', data.message, 'success').then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire('Error', data.message, 'error');
+            }
+        })
+        .catch(error => {
+            Swal.fire('Error', 'Hubo un problema con la conexión', 'error');
+        });
+    });
+});
+</script>
 
 <?php include '../../includes/footer.php'; ?>

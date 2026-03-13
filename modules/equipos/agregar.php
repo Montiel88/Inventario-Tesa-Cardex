@@ -34,6 +34,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $ubicacion_id = !empty($_POST['ubicacion_id']) ? intval($_POST['ubicacion_id']) : 'NULL';
     $estado = 'Disponible';
 
+    // Procesar foto
+    $foto_ruta = '';
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+        $filename = $_FILES['foto']['name'];
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        if (in_array($ext, $allowed)) {
+            $carpeta_fotos = '../../uploads/equipos/';
+            if (!file_exists($carpeta_fotos)) {
+                mkdir($carpeta_fotos, 0777, true);
+            }
+            
+            $nuevo_nombre = 'equipo_' . time() . '_' . rand(1000, 9999) . '.' . $ext;
+            $destino = $carpeta_fotos . $nuevo_nombre;
+            
+            if (move_uploaded_file($_FILES['foto']['tmp_name'], $destino)) {
+                $foto_ruta = 'uploads/equipos/' . $nuevo_nombre;
+            }
+        }
+    }
+
     if (empty($tipo_equipo)) {
         $error = "❌ El tipo de equipo es obligatorio";
     } else {
@@ -55,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Si no hay error, proceder a insertar
         if (empty($error)) {
-            $sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, observaciones, ubicacion_id, estado) 
-                    VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$numero_serie', '$especificaciones', '$observaciones', $ubicacion_id, '$estado')";
+            $sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, observaciones, ubicacion_id, estado, foto) 
+                    VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$numero_serie', '$especificaciones', '$observaciones', $ubicacion_id, '$estado', '$foto_ruta')";
 
             if ($conn->query($sql)) {
                 $equipo_id = $conn->insert_id;
@@ -110,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     <?php endif; ?>
 
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Código de Barras</label>
@@ -148,6 +170,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <input type="text" name="numero_serie" class="form-control" placeholder="Serie del fabricante">
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Ubicación</label>
+                                <select name="ubicacion_id" class="form-control">
+                                    <option value="">-- Sin ubicación --</option>
+                                    <?php while($ub = $ubicaciones->fetch_assoc()): ?>
+                                        <option value="<?php echo $ub['id']; ?>">
+                                            <?php echo $ub['codigo_ubicacion'] . ' - ' . $ub['nombre']; ?>
+                                        </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Foto del Equipo (Opcional)</label>
+                                <input type="file" name="foto" class="form-control" accept="image/*">
+                                <small class="text-muted">Formatos permitidos: JPG, PNG, GIF</small>
+                            </div>
+                        </div>
                         
                         <div class="mb-3">
                             <label class="form-label">Especificaciones</label>
@@ -157,18 +198,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="mb-3">
                             <label class="form-label">Observaciones</label>
                             <textarea name="observaciones" class="form-control" rows="2" placeholder="Notas adicionales"></textarea>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Ubicación</label>
-                            <select name="ubicacion_id" class="form-control">
-                                <option value="">-- Sin ubicación --</option>
-                                <?php while($ub = $ubicaciones->fetch_assoc()): ?>
-                                    <option value="<?php echo $ub['id']; ?>">
-                                        <?php echo $ub['codigo_ubicacion'] . ' - ' . $ub['nombre']; ?>
-                                    </option>
-                                <?php endwhile; ?>
-                            </select>
                         </div>
                         
                         <div class="text-center mt-3">

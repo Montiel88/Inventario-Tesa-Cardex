@@ -100,12 +100,21 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+<<<<<<< HEAD
         'masterminds/html5' => array(
             'pretty_version' => '2.10.0',
             'version' => '2.10.0.0',
             'reference' => 'fcf91eb64359852f00d921887b219479b4f21251',
             'type' => 'library',
             'install_path' => __DIR__ . '/../masterminds/html5',
+=======
+        'monolog/monolog' => array(
+            'pretty_version' => '3.10.0',
+            'version' => '3.10.0.0',
+            'reference' => 'b321dd6749f0bf7189444158a3ce785cc16d69b0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../monolog/monolog',
+>>>>>>> 8c8c97232c6b6e81af466a35250fcaf3d10f88c9
             'aliases' => array(),
             'dev_requirement' => false,
         ),
@@ -283,6 +292,12 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'psr/log-implementation' => array(
+            'dev_requirement' => false,
+            'provided' => array(
+                0 => '3.0.0',
+            ),
+        ),
         'ralouphie/getallheaders' => array(
             'pretty_version' => '3.0.3',
             'version' => '3.0.3.0',
@@ -292,6 +307,7 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+<<<<<<< HEAD
         'sabberworm/php-css-parser' => array(
             'pretty_version' => 'v9.3.0',
             'version' => '9.3.0.0',
@@ -301,6 +317,8 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+=======
+>>>>>>> 8c8c97232c6b6e81af466a35250fcaf3d10f88c9
         'setasign/fpdi' => array(
             'pretty_version' => 'v2.6.4',
             'version' => '2.6.4.0',

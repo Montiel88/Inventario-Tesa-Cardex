@@ -119,16 +119,34 @@ $componentes = $conn->query($sql_componentes);
                 </div>
                 
                 <div class="card-body">
-                    <!-- Datos del equipo en tabla -->
-                    <table class="table table-bordered">
-                        <tr><th>Código</th><td><?php echo $equipo['codigo_barras']; ?></td></tr>
-                        <tr><th>Tipo</th><td><?php echo $equipo['tipo_equipo']; ?></td></tr>
-                        <tr><th>Marca</th><td><?php echo $equipo['marca'] ?: 'N/A'; ?></td></tr>
-                        <tr><th>Modelo</th><td><?php echo $equipo['modelo'] ?: 'N/A'; ?></td></tr>
-                        <tr><th>Nº Serie</th><td><?php echo $equipo['numero_serie'] ?: 'N/A'; ?></td></tr>
-                        <tr><th>Estado</th><td><?php echo $equipo['estado']; ?></td></tr>
-                        <tr><th>Ubicación</th><td><?php echo $equipo['ubicacion_id'] ?: 'Sin ubicación'; ?></td></tr>
-                    </table>
+                    <div class="row">
+                        <div class="col-md-<?php echo !empty($equipo['foto']) ? '8' : '12'; ?>">
+                            <!-- Datos del equipo en tabla -->
+                            <table class="table table-bordered">
+                                <tr><th>Código</th><td><?php echo $equipo['codigo_barras']; ?></td></tr>
+                                <tr><th>Tipo</th><td><?php echo $equipo['tipo_equipo']; ?></td></tr>
+                                <tr><th>Marca</th><td><?php echo $equipo['marca'] ?: 'N/A'; ?></td></tr>
+                                <tr><th>Modelo</th><td><?php echo $equipo['modelo'] ?: 'N/A'; ?></td></tr>
+                                <tr><th>Nº Serie</th><td><?php echo $equipo['numero_serie'] ?: 'N/A'; ?></td></tr>
+                                <tr><th>Estado</th><td><?php echo $equipo['estado']; ?></td></tr>
+                                <tr><th>Ubicación</th><td><?php echo $equipo['ubicacion_id'] ?: 'Sin ubicación'; ?></td></tr>
+                            </table>
+                        </div>
+                        <?php if (!empty($equipo['foto'])): ?>
+                            <div class="col-md-4 text-center">
+                                <div class="card shadow-sm">
+                                    <div class="card-header bg-light py-2">
+                                        <h6 class="mb-0 text-muted"><i class="fas fa-image me-1"></i> Fotografía</h6>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <a href="../../<?php echo $equipo['foto']; ?>" target="_blank">
+                                            <img src="../../<?php echo $equipo['foto']; ?>" alt="Equipo" class="img-fluid rounded" style="max-height: 250px; object-fit: contain;">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
 
                     <!-- Información de préstamo actual -->
                     <?php if ($asignacion_actual): ?>

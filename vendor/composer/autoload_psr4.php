@@ -28,7 +28,11 @@ return array(
     'Mpdf\\PsrLogAwareTrait\\' => array($vendorDir . '/mpdf/psr-log-aware-trait/src'),
     'Mpdf\\PsrHttpMessageShim\\' => array($vendorDir . '/mpdf/psr-http-message-shim/src'),
     'Mpdf\\' => array($vendorDir . '/mpdf/mpdf/src'),
+<<<<<<< HEAD
     'Masterminds\\' => array($vendorDir . '/masterminds/html5/src'),
+=======
+    'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
+>>>>>>> 8c8c97232c6b6e81af466a35250fcaf3d10f88c9
     'Http\\Message\\MultipartStream\\' => array($vendorDir . '/php-http/multipart-stream-builder/src'),
     'Http\\Discovery\\' => array($vendorDir . '/php-http/discovery/src'),
     'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
@@ -37,6 +41,9 @@ return array(
     'GrahamCampbell\\ResultType\\' => array($vendorDir . '/graham-campbell/result-type/src'),
     'FontLib\\' => array($vendorDir . '/dompdf/php-font-lib/src/FontLib'),
     'Dotenv\\' => array($vendorDir . '/vlucas/phpdotenv/src'),
+<<<<<<< HEAD
     'Dompdf\\' => array($vendorDir . '/dompdf/dompdf/src'),
+=======
+>>>>>>> 8c8c97232c6b6e81af466a35250fcaf3d10f88c9
     'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
 );

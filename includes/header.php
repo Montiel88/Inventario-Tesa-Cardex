@@ -47,16 +47,16 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             background: #fff;
             border: 3px solid #f3b229;
             border-radius: 999px;
-            padding: 0.45rem 0.9rem;
+            padding: 0.35rem 0.8rem;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
-            min-width: 320px;
+            min-width: auto;
             max-width: 100%;
         }
 
         .tesa-brand img {
-            height: 46px;
+            height: 38px;
             width: auto;
-            margin-right: 0.75rem;
+            margin-right: 0.6rem;
             border-radius: 999px;
             border: 1px solid rgba(90, 45, 140, 0.25);
             background: #fff;
@@ -66,18 +66,18 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         .tesa-brand-title {
             font-weight: 800;
             color: #3d1e5e;
-            font-size: 2rem;
+            font-size: 1.35rem;
             line-height: 1;
-            margin-right: 0.6rem;
+            margin-right: 0.4rem;
             white-space: nowrap;
         }
 
         .rol-badge {
             display: inline-flex;
             align-items: center;
-            padding: 0.35rem 0.95rem;
+            padding: 0.2rem 0.65rem;
             border-radius: 999px;
-            font-size: 1.8rem;
+            font-size: 1.05rem;
             font-weight: 700;
             letter-spacing: 0.4px;
             white-space: nowrap;
@@ -100,7 +100,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         }
 
         .tesa-navbar .navbar-nav {
-            gap: 0.45rem;
+            gap: 0.35rem;
             align-items: center;
         }
 
@@ -108,14 +108,14 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            height: 44px;
-            padding: 0.55rem 1rem;
+            height: 36px;
+            padding: 0.35rem 0.75rem;
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(243, 178, 41, 0.42);
             color: #fff !important;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             text-decoration: none;
             transition: all 0.22s ease;
             white-space: nowrap;
@@ -183,14 +183,15 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             border-radius: 999px;
             border: 1px solid rgba(243, 178, 41, 0.45);
             transition: all 0.28s ease;
-            width: 52px;
-            height: 44px;
+            width: 36px;
+            height: 36px;
             overflow: hidden;
             box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            margin-right: 0.4rem;
         }
 
         .search-global-container.active {
-            width: 310px;
+            width: 240px;
             background: rgba(255, 255, 255, 0.2);
             border-color: #f3b229;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
@@ -200,8 +201,8 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 42px;
-            height: 42px;
+            width: 32px;
+            height: 32px;
             margin-left: 1px;
             border-radius: 50%;
             border: 0;
@@ -209,6 +210,12 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             color: #4a226f;
             flex-shrink: 0;
             transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .search-global-toggle:hover {
+            background: #e1a525;
+            transform: scale(1.05);
         }
 
         .search-global-form {
@@ -216,7 +223,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             align-items: center;
             width: 100%;
             min-width: 0;
-            margin-left: 4px;
+            margin-left: 2px;
         }
 
         .search-global-input {
@@ -227,7 +234,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             color: #fff;
             background: transparent;
             transition: width 0.25s ease, opacity 0.2s ease;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .search-global-input::placeholder {
@@ -237,7 +244,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         .search-global-container.active .search-global-input {
             width: 100%;
             opacity: 1;
-            padding: 0 0.45rem;
+            padding: 0 0.4rem;
         }
 
         .search-global-submit,
@@ -245,14 +252,14 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             border: 0;
             background: transparent;
             color: rgba(255, 255, 255, 0.9);
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             display: none;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            margin-right: 3px;
+            margin-right: 2px;
         }
 
         .search-global-container.active .search-global-submit,
@@ -270,10 +277,11 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             background: #dc3545;
             color: #fff !important;
             border-radius: 999px;
-            height: 44px;
+            height: 36px;
             display: inline-flex;
             align-items: center;
-            padding: 0 1rem;
+            padding: 0 0.8rem;
+            font-size: 0.85rem;
             font-weight: 700;
             text-decoration: none;
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -303,14 +311,24 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
 
         @media (max-width: 1400px) {
             .tesa-brand-title {
-                font-size: 1.85rem;
+                font-size: 1.4rem;
             }
         }
 
         @media (max-width: 1199.98px) {
+            .tesa-brand {
+                min-width: 0;
+                padding: 0.3rem 0.6rem;
+            }
+            
+            .tesa-brand-title {
+                font-size: 1.3rem;
+            }
+
             .tesa-navbar .navbar-nav {
                 padding-top: 0.8rem;
                 align-items: stretch;
+                margin-left: 0 !important;
             }
 
             .tesa-nav-btn {
@@ -326,7 +344,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             }
 
             .search-global-container {
-                width: 52px;
+                width: 44px;
                 max-width: 100%;
             }
 
@@ -343,15 +361,15 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             }
 
             .tesa-brand img {
-                height: 36px;
+                height: 32px;
             }
 
             .tesa-brand-title {
-                font-size: 1.6rem;
+                font-size: 1.25rem;
             }
 
             .rol-badge {
-                font-size: 1.3rem;
+                font-size: 1rem;
             }
         }
     </style>
@@ -377,7 +395,20 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             </button>
 
             <div class="collapse navbar-collapse" id="navbarTesaMenu">
-                <ul class="navbar-nav ms-auto">
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <div class="search-global-container ms-lg-2" id="globalSearchContainer">
+                        <button type="button" class="search-global-toggle" id="globalSearchToggle" aria-label="Abrir buscador">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <form action="/inventario_ti/buscar.php" method="GET" class="search-global-form">
+                            <input type="text" name="q" class="search-global-input" placeholder="Buscar..." autocomplete="off">
+                            <button type="submit" class="search-global-submit" aria-label="Buscar"><i class="fas fa-arrow-right"></i></button>
+                            <button type="button" class="search-global-close" id="globalSearchClose" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+                        </form>
+                    </div>
+                <?php endif; ?>
+
+                <ul class="navbar-nav me-auto ms-lg-2">
                     <li class="nav-item">
                         <a class="nav-link tesa-nav-btn" href="/inventario_ti/modules/dashboard.php">
                             <i class="fas fa-home"></i>Dashboard
@@ -446,29 +477,72 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                             </ul>
                         </li>
                     <?php endif; ?>
+
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <li class="nav-item">
+                            <a href="/inventario_ti/logout.php" class="btn-logout" onclick="return confirm('¿Estás seguro de cerrar sesión?')">
+                                <i class="fas fa-sign-out-alt"></i>Salir
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
-
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <div class="nav-tools">
-                        <div class="search-global-container" id="globalSearchContainer">
-                            <button type="button" class="search-global-toggle" id="globalSearchToggle" aria-label="Abrir buscador">
-                                <i class="fas fa-search"></i>
-                            </button>
-                            <form action="/inventario_ti/buscar.php" method="GET" class="search-global-form">
-                                <input type="text" name="q" class="search-global-input" placeholder="Buscar en el sistema..." autocomplete="off">
-                                <button type="submit" class="search-global-submit" aria-label="Buscar"><i class="fas fa-arrow-right"></i></button>
-                                <button type="button" class="search-global-close" id="globalSearchClose" aria-label="Cerrar"><i class="fas fa-times"></i></button>
-                            </form>
-                        </div>
-
-                        <a href="/inventario_ti/logout.php" class="btn-logout" onclick="return confirm('¿Estás seguro de cerrar sesión?')">
-                            <i class="fas fa-sign-out-alt"></i>Salir
-                        </a>
-                    </div>
-                <?php endif; ?>
             </div>
         </div>
     </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchContainer = document.getElementById('globalSearchContainer');
+            const searchToggle = document.getElementById('globalSearchToggle');
+            const searchClose = document.getElementById('globalSearchClose');
+            const searchInput = searchContainer ? searchContainer.querySelector('.search-global-input') : null;
+            const searchForm = searchContainer ? searchContainer.querySelector('.search-global-form') : null;
+
+            if (searchToggle && searchContainer) {
+                searchToggle.addEventListener('click', function(e) {
+                    if (!searchContainer.classList.contains('active')) {
+                        e.preventDefault();
+                        searchContainer.classList.add('active');
+                        setTimeout(() => {
+                            if (searchInput) searchInput.focus();
+                        }, 300);
+                    } else if (searchInput && searchInput.value.trim() !== '') {
+                        // Si ya está activo y tiene texto, enviar el formulario
+                        if (searchForm) searchForm.submit();
+                    } else {
+                        // Si está activo pero vacío, cerrar
+                        searchContainer.classList.remove('active');
+                    }
+                });
+            }
+
+            if (searchClose && searchContainer) {
+                searchClose.addEventListener('click', function() {
+                    searchContainer.classList.remove('active');
+                    if (searchInput) searchInput.value = '';
+                });
+            }
+
+            // Permitir búsqueda al presionar Enter
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (searchInput.value.trim() !== '') {
+                            if (searchForm) searchForm.submit();
+                        }
+                    }
+                });
+            }
+
+            // Cerrar al presionar Esc
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && searchContainer && searchContainer.classList.contains('active')) {
+                    searchContainer.classList.remove('active');
+                }
+            });
+        });
+    </script>
 
     <?php if ($es_lector): ?>
         <div class="lector-alert container">
