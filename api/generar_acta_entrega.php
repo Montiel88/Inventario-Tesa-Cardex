@@ -18,7 +18,11 @@ if (!isset($_SESSION["user_id"]) && php_sapi_name() !== 'cli') {
     exit();
 }
 
+if (!file_exists(BASE_PATH . 'vendor/autoload.php')) {
+    die("Error: Composer autoload file not found. Please run 'composer install' in the project root.");
+}
 require_once BASE_PATH . 'vendor/autoload.php';
+
 use Mpdf\Mpdf;
 
 if (php_sapi_name() === 'cli') {

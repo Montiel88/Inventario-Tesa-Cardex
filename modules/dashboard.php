@@ -57,11 +57,12 @@ $result_movimientos = $conn->query($sql_movimientos);
 
 // Últimos movimientos de componentes (incluyendo ID del componente)
 $sql_movimientos_componentes = "SELECT mc.*, c.nombre_componente, c.tipo, p.nombres as persona_nombre, c.id as componente_id
-                               FROM movimientos_componentes mc
-                               LEFT JOIN componentes c ON mc.componente_id = c.id
-                               LEFT JOIN personas p ON mc.persona_id = p.id
-                               ORDER BY mc.fecha_movimiento DESC LIMIT 5";
+                                FROM movimientos_componentes mc
+                                LEFT JOIN componentes c ON mc.componente_id = c.id
+                                LEFT JOIN personas p ON mc.persona_id = p.id
+                                ORDER BY mc.fecha_movimiento DESC LIMIT 5";
 $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
+
 ?>
 
 <!-- ============================================ -->
@@ -276,6 +277,15 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         </div>
         
         <!-- ACCIONES RÁPIDAS (SOLO ADMIN) -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ACCIONES RÁPIDAS (SOLO ADMIN) -->
         <?php if ($es_admin): ?>
         <div class="row mt-2">
             <div class="col-12">
@@ -387,7 +397,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                             </div>
                         <?php else: ?>
                             <p class="text-muted text-center py-3">No hay movimientos registrados</p>
-                        <?php endif; ?>
+                         <?php endif; ?>
                     </div>
                 </div>
             </div>

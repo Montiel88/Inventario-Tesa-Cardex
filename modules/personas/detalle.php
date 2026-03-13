@@ -605,14 +605,6 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     </div>
 </div>
 
-<script>
-<script>
-
-<script>
-<script>
-
-<script>
-
 <!-- Botón simple que abre el modal -->
 <button class="btn btn-success btn-lg w-100" onclick="document.getElementById('miModal').style.display='block'">
     <i class="fas fa-plus-circle me-2"></i>Asignar componente
