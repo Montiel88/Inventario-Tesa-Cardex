@@ -57,11 +57,12 @@ $result_movimientos = $conn->query($sql_movimientos);
 
 // Últimos movimientos de componentes (incluyendo ID del componente)
 $sql_movimientos_componentes = "SELECT mc.*, c.nombre_componente, c.tipo, p.nombres as persona_nombre, c.id as componente_id
-                               FROM movimientos_componentes mc
-                               LEFT JOIN componentes c ON mc.componente_id = c.id
-                               LEFT JOIN personas p ON mc.persona_id = p.id
-                               ORDER BY mc.fecha_movimiento DESC LIMIT 5";
+                                FROM movimientos_componentes mc
+                                LEFT JOIN componentes c ON mc.componente_id = c.id
+                                LEFT JOIN personas p ON mc.persona_id = p.id
+                                ORDER BY mc.fecha_movimiento DESC LIMIT 5";
 $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
+
 ?>
 
 <!-- ============================================ -->
@@ -387,7 +388,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                             </div>
                         <?php else: ?>
                             <p class="text-muted text-center py-3">No hay movimientos registrados</p>
-                        <?php endif; ?>
+                         <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -395,5 +396,135 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         
     </div> <!-- Fin content -->
 </div> <!-- Fin brand-watermark -->
+
+<!-- ============================================ -->
+<!-- SISTEMA DE NOTIFICACIONES TOAST (NUEVO) -->
+<!-- ============================================ -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;" id="toastContainer"></div>
+
+<style>
+.toast-notification {
+    min-width: 300px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    margin-bottom: 10px;
+    border-left: 4px solid;
+    animation: slideInRight 0.3s ease, fadeOut 0.5s ease 4.5s forwards;
+    overflow: hidden;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; transform: translateX(100%); }
+}
+
+.toast-notification .toast-content {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+}
+
+.toast-notification .toast-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+}
+
+.toast-notification .toast-text {
+    flex: 1;
+}
+
+.toast-notification .toast-title {
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: #333;
+}
+
+.toast-notification .toast-message {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.toast-notification .toast-close {
+    cursor: pointer;
+    padding: 5px;
+    color: #999;
+    transition: color 0.2s;
+}
+
+.toast-notification .toast-close:hover {
+    color: #333;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar notificaciones automáticamente
+    cargarNotificaciones();
+    
+    // Recargar cada 5 minutos (opcional)
+    setInterval(cargarNotificaciones, 300000);
+});
+
+function cargarNotificaciones() {
+    fetch('/inventario_ti/api/obtener_notificaciones.php')
+        .then(response => response.json())
+        .then(notificaciones => {
+            if (notificaciones.error) {
+                console.error('Error:', notificaciones.error);
+                return;
+            }
+            
+            // Mostrar cada notificación
+            notificaciones.forEach(notif => {
+                mostrarNotificacion(notif);
+            });
+        })
+        .catch(error => console.error('Error al cargar notificaciones:', error));
+}
+
+function mostrarNotificacion(notif) {
+    const container = document.getElementById('toastContainer');
+    
+    // Crear elemento toast
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.style.borderLeftColor = notif.color;
+    
+    toast.innerHTML = `
+        <div class="toast-content">
+            <div class="toast-icon" style="background-color: ${notif.color}">
+                <i class="fas ${notif.icono}"></i>
+            </div>
+            <div class="toast-text">
+                <div class="toast-title">${notif.titulo}</div>
+                <div class="toast-message">${notif.mensaje}</div>
+            </div>
+            <div class="toast-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(toast);
+    
+    // Auto-eliminar después de 5 segundos
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 5000);
+}
+</script>
 
 <?php include '../includes/footer.php'; ?>

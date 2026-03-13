@@ -39,7 +39,7 @@ try {
         throw new Exception("No se puede eliminar un equipo que está actualmente prestado. Primero registre la devolución.");
     }
     
-    // 3. Verificar si el equipo ya está eliminado
+    // 3. Verificar si el equipo ya está eliminado (opcional)
     $sql_eliminado = "SELECT fecha_eliminacion FROM equipos WHERE id = $id";
     $result_eliminado = $conn->query($sql_eliminado);
     $row_eliminado = $result_eliminado->fetch_assoc();
@@ -47,14 +47,11 @@ try {
         throw new Exception("El equipo ya ha sido eliminado anteriormente.");
     }
     
-    // 4. Verificar si la columna 'eliminado_por' existe
-    $check_eliminado_por = $conn->query("SHOW COLUMNS FROM equipos LIKE 'eliminado_por'");
-    $tiene_eliminado_por = $check_eliminado_por && $check_eliminado_por->num_rows > 0;
-    
-    // 5. Realizar la eliminación lógica
+    // 4. Realizar la eliminación lógica
     $usuario_actual = (int)$_SESSION['user_id'];
-    
-    if ($tiene_eliminado_por) {
+    $check_eliminado_por = $conn->query("SHOW COLUMNS FROM equipos LIKE 'eliminado_por'");
+
+    if ($check_eliminado_por && $check_eliminado_por->num_rows > 0) {
         $sql_update = "UPDATE equipos SET fecha_eliminacion = NOW(), eliminado_por = ? WHERE id = ?";
         $stmt = $conn->prepare($sql_update);
         $stmt->bind_param("ii", $usuario_actual, $id);
@@ -72,8 +69,9 @@ try {
     header('Location: listar.php?mensaje=' . urlencode("✅ Equipo eliminado (marcado como eliminado): $tipo ($codigo)"));
     
 } catch (Exception $e) {
+    // Redirigir con mensaje de error
     header('Location: listar.php?error=' . urlencode("❌ " . $e->getMessage()));
 }
 
 exit();
-?>
+?>  
