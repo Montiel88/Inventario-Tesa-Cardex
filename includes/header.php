@@ -35,6 +35,136 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     <link rel="stylesheet" href="/inventario_ti/assets/css/estilo.css">
 
     <style>
+        /* Panel de notificaciones */
+.notification-panel {
+    position: absolute;
+    top: 65px;
+    right: 20px;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    z-index: 1050;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #f3b229;
+    font-family: inherit;
+}
+
+.notification-panel.show {
+    display: flex;
+}
+
+.notification-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #5a2d8c, #3d1e5e);
+    color: white;
+    font-weight: 600;
+    border-bottom: 2px solid #f3b229;
+}
+
+.notification-panel-header h6 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.notification-panel-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+    margin: 0;
+}
+
+.notification-list {
+    max-height: 450px;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.notification-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background: #f9f5ff;
+}
+
+.notification-item.danger { border-left: 4px solid #dc3545; }
+.notification-item.warning { border-left: 4px solid #ffc107; }
+.notification-item.success { border-left: 4px solid #28a745; }
+.notification-item.info { border-left: 4px solid #17a2b8; }
+
+.notification-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notification-title i {
+    font-size: 1rem;
+}
+
+.notification-message {
+    font-size: 0.85rem;
+    color: #4a5568;
+    margin-bottom: 4px;
+}
+
+.notification-date {
+    font-size: 0.7rem;
+    color: #9ca3af;
+}
+
+.notification-link {
+    margin-top: 6px;
+    font-size: 0.75rem;
+}
+
+.notification-link a {
+    color: #5a2d8c;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.notification-link a:hover {
+    text-decoration: underline;
+}
+
+.notification-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+}
+
+.notification-panel-footer {
+    padding: 10px 16px;
+    text-align: center;
+    border-top: 1px solid #f0f0f0;
+    background: #f8f9fa;
+    font-size: 0.8rem;
+}
+
+.notification-panel-footer a {
+    color: #5a2d8c;
+    text-decoration: none;
+}
+
+@media (max-width: 576px) {
+    .notification-panel {
+        width: calc(100vw - 30px);
+        right: 15px;
+        left: auto;
+    }
+}
         .tesa-navbar {
             background: #5a2d8c;
             border-bottom: 4px solid #f3b229;
@@ -299,6 +429,57 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             margin-right: 0.35rem;
         }
 
+        /* Botón de notificaciones en header */
+        .notification-bell-header {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(243, 178, 41, 0.2) 0%, rgba(243, 178, 41, 0.3) 100%);
+            border: 2px solid #f3b229;
+            color: #f3b229;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .notification-bell-header:hover {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, rgba(243, 178, 41, 0.3) 0%, rgba(243, 178, 41, 0.4) 100%);
+            box-shadow: 0 4px 15px rgba(243, 178, 41, 0.4);
+        }
+
+        .notification-badge-header {
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            background: #e74c3c;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #5a2d8c;
+            animation: badgePulseHeader 1.5s infinite;
+        }
+
+        @keyframes badgePulseHeader {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .notification-badge-header:empty {
+            display: none;
+        }
+
         .lector-alert {
             background: rgba(40, 167, 69, 0.1);
             border-left: 4px solid #28a745;
@@ -467,6 +648,19 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                     <?php if ($es_admin): ?>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle tesa-nav-btn" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-envelope"></i>Correos
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="/inventario_ti/modules/correos/listar.php"><i class="fas fa-inbox"></i>Gestión de Correos</a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/modules/correos/composer.php"><i class="fas fa-edit"></i>Componer Correo</a></li>
+                                <li><a class="dropdown-item" href="/inventario_ti/modules/correos/historial.php"><i class="fas fa-history"></i>Historial</a></li>
+                            </ul>
+                        </li>
+                    <?php endif; ?>
+
+                    <?php if ($es_admin): ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle tesa-nav-btn" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-cog"></i>Admin
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
@@ -478,6 +672,27 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         </li>
                     <?php endif; ?>
 
+                    <!-- Botón de Notificaciones -->
+                    <li class="nav-item me-2">
+                        <!-- Panel de notificaciones (inicialmente oculto) -->
+<div class="notification-panel" id="notificationPanel">
+    <div class="notification-panel-header">
+        <h6><i class="fas fa-bell me-2"></i>Notificaciones</h6>
+        <button class="btn-close" onclick="closeNotificationPanel()" aria-label="Cerrar"></button>
+    </div>
+    <div class="notification-list" id="notificationList">
+        <div class="text-center text-muted p-3">Cargando...</div>
+    </div>
+    <div class="notification-panel-footer">
+        <a href="/inventario_ti/modules/notificaciones/historial.php">Ver todas</a>
+    </div>
+</div>
+                        <button class="btn notification-bell-header" id="notificationBellHeader" onclick="toggleNotificationPanel()" title="Ver notificaciones">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge-header" id="notificationBadgeHeader">0</span>
+                        </button>
+                    </li>
+                    
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <li class="nav-item">
                             <a href="/inventario_ti/logout.php" class="btn-logout" onclick="return confirm('¿Estás seguro de cerrar sesión?')">
@@ -491,7 +706,105 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     </nav>
 
     <script>
+    // ============================================
+    // SISTEMA DE NOTIFICACIONES
+    // ============================================
+    let notificationPanel = null;
+    let notificationList = null;
+    let notificationBadge = null;
+    
+    function toggleNotificationPanel() {
+        if (!notificationPanel) {
+            notificationPanel = document.getElementById('notificationPanel');
+            notificationList = document.getElementById('notificationList');
+            notificationBadge = document.getElementById('notificationBadgeHeader');
+        }
+        
+        if (notificationPanel) {
+            notificationPanel.classList.toggle('show');
+            if (notificationPanel.classList.contains('show')) {
+                loadNotifications();
+            }
+        }
+    }
+    
+    function closeNotificationPanel() {
+        if (!notificationPanel) {
+            notificationPanel = document.getElementById('notificationPanel');
+        }
+        if (notificationPanel) {
+            notificationPanel.classList.remove('show');
+        }
+    }
+    
+    function loadNotifications() {
+        if (!notificationList) {
+            notificationList = document.getElementById('notificationList');
+        }
+        
+        fetch('/inventario_ti/api/obtener_notificaciones.php')
+            .then(response => response.json())
+            .then(data => {
+                if (!notificationList) return;
+                
+                if (data.length === 0) {
+                    notificationList.innerHTML = '<div class="text-center text-muted p-3"><i class="fas fa-check-circle fa-2x mb-2"></i><p>¡Todo está al día!</p></div>';
+                    updateNotificationBadge(0);
+                } else {
+                    let html = '';
+                    data.forEach(notif => {
+                        const icon = notif.icono || 'fa-bell';
+                        const borderClass = notif.tipo === 'danger' ? 'danger' : (notif.tipo === 'warning' ? 'warning' : (notif.tipo === 'success' ? 'success' : 'info'));
+                        html += `
+                            <div class="notification-item ${borderClass}">
+                                <div class="notification-title">
+                                    <i class="fas ${icon}"></i> ${notif.titulo}
+                                </div>
+                                <div class="notification-message">${notif.mensaje}</div>
+                                ${notif.url ? `<div class="notification-link"><a href="${notif.url}">Ver más</a></div>` : ''}
+                            </div>
+                        `;
+                    });
+                    notificationList.innerHTML = html;
+                    updateNotificationBadge(data.length);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading notifications:', error);
+                if (notificationList) {
+                    notificationList.innerHTML = '<div class="text-center text-danger p-3"><i class="fas fa-exclamation-triangle fa-2x mb-2"></i><p>Error al cargar notificaciones</p></div>';
+                }
+            });
+    }
+    
+    function updateNotificationBadge(count) {
+        if (!notificationBadge) {
+            notificationBadge = document.getElementById('notificationBadgeHeader');
+        }
+        if (notificationBadge) {
+            if (count > 0) {
+                notificationBadge.textContent = count > 99 ? '99+' : count;
+            } else {
+                notificationBadge.textContent = '';
+            }
+        }
+    }
+    
+    // Cargar notificaciones al iniciar
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cargar badge inicial
+        loadNotifications();
+        // Actualizar cada 2 minutos
+        setInterval(loadNotifications, 120000);
+    });
+        
         document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar todos los dropdowns de Bootstrap
+            var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl);
+            });
+            
             const searchContainer = document.getElementById('globalSearchContainer');
             const searchToggle = document.getElementById('globalSearchToggle');
             const searchClose = document.getElementById('globalSearchClose');
@@ -550,5 +863,6 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             <strong>Modo solo lectura:</strong> Puedes ver informacion pero no puedes agregar, editar o eliminar registros.
         </div>
     <?php endif; ?>
+    
 
     <main class="container mt-4">

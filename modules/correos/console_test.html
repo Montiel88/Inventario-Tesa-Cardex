@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>🐛 Console Logger</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #0f0;
+            padding: 20px;
+            margin: 0;
+        }
+        #console-output {
+            background: #000;
+            border: 2px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #0f0;
+            padding-left: 10px;
+        }
+        .error { 
+            border-left-color: #ff0000; 
+            color: #ff6666;
+        }
+        .warn { 
+            border-left-color: #ffcc00; 
+            color: #ffcc00;
+        }
+        .info { 
+            border-left-color: #00ccff; 
+            color: #00ccff;
+        }
+        .test-buttons {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary { background: #5a2d8c; }
+        .btn-success { background: #28a745; }
+        .btn-info { background: #17a2b8; }
+        .btn:hover { opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <h1>🐛 Console Logger - Test de Errores</h1>
+    <p>Este archivo captura TODOS los errores de JavaScript</p>
+    
+    <div class="test-buttons">
+        <h3>Botones de Test:</h3>
+        <a href="/inventario_ti/modules/correos/listar.php" class="btn btn-primary">📋 Ir a Listar.php</a>
+        <a href="/inventario_ti/modules/correos/composer.php" class="btn btn-success">✍️ Ir a Composer.php</a>
+        <a href="/inventario_ti/modules/correos/historial.php" class="btn btn-info">📜 Ir a Historial.php</a>
+        <button class="btn btn-primary" onclick="testFunction()">🧪 Test Función</button>
+        <button class="btn btn-success" onclick="testError()">❌ Generar Error</button>
+        <button class="btn btn-info" onclick="clearLog()">🗑️ Limpiar Log</button>
+    </div>
+    
+    <h3>Console Output:</h3>
+    <div id="console-output">
+        <div class="log-entry info">[INFO] Console Logger iniciado...</div>
+    </div>
+    
+    <script>
+        // Capturar errores
+        window.onerror = function(msg, url, line, col, error) {
+            logError('ERROR: ' + msg, url, line);
+            return false;
+        };
+        
+        // Capturar errores de promesas
+        window.onunhandledrejection = function(event) {
+            logError('PROMISE ERROR: ' + event.reason);
+        };
+        
+        // Override de console.log
+        const originalLog = console.log;
+        console.log = function(...args) {
+            logMessage('LOG', args.join(' '));
+            originalLog.apply(console, args);
+        };
+        
+        // Override de console.error
+        const originalError = console.error;
+        console.error = function(...args) {
+            logError('CONSOLE ERROR: ' + args.join(' '));
+            originalError.apply(console, args);
+        };
+        
+        // Override de console.warn
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            logWarn('WARN: ' + args.join(' '));
+            originalWarn.apply(console, args);
+        };
+        
+        function logMessage(type, message) {
+            const output = document.getElementById('console-output');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] [${type}] ${message}`;
+            output.appendChild(entry);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function logError(message, url, line) {
+            const output = document.getElementById('console-output');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry error';
+            let text = `[${new Date().toLocaleTimeString()}] ❌ ${message}`;
+            if (url) text += ` en ${url}:${line}`;
+            entry.textContent = text;
+            output.appendChild(entry);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function logWarn(message) {
+            const output = document.getElementById('console-output');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry warn';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ⚠️ ${message}`;
+            output.appendChild(entry);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        function testFunction() {
+            logMessage('TEST', 'Función de test ejecutada correctamente ✅');
+            console.log('Este es un log de prueba');
+        }
+        
+        function testError() {
+            logMessage('TEST', 'Generando error de prueba...');
+            try {
+                throw new Error('Error de prueba generado manualmente');
+            } catch (e) {
+                logError(e.message);
+            }
+        }
+        
+        function clearLog() {
+            document.getElementById('console-output').innerHTML = '<div class="log-entry info">[INFO] Log limpiado</div>';
+        }
+        
+        // Detectar clicks en enlaces
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A') {
+                logMessage('CLICK', 'Link: ' + e.target.href);
+            }
+        });
+        
+        // Auto-test al cargar
+        logMessage('INFO', 'Página cargada. Haz click en los botones para probar.');
+        logMessage('INFO', 'Bootstrap: ' + (typeof bootstrap !== 'undefined' ? '✅ Cargado' : '❌ NO cargado'));
+        logMessage('INFO', 'jQuery: ' + (typeof jQuery !== 'undefined' ? '✅ Cargado' : '❌ NO cargado'));
+    </script>
+</body>
+</html>

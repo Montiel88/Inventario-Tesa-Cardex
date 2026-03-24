@@ -1,6 +1,8 @@
 <?php
+session_start(); // Asegurar sesión para obtener usuario_id
 header('Content-Type: application/json');
 require_once '../config/database.php';
+require_once '../config/notificaciones_helper.php'; // Incluir helper
 
 // Leer los datos enviados desde JavaScript
 $datos = json_decode(file_get_contents('php://input'), true);
@@ -28,7 +30,7 @@ if ($datos) {
         }
     }
     
-    // Iniciar transacción (para que todo se guarde o nada)
+    // Iniciar transacción
     $conn->begin_transaction();
     
     try {
@@ -43,7 +45,6 @@ if ($datos) {
         } else if ($tipo == 'DEVOLUCION' || $tipo == 'ENTRADA') {
             $sql_stock = "UPDATE productos SET stock_actual = stock_actual + 1 WHERE id = $producto_id";
         }
-        // Para BAJA no afectamos stock (ya se descontó al prestar)
         
         if (isset($sql_stock)) {
             $conn->query($sql_stock);
@@ -52,10 +53,55 @@ if ($datos) {
         // Confirmar todo
         $conn->commit();
         
+        // ==== REGISTRAR NOTIFICACIÓN DE ÉXITO ====
+        // Obtener nombre del producto
+        $producto_nombre = $producto['nombre'] ?? 'producto';
+        // Obtener nombre de la persona (si se registró)
+        $persona_nombre = '';
+        if ($persona_id) {
+            $stmt = $conn->prepare("SELECT nombres FROM personas WHERE id = ?");
+            $stmt->bind_param('i', $persona_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res->num_rows) {
+                $persona_nombre = $res->fetch_assoc()['nombres'];
+            }
+        }
+        
+        // Determinar título y mensaje según el tipo
+        if ($tipo == 'SALIDA') {
+            $titulo = '📦 Préstamo registrado';
+            $mensaje = "Se realizó préstamo de {$producto_nombre} a " . ($persona_nombre ?: 'sin persona registrada');
+        } else {
+            $titulo = '🔄 Movimiento registrado';
+            $mensaje = "Se registró {$tipo} de {$producto_nombre}";
+        }
+        
+        // URL opcional: podemos llevar al detalle del producto (si tenemos un archivo detalle)
+        $url = "/inventario_ti/modules/productos/detalle.php?id={$producto_id}";
+        
+        registrar_notificacion(
+            $_SESSION['user_id'],
+            'success',
+            $titulo,
+            $mensaje,
+            $url
+        );
+        
         echo json_encode(['success' => true, 'mensaje' => 'Movimiento registrado correctamente']);
         
     } catch (Exception $e) {
         $conn->rollback();
+        
+        // ==== REGISTRAR NOTIFICACIÓN DE ERROR ====
+        registrar_notificacion(
+            $_SESSION['user_id'],
+            'error',
+            '❌ Error en préstamo',
+            'No se pudo completar el préstamo: ' . $e->getMessage(),
+            null
+        );
+        
         echo json_encode(['success' => false, 'mensaje' => 'Error: ' . $e->getMessage()]);
     }
     

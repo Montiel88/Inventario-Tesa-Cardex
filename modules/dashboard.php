@@ -95,99 +95,201 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
 }
 .institution-title {
     text-align: center;
-    margin: 30px 0 40px 0;
-    padding: 20px;
-    background: rgba(255,255,255,0.5);
+    margin: 20px 0 30px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 100%);
     border-radius: 20px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    box-shadow: 0 8px 32px rgba(90, 45, 140, 0.1);
+    border: 1px solid rgba(243, 178, 41, 0.2);
 }
 .institution-title h1 {
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #5a2d8c 0%, #f3b229 100%);
+    background: linear-gradient(135deg, #5a2d8c 0%, #7b42a8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 5px 15px rgba(90, 45, 140, 0.2);
-    margin-bottom: 10px;
-    animation: fadeInTitle 1s ease;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
 }
 .institution-title h2 {
     font-size: 1.8rem;
-    color: #5a2d8c;
-    font-weight: 600;
-    letter-spacing: 3px;
-    margin-bottom: 10px;
+    color: #f3b229;
+    font-weight: 700;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
 }
 .institution-title .subtitle {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: #666;
     font-style: italic;
     border-top: 2px solid #f3b229;
-    padding-top: 15px;
+    padding-top: 12px;
     display: inline-block;
-}
-@keyframes fadeInTitle {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    margin-top: 8px;
 }
 
 /* Estilos para las tarjetas del dashboard */
 .dashboard-card {
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
-    border-radius: 15px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    background: white;
+    position: relative;
+}
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #5a2d8c 0%, #f3b229 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+.dashboard-card:hover::before {
+    transform: scaleX(1);
 }
 .dashboard-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(90, 45, 140, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(90, 45, 140, 0.15);
 }
 .dashboard-card .card-body {
-    padding: 25px 20px;
+    padding: 28px 20px;
     text-align: center;
     background: white;
 }
 .dashboard-card .card-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #5a2d8c;
-    margin-bottom: 5px;
+    font-size: 2.8rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #5a2d8c 0%, #7b42a8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    line-height: 1;
 }
 .dashboard-card .card-text {
     color: #666;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 15px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    margin-bottom: 18px;
 }
 .dashboard-card .btn-sm {
-    border-radius: 20px;
-    padding: 5px 15px;
-    font-size: 0.8rem;
+    border-radius: 25px;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-width: 2px;
+}
+.dashboard-card .btn-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(90, 45, 140, 0.2);
 }
 
 /* Aviso para lectores */
 .lector-notice {
-    background: #28a745;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
+    padding: 18px 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
     text-align: center;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    font-weight: 500;
+}
+
+/* Acciones rápidas */
+.quick-actions-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+.quick-actions-card .card-header {
+    background: linear-gradient(135deg, #5a2d8c 0%, #7b42a8 100%);
+    color: white;
+    padding: 18px 25px;
+    border: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+.quick-actions-card .btn {
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.quick-actions-card .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+.quick-actions-card .btn-primary {
+    background: linear-gradient(135deg, #5a2d8c 0%, #7b42a8 100%);
+}
+.quick-actions-card .btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+.quick-actions-card .btn-warning {
+    background: linear-gradient(135deg, #f3b229 0%, #f5c342 100%);
+    color: #5a2d8c;
+}
+.quick-actions-card .btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+}
+
+/* Últimos movimientos */
+.movements-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    overflow: hidden;
+    height: 100%;
+}
+.movements-card .card-header {
+    background: linear-gradient(135deg, rgba(90, 45, 140, 0.05) 0%, rgba(243, 178, 41, 0.05) 100%);
+    border-bottom: 2px solid #f3b229;
+    padding: 18px 25px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #5a2d8c;
+}
+.movements-card .list-group-item {
+    border: none;
+    border-bottom: 1px solid #f1f1f1;
+    padding: 15px 20px;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+.movements-card .list-group-item:hover {
+    background: linear-gradient(90deg, rgba(90, 45, 140, 0.05) 0%, rgba(243, 178, 41, 0.05) 100%);
+    padding-left: 25px;
+}
+.movements-card .list-group-item:last-child {
+    border-bottom: none;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .institution-title h1 { font-size: 1.8rem !important; }
     .institution-title h2 { font-size: 1.4rem !important; }
-    .dashboard-card .card-title { font-size: 2rem !important; }
-    .dashboard-card .card-body { padding: 15px !important; }
+    .dashboard-card .card-title { font-size: 2.2rem !important; }
+    .dashboard-card .card-body { padding: 20px 15px !important; }
+    .lector-notice { padding: 15px 20px; font-size: 0.9rem; }
 }
 @media (max-width: 480px) {
     .institution-title h1 { font-size: 1.4rem !important; }
     .institution-title h2 { font-size: 1.1rem !important; }
+    .institution-title { padding: 15px; margin: 10px 0 20px 0; }
 }
 </style>
 
@@ -212,48 +314,48 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         </div>
         <?php endif; ?>
         
-        <!-- TARJETAS DE ESTADÍSTICAS (PRIMERA FILA) -->
-        <div class="row">
-            <div class="col-md-3 mb-4">
-                <div class="card dashboard-card">
+        <!-- TARJETAS DE ESTADÍSTICAS -->
+        <div class="row g-4 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card dashboard-card h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_personas; ?></h5>
-                        <p class="card-text">Personas</p>
+                        <p class="card-text"><i class="fas fa-users me-1"></i> Personas</p>
                         <a href="/inventario_ti/modules/personas/listar.php" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-users me-1"></i> Ver lista
+                            <i class="fas fa-list me-1"></i> Ver lista
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="card dashboard-card">
+            <div class="col-xl-3 col-md-6">
+                <div class="card dashboard-card h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_equipos; ?></h5>
-                        <p class="card-text">Equipos</p>
+                        <p class="card-text"><i class="fas fa-laptop me-1"></i> Equipos</p>
                         <a href="/inventario_ti/modules/equipos/listar.php" class="btn btn-sm btn-outline-success">
-                            <i class="fas fa-laptop me-1"></i> Ver equipos
+                            <i class="fas fa-list me-1"></i> Ver equipos
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="card dashboard-card">
+            <div class="col-xl-3 col-md-6">
+                <div class="card dashboard-card h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_prestamos; ?></h5>
-                        <p class="card-text">Préstamos Activos</p>
+                        <p class="card-text"><i class="fas fa-hand-holding me-1"></i> Préstamos Activos</p>
                         <a href="/inventario_ti/modules/movimientos/historial.php?filtro=activos" class="btn btn-sm btn-outline-warning">
-                            <i class="fas fa-hand-holding me-1"></i> Ver préstamos
+                            <i class="fas fa-history me-1"></i> Ver préstamos
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-4">
-                <div class="card dashboard-card">
+            <div class="col-xl-3 col-md-6">
+                <div class="card dashboard-card h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_disponibles; ?></h5>
-                        <p class="card-text">Equipos Disponibles</p>
+                        <p class="card-text"><i class="fas fa-check-circle me-1"></i> Equipos Disponibles</p>
                         <a href="/inventario_ti/modules/equipos/listar.php?estado=disponible" class="btn btn-sm btn-outline-info">
-                            <i class="fas fa-check-circle me-1"></i> Ver disponibles
+                            <i class="fas fa-list me-1"></i> Ver disponibles
                         </a>
                     </div>
                 </div>
@@ -261,47 +363,46 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         </div>
 
         <!-- SEGUNDA FILA (COMPONENTES) -->
-        <div class="row mt-4">
-            <div class="col-md-3 mb-4">
-                <div class="card dashboard-card">
+        <div class="row g-4 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card dashboard-card h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_componentes; ?></h5>
-                        <p class="card-text">Componentes</p>
+                        <p class="card-text"><i class="fas fa-microchip me-1"></i> Componentes</p>
                         <a href="/inventario_ti/modules/componentes/listar.php" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-microchip me-1"></i> Ver componentes
+                            <i class="fas fa-list me-1"></i> Ver componentes
                         </a>
                     </div>
                 </div>
             </div>
-            <!-- Aquí puedes agregar más tarjetas si lo deseas -->
         </div>
         
         <!-- ACCIONES RÁPIDAS (SOLO ADMIN) -->
         <?php if ($es_admin): ?>
-        <div class="row mt-2">
+        <div class="row mb-4">
             <div class="col-12">
-                <div class="card">
+                <div class="card quick-actions-card">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
+                        <i class="fas fa-bolt me-2"></i>Acciones Rápidas
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 mb-2">
+                        <div class="row g-3">
+                            <div class="col-md-3">
                                 <a href="/inventario_ti/modules/movimientos/prestamo.php" class="btn btn-primary w-100">
                                     <i class="fas fa-hand-holding me-2"></i>Registrar Préstamo
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3">
                                 <a href="/inventario_ti/modules/movimientos/devolucion.php" class="btn btn-success w-100">
                                     <i class="fas fa-undo-alt me-2"></i>Registrar Devolución
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3">
                                 <a href="/inventario_ti/modules/equipos/agregar.php" class="btn btn-warning w-100">
                                     <i class="fas fa-plus-circle me-2"></i>Agregar Equipo
                                 </a>
                             </div>
-                            <div class="col-md-3 mb-2">
+                            <div class="col-md-3">
                                 <a href="/inventario_ti/modules/personas/agregar.php" class="btn btn-info w-100">
                                     <i class="fas fa-user-plus me-2"></i>Agregar Persona
                                 </a>
@@ -312,83 +413,88 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
             </div>
         </div>
         <?php else: ?>
-        <div class="row mt-2">
+        <div class="row mb-4">
             <div class="col-12">
-                <div class="alert alert-info">
+                <div class="alert alert-info border-0 shadow-sm">
                     <i class="fas fa-info-circle me-2"></i>
-                    Las acciones rápidas solo están disponibles para administradores.
+                    <strong>Modo solo lectura:</strong> Las acciones rápidas solo están disponibles para administradores.
                 </div>
             </div>
         </div>
         <?php endif; ?>
         
-        <!-- ÚLTIMOS MOVIMIENTOS (CLIQUEABLES EN TODA LA BARRA) -->
-        <div class="row mt-4">
+        <!-- ÚLTIMOS MOVIMIENTOS -->
+        <div class="row g-4">
             <!-- Equipos -->
-            <div class="col-md-6">
-                <div class="card">
+            <div class="col-lg-6">
+                <div class="card movements-card h-100">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Últimos Movimientos de Equipos</h5>
+                        <i class="fas fa-history me-2"></i>Últimos Movimientos de Equipos
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-0">
                         <?php if ($result_movimientos && $result_movimientos->num_rows > 0): ?>
-                            <div class="list-group">
+                            <div class="list-group list-group-flush">
                                 <?php while($row = $result_movimientos->fetch_assoc()): ?>
-                                    <!-- Contenedor con posición relativa para el stretched-link -->
                                     <div class="list-group-item" style="position: relative;">
                                         <a href="/inventario_ti/modules/equipos/detalle.php?id=<?php echo $row['equipo_id']; ?>" class="stretched-link"></a>
-                                        <div class="d-flex justify-content-between">
-                                            <div>
-                                                <strong><?php echo htmlspecialchars($row['equipo'] ?? 'N/A'); ?></strong>
-                                                <small class="text-muted ms-2"><?php echo htmlspecialchars($row['codigo_barras'] ?? ''); ?></small>
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-primary"><?php echo htmlspecialchars($row['equipo'] ?? 'N/A'); ?></div>
+                                                <small class="text-muted"><?php echo htmlspecialchars($row['codigo_barras'] ?? ''); ?></small>
                                             </div>
-                                            <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($row['fecha_movimiento'])); ?></small>
+                                            <div class="text-end">
+                                                <small class="text-muted d-block"><?php echo date('d/m/Y', strtotime($row['fecha_movimiento'])); ?></small>
+                                                <small class="text-muted"><?php echo date('H:i', strtotime($row['fecha_movimiento'])); ?></small>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <span class="badge bg-<?php echo $row['tipo_movimiento'] == 'ASIGNACION' ? 'warning' : 'success'; ?>">
+                                        <div class="mt-2">
+                                            <span class="badge bg-<?php echo $row['tipo_movimiento'] == 'ASIGNACION' ? 'warning' : 'success'; ?> me-2">
                                                 <?php echo $row['tipo_movimiento']; ?>
                                             </span>
-                                            <small class="ms-2"><?php echo htmlspecialchars($row['persona'] ?? ''); ?></small>
+                                            <small class="text-muted"><i class="fas fa-user me-1"></i><?php echo htmlspecialchars($row['persona'] ?? ''); ?></small>
                                         </div>
                                     </div>
                                 <?php endwhile; ?>
                             </div>
                         <?php else: ?>
-                            <p class="text-muted text-center py-3">No hay movimientos registrados</p>
+                            <p class="text-muted text-center py-4 mb-0">No hay movimientos registrados</p>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
             <!-- Componentes -->
-            <div class="col-md-6">
-                <div class="card">
+            <div class="col-lg-6">
+                <div class="card movements-card h-100">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-microchip me-2"></i>Últimos Movimientos de Componentes</h5>
+                        <i class="fas fa-microchip me-2"></i>Últimos Movimientos de Componentes
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-0">
                         <?php if ($result_movimientos_componentes && $result_movimientos_componentes->num_rows > 0): ?>
-                            <div class="list-group">
+                            <div class="list-group list-group-flush">
                                 <?php while($row = $result_movimientos_componentes->fetch_assoc()): ?>
                                     <div class="list-group-item" style="position: relative;">
                                         <a href="/inventario_ti/modules/componentes/detalle.php?id=<?php echo $row['componente_id']; ?>" class="stretched-link"></a>
-                                        <div class="d-flex justify-content-between">
-                                            <div>
-                                                <strong><?php echo htmlspecialchars($row['tipo'] . ': ' . $row['nombre_componente']); ?></strong>
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-primary"><?php echo htmlspecialchars($row['tipo'] . ': ' . $row['nombre_componente']); ?></div>
                                             </div>
-                                            <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($row['fecha_movimiento'])); ?></small>
+                                            <div class="text-end">
+                                                <small class="text-muted d-block"><?php echo date('d/m/Y', strtotime($row['fecha_movimiento'])); ?></small>
+                                                <small class="text-muted"><?php echo date('H:i', strtotime($row['fecha_movimiento'])); ?></small>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <span class="badge bg-<?php echo $row['tipo_movimiento'] == 'ASIGNACION' ? 'warning' : 'success'; ?>">
+                                        <div class="mt-2">
+                                            <span class="badge bg-<?php echo $row['tipo_movimiento'] == 'ASIGNACION' ? 'warning' : 'success'; ?> me-2">
                                                 <?php echo $row['tipo_movimiento']; ?>
                                             </span>
-                                            <small class="ms-2"><?php echo htmlspecialchars($row['persona_nombre'] ?? ''); ?></small>
+                                            <small class="text-muted"><i class="fas fa-user me-1"></i><?php echo htmlspecialchars($row['persona_nombre'] ?? ''); ?></small>
                                         </div>
                                     </div>
                                 <?php endwhile; ?>
                             </div>
                         <?php else: ?>
-                            <p class="text-muted text-center py-3">No hay movimientos registrados</p>
-                         <?php endif; ?>
+                            <p class="text-muted text-center py-4 mb-0">No hay movimientos registrados</p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -396,135 +502,5 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         
     </div> <!-- Fin content -->
 </div> <!-- Fin brand-watermark -->
-
-<!-- ============================================ -->
-<!-- SISTEMA DE NOTIFICACIONES TOAST (NUEVO) -->
-<!-- ============================================ -->
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;" id="toastContainer"></div>
-
-<style>
-.toast-notification {
-    min-width: 300px;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-    margin-bottom: 10px;
-    border-left: 4px solid;
-    animation: slideInRight 0.3s ease, fadeOut 0.5s ease 4.5s forwards;
-    overflow: hidden;
-}
-
-@keyframes slideInRight {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes fadeOut {
-    to { opacity: 0; transform: translateX(100%); }
-}
-
-.toast-notification .toast-content {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-}
-
-.toast-notification .toast-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-    color: white;
-}
-
-.toast-notification .toast-text {
-    flex: 1;
-}
-
-.toast-notification .toast-title {
-    font-weight: 600;
-    margin-bottom: 3px;
-    color: #333;
-}
-
-.toast-notification .toast-message {
-    font-size: 0.9rem;
-    color: #666;
-}
-
-.toast-notification .toast-close {
-    cursor: pointer;
-    padding: 5px;
-    color: #999;
-    transition: color 0.2s;
-}
-
-.toast-notification .toast-close:hover {
-    color: #333;
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Cargar notificaciones automáticamente
-    cargarNotificaciones();
-    
-    // Recargar cada 5 minutos (opcional)
-    setInterval(cargarNotificaciones, 300000);
-});
-
-function cargarNotificaciones() {
-    fetch('/inventario_ti/api/obtener_notificaciones.php')
-        .then(response => response.json())
-        .then(notificaciones => {
-            if (notificaciones.error) {
-                console.error('Error:', notificaciones.error);
-                return;
-            }
-            
-            // Mostrar cada notificación
-            notificaciones.forEach(notif => {
-                mostrarNotificacion(notif);
-            });
-        })
-        .catch(error => console.error('Error al cargar notificaciones:', error));
-}
-
-function mostrarNotificacion(notif) {
-    const container = document.getElementById('toastContainer');
-    
-    // Crear elemento toast
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification';
-    toast.style.borderLeftColor = notif.color;
-    
-    toast.innerHTML = `
-        <div class="toast-content">
-            <div class="toast-icon" style="background-color: ${notif.color}">
-                <i class="fas ${notif.icono}"></i>
-            </div>
-            <div class="toast-text">
-                <div class="toast-title">${notif.titulo}</div>
-                <div class="toast-message">${notif.mensaje}</div>
-            </div>
-            <div class="toast-close" onclick="this.parentElement.parentElement.remove()">
-                <i class="fas fa-times"></i>
-            </div>
-        </div>
-    `;
-    
-    container.appendChild(toast);
-    
-    // Auto-eliminar después de 5 segundos
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.remove();
-        }
-    }, 5000);
-}
-</script>
 
 <?php include '../includes/footer.php'; ?>

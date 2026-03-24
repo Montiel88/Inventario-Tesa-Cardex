@@ -14,6 +14,7 @@ if ($_SESSION['user_rol'] != 1) {
 }
 
 require_once '../../config/database.php';
+require_once '../../config/notificaciones_helper.php'; // ← AÑADIDO
 include '../../includes/header.php';
 
 $mensaje = '';
@@ -69,7 +70,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     VALUES ('$cedula', '$nombres', '$correo', '$cargo', '$telefono', '$observaciones')";
             
             if ($conn->query($sql)) {
+                $id_persona = $conn->insert_id;
+                
+                // Registrar notificación
+                registrar_notificacion(
+                    $_SESSION['user_id'],
+                    'success',
+                    '👤 Persona agregada',
+                    "Se agregó a {$nombres} (cédula {$cedula})",
+                    "/inventario_ti/modules/personas/detalle.php?id=" . $id_persona
+                );
+                
                 $mensaje = "✅ Persona registrada exitosamente";
+                
                 // Redirigir después de 2 segundos
                 echo "<script>
                     Swal.fire({

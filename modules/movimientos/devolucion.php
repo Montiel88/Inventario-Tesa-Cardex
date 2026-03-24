@@ -100,6 +100,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
                 $conn->commit();
                 $mensaje = "✅ Devolución registrada correctamente";
                 
+                // Registrar notificación
+                require_once '../../config/notificaciones_helper.php';
+                registrar_notificacion(
+                    $_SESSION['user_id'],
+                    'success',
+                    '🔄 Devolución registrada',
+                    "Equipo {$asignacion['tipo_equipo']} ({$asignacion['codigo_barras']}) devuelto por {$asignacion['persona_nombre']}",
+                    "/inventario_ti/modules/equipos/detalle.php?id={$equipo_id}"
+                );
+                
                 $mensaje_adicional = ($estado_equipo != 'BUENO') ? ' Se ha creado un registro automático en Mantenimientos.' : '';
                 
                 echo "<script>
@@ -123,6 +133,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
             } catch (Exception $e) {
                 $conn->rollback();
                 $error = "❌ Error al registrar devolución: " . $e->getMessage();
+                
+                // Registrar notificación de error
+                require_once '../../config/notificaciones_helper.php';
+                registrar_notificacion(
+                    $_SESSION['user_id'],
+                    'error',
+                    '❌ Error en devolución',
+                    'No se pudo registrar la devolución: ' . $e->getMessage(),
+                    null
+                );
             }
         } else {
             $error = "❌ Este equipo no está prestado actualmente";

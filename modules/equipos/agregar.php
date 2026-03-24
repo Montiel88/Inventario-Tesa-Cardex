@@ -11,13 +11,14 @@ if (!$es_admin) {
 }
 
 require_once '../../config/database.php';
-require_once '../../config/listas.php'; // ← AGREGADO: Lista completa de equipos
+require_once '../../config/listas.php';
+require_once '../../config/notificaciones_helper.php'; // ← Agregado para notificaciones
 include '../../includes/header.php';
 
 // Asegurar que SweetAlert2 esté disponible
 echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
 
-// Obtener lista de ubicaciones para el selector
+// Obtener lista de ubicaciones
 $ubicaciones = $conn->query("SELECT id, codigo_ubicacion, nombre FROM ubicaciones ORDER BY nombre");
 
 $mensaje = '';
@@ -34,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $ubicacion_id = !empty($_POST['ubicacion_id']) ? intval($_POST['ubicacion_id']) : 'NULL';
     $estado = 'Disponible';
 
-    // Procesar foto
+    // Procesar foto (solo se guarda en disco, no en BD)
     $foto_ruta = '';
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] == 0) {
         $allowed = ['jpg', 'jpeg', 'png', 'gif'];
@@ -52,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             if (move_uploaded_file($_FILES['foto']['tmp_name'], $destino)) {
                 $foto_ruta = 'uploads/equipos/' . $nuevo_nombre;
+                // Opcional: aquí podrías guardar $foto_ruta en otro lugar (si quieres usarla luego)
             }
         }
     }
@@ -59,32 +61,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($tipo_equipo)) {
         $error = "❌ El tipo de equipo es obligatorio";
     } else {
-        // 👉 CASO 1: El usuario ingresó un código manualmente
+        // Validar o generar código
         if (!empty($codigo_barras)) {
-            // Verificar que el código no exista
             $check = $conn->query("SELECT id FROM equipos WHERE codigo_barras = '$codigo_barras'");
             if ($check->num_rows > 0) {
                 $error = "❌ El código de barras '$codigo_barras' ya existe. Usa otro o déjalo vacío para generar uno automático.";
             }
-        } 
-        // 👉 CASO 2: El usuario dejó vacío → generar código interno
-        else {
+        } else {
             $result = $conn->query("SELECT MAX(id) as max_id FROM equipos");
             $row = $result->fetch_assoc();
             $next_id = ($row['max_id'] ?? 0) + 1;
             $codigo_barras = 'PRO-' . str_pad($next_id, 6, '0', STR_PAD_LEFT);
         }
 
-        // Si no hay error, proceder a insertar
         if (empty($error)) {
-            $sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, observaciones, ubicacion_id, estado, foto) 
-                    VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$numero_serie', '$especificaciones', '$observaciones', $ubicacion_id, '$estado', '$foto_ruta')";
+            // 🔥 INSERCIÓN SIN LA COLUMNA 'foto' (eliminada)
+            $sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, observaciones, ubicacion_id, estado) 
+                    VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$numero_serie', '$especificaciones', '$observaciones', $ubicacion_id, '$estado')";
 
             if ($conn->query($sql)) {
                 $equipo_id = $conn->insert_id;
+                
+                // Registrar notificación de éxito
+                registrar_notificacion(
+                    $_SESSION['user_id'],
+                    'success',
+                    '🖥️ Equipo agregado',
+                    "Se agregó {$tipo_equipo} con código {$codigo_barras}",
+                    "/inventario_ti/modules/equipos/detalle.php?id=" . $equipo_id
+                );
+                
                 $mensaje = "✅ Equipo registrado exitosamente. Código: $codigo_barras";
                 
-                // Script para preguntar si generar acta de ingreso
+                // SweetAlert para generar acta
                 echo "<script>
                     Swal.fire({
                         title: '¿Generar acta de ingreso?',
@@ -186,7 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Foto del Equipo (Opcional)</label>
                                 <input type="file" name="foto" class="form-control" accept="image/*">
-                                <small class="text-muted">Formatos permitidos: JPG, PNG, GIF</small>
+                                <small class="text-muted">La foto se guardará en disco pero no en la BD (por ahora).</small>
                             </div>
                         </div>
                         

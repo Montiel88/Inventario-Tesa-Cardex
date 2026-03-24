@@ -44,6 +44,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $sql = "INSERT INTO movimientos_componentes (componente_id, persona_id, tipo_movimiento, observaciones)
             VALUES ($componente_id, $persona_id, 'ASIGNACION', '$observaciones')";
     if ($conn->query($sql)) {
+        // Registrar notificación
+        require_once '../../config/notificaciones_helper.php';
+        
+        // Obtener datos del componente y persona para la notificación
+        $comp_info = $conn->query("SELECT nombre_componente, tipo FROM componentes WHERE id = $componente_id")->fetch_assoc();
+        $per_info = $conn->query("SELECT nombres FROM personas WHERE id = $persona_id")->fetch_assoc();
+        
+        $componente_nombre = $comp_info['nombre_componente'] ?? 'Componente';
+        $persona_nombre = $per_info['nombres'] ?? 'sin nombre';
+        
+        registrar_notificacion(
+            $_SESSION['user_id'],
+            'success',
+            '🔧 Componente asignado',
+            "Componente {$componente_nombre} asignado a {$persona_nombre}",
+            "/inventario_ti/modules/componentes/detalle.php?id={$componente_id}"
+        );
+        
         header('Location: listar.php?mensaje=Componente asignado correctamente');
     } else {
         $error = "Error al asignar: " . $conn->error;
