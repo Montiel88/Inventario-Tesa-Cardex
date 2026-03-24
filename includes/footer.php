@@ -457,9 +457,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function cargarNotificaciones() {
-    fetch('/inventario_ti/api/obtener_notificaciones.php')
+    fetch('/inventario_ti/api/notificaciones.php')
         .then(response => response.json())
-        .then(notificaciones => {
+        .then(data => {
+            const notificaciones = data.notificaciones || [];
             notificacionesGlobales = notificaciones;
             actualizarBadge(notificaciones.length);
             renderizarNotificaciones(notificaciones);
@@ -468,7 +469,20 @@ function cargarNotificaciones() {
             const now = new Date();
             document.getElementById('lastUpdate').textContent = now.toLocaleTimeString();
         })
-        .catch(error => console.error('Error al cargar notificaciones:', error));
+        .catch(error => {
+            console.error('Error al cargar notificaciones:', error);
+            actualizarBadge(0);
+            const container = document.getElementById('notificationPanelBody');
+            if (container) {
+                container.innerHTML = `
+                    <div class="notification-empty">
+                        <i class="fas fa-plug"></i>
+                        <p>No se pudieron cargar las notificaciones</p>
+                        <small>Revisa la conexión o vuelve a intentarlo</small>
+                    </div>
+                `;
+            }
+        });
 }
 
 function actualizarBadge(cantidad) {
