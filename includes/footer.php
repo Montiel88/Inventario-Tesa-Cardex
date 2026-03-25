@@ -458,9 +458,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function cargarNotificaciones() {
     fetch('/inventario_ti/api/notificaciones.php')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
         .then(data => {
-            const notificaciones = data.notificaciones || [];
+            const notificaciones = (data && data.notificaciones) ? data.notificaciones : [];
             notificacionesGlobales = notificaciones;
             actualizarBadge(notificaciones.length);
             renderizarNotificaciones(notificaciones);
@@ -593,7 +596,7 @@ function actualizarEstadoVisual() {
 </script>
 
 <!-- Tus scripts originales -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap bundle is now loaded in header.php -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
