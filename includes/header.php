@@ -61,8 +61,8 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         --r:            12px;
         --ease:         cubic-bezier(.4,0,.2,1);
         --font:         'Outfit','Poppins',sans-serif;
-        front :var(--c-bg)
-        -cal_from_jd :var(--c-mid)
+        
+    
     }
 
     * { box-sizing: border-box; }

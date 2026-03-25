@@ -135,69 +135,101 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     letter-spacing: 2px;
 }
 
-/* Estilos para las tarjetas del dashboard */
+/* Estilos para las tarjetas del dashboard - PREMIUM GLOW */
 .dashboard-card {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: none;
-    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 24px !important;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    background: white;
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
     position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
 }
-.dashboard-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #5a2d8c 0%, #f3b229 100%);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-.dashboard-card:hover::before {
-    transform: scaleX(1);
-}
+
 .dashboard-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(90, 45, 140, 0.15);
+    transform: translateY(-10px) scale(1.02);
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
 }
+
 .dashboard-card .card-body {
-    padding: 28px 20px;
+    padding: 35px 25px !important;
     text-align: center;
-    background: white;
+    background: transparent !important;
 }
+
 .dashboard-card .card-title {
-    font-size: 2.8rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #5a2d8c 0%, #7b42a8 100%);
+    font-size: 3.8rem !important;
+    font-weight: 900 !important;
+    margin-bottom: 10px !important;
+    line-height: 1;
+    background: #fff;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 8px;
-    line-height: 1;
+    transition: all 0.4s ease;
 }
+
+/* LED Glow for numbers */
+.card-personas .card-title { 
+    background: linear-gradient(135deg, #fff 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    text-shadow: 0 0 25px rgba(139, 92, 246, 0.5);
+}
+.card-equipos .card-title { 
+    background: linear-gradient(135deg, #fff 0%, var(--c-gold) 100%);
+    -webkit-background-clip: text;
+    text-shadow: 0 0 25px rgba(243, 178, 41, 0.5);
+}
+.card-prestamos .card-title { 
+    background: linear-gradient(135deg, #fff 0%, #f43f5e 100%);
+    -webkit-background-clip: text;
+    text-shadow: 0 0 25px rgba(244, 63, 94, 0.5);
+}
+.card-disponibles .card-title { 
+    background: linear-gradient(135deg, #fff 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    text-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+}
+
+.dashboard-card:hover .card-title {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}
+
 .dashboard-card .card-text {
-    color: #666;
-    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.9rem !important;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: 600;
-    margin-bottom: 18px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin-bottom: 25px !important;
 }
+
 .dashboard-card .btn-sm {
-    border-radius: 25px;
-    padding: 8px 18px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    border-width: 2px;
+    border-radius: 15px !important;
+    padding: 10px 20px !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    transition: all 0.3s ease !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #fff !important;
 }
+
 .dashboard-card .btn-sm:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(90, 45, 140, 0.2);
+    background: var(--c-violet) !important;
+    border-color: var(--c-violet) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
 }
+
+/* Color accents for buttons */
+.card-equipos .btn-sm:hover { background: var(--c-gold) !important; border-color: var(--c-gold) !important; color: #1a0533 !important; }
+.card-prestamos .btn-sm:hover { background: #f43f5e !important; border-color: #f43f5e !important; }
+.card-disponibles .btn-sm:hover { background: #10b981 !important; border-color: #10b981 !important; }
 
 /* Aviso para lectores */
 .lector-notice {
@@ -323,44 +355,44 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         <!-- TARJETAS DE ESTADÍSTICAS -->
         <div class="row g-4 mb-4">
             <div class="col-xl-3 col-md-6">
-                <div class="card dashboard-card h-100">
+                <div class="card dashboard-card card-personas h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_personas; ?></h5>
                         <p class="card-text"><i class="fas fa-users me-1"></i> Personas</p>
-                        <a href="/inventario_ti/modules/personas/listar.php" class="btn btn-sm btn-outline-primary">
+                        <a href="/inventario_ti/modules/personas/listar.php" class="btn btn-sm">
                             <i class="fas fa-list me-1"></i> Ver lista
                         </a>
                     </div>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="card dashboard-card h-100">
+                <div class="card dashboard-card card-equipos h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_equipos; ?></h5>
                         <p class="card-text"><i class="fas fa-laptop me-1"></i> Equipos</p>
-                        <a href="/inventario_ti/modules/equipos/listar.php" class="btn btn-sm btn-outline-success">
+                        <a href="/inventario_ti/modules/equipos/listar.php" class="btn btn-sm">
                             <i class="fas fa-list me-1"></i> Ver equipos
                         </a>
                     </div>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="card dashboard-card h-100">
+                <div class="card dashboard-card card-prestamos h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_prestamos; ?></h5>
                         <p class="card-text"><i class="fas fa-hand-holding me-1"></i> Préstamos Activos</p>
-                        <a href="/inventario_ti/modules/movimientos/historial.php?filtro=activos" class="btn btn-sm btn-outline-warning">
+                        <a href="/inventario_ti/modules/movimientos/historial.php?filtro=activos" class="btn btn-sm">
                             <i class="fas fa-history me-1"></i> Ver préstamos
                         </a>
                     </div>
                 </div>
             </div>
             <div class="col-xl-3 col-md-6">
-                <div class="card dashboard-card h-100">
+                <div class="card dashboard-card card-disponibles h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_disponibles; ?></h5>
                         <p class="card-text"><i class="fas fa-check-circle me-1"></i> Equipos Disponibles</p>
-                        <a href="/inventario_ti/modules/equipos/listar.php?estado=disponible" class="btn btn-sm btn-outline-info">
+                        <a href="/inventario_ti/modules/equipos/listar.php?estado=disponible" class="btn btn-sm">
                             <i class="fas fa-list me-1"></i> Ver disponibles
                         </a>
                     </div>
@@ -371,11 +403,11 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         <!-- SEGUNDA FILA (COMPONENTES) -->
         <div class="row g-4 mb-4">
             <div class="col-xl-3 col-md-6">
-                <div class="card dashboard-card h-100">
+                <div class="card dashboard-card card-personas h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_componentes; ?></h5>
                         <p class="card-text"><i class="fas fa-microchip me-1"></i> Componentes</p>
-                        <a href="/inventario_ti/modules/componentes/listar.php" class="btn btn-sm btn-outline-primary">
+                        <a href="/inventario_ti/modules/componentes/listar.php" class="btn btn-sm">
                             <i class="fas fa-list me-1"></i> Ver componentes
                         </a>
                     </div>
