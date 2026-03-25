@@ -774,11 +774,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         Ingresar al Sistema
                     </button>
                     
-                    <div class="additional-links">
-                        <a href="#"><i class="bi bi-shield-lock"></i> ¿Problemas para acceder?</a>
-                        <span class="separator">|</span>
-                        <a href="#"><i class="bi bi-info-circle"></i> Ayuda</a>
-                    </div>
+                  <div class="additional-links">
+    <a href="recuperar.php"><i class="bi bi-key"></i> ¿Olvidaste tu contraseña?</a>
+    <span class="separator">|</span>
+    <a href="#"><i class="bi bi-info-circle"></i> Ayuda</a>
+</div>
                 </form>
             </div>
         </div>

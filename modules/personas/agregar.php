@@ -16,6 +16,7 @@ if ($_SESSION['user_rol'] != 1) {
 require_once '../../config/database.php';
 require_once '../../config/notificaciones_helper.php'; // ← AÑADIDO
 include '../../includes/header.php';
+require_once '../../config/validaciones.php';
 
 $mensaje = '';
 $error = '';
@@ -36,15 +37,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validar campos obligatorios
     $errores = [];
     
-    if (empty($cedula)) {
-        $errores[] = "La cédula es obligatoria";
-    } elseif (!preg_match('/^\d{10}$/', $cedula)) {
-        $errores[] = "La cédula debe tener 10 dígitos numéricos";
-    }
+if (empty($cedula)) {
+    $errores[] = "La cédula es obligatoria";
+} elseif (!validarCedulaEcuador($cedula)) {
+    $errores[] = "La cédula no es válida. Debe tener 10 dígitos y cumplir el algoritmo ecuatoriano.";
+}
     
-    if (empty($nombres)) {
-        $errores[] = "El nombre es obligatorio";
-    }
+   if (empty($nombres)) {
+    $errores[] = "El nombre es obligatorio";
+} elseif (!validarNombre($nombres)) {
+    $errores[] = "El nombre solo puede contener letras, espacios y acentos. Mínimo 3 caracteres.";
+}
+// Validar teléfono (opcional)
+if (!empty($telefono) && !validarTelefono($telefono)) {
+    $errores[] = "El teléfono debe tener entre 7 y 10 dígitos numéricos.";
+}
     
     if (empty($cargo)) {
         $errores[] = "El cargo es obligatorio";

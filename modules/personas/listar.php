@@ -92,7 +92,7 @@ if ($result_elim) {
                     <!-- Enlace para ver eliminados (solo admin) -->
                     <?php if ($es_admin && $total_eliminadas > 0): ?>
                         <div class="mb-3">
-                            <a href="eliminadas.php" class="text-danger"><i class="fas fa-trash-alt me-1"></i>Ver personas eliminadas (<?php echo $total_eliminadas; ?>)</a>
+                            <a href="listar_eliminados.php" class="text-danger"><i class="fas fa-trash-alt me-1"></i>Ver personas eliminadas (<?php echo $total_eliminadas; ?>)</a>
                         </div>
                     <?php endif; ?>
 
