@@ -296,6 +296,33 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
 <!-- ============================================ -->
 <!-- CONTENIDO PRINCIPAL -->
 <!-- ============================================ -->
+<style>
+body {
+    background: linear-gradient(135deg, 
+        #f8f3ff 0%,
+        #efe5ff 20%,
+        #fef7e0 50%,
+        #fff2cc 80%,
+        #ffe6b3 100%) !important;
+    background-attachment: fixed !important;
+    min-height: 100vh !important;
+}
+
+/* Toque final: un sutil brillo dorado */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 70% 20%, rgba(243, 178, 41, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 30% 80%, rgba(90, 45, 140, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+</style>
+
 <div class="brand-watermark">
     <div class="content">
         
@@ -503,4 +530,80 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     </div> <!-- Fin content -->
 </div> <!-- Fin brand-watermark -->
 
+<!-- SECCIÓN DE GRÁFICOS - OCULTABLE -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Estadísticas del Sistema</h5>
+                <button class="btn btn-sm btn-outline-primary" id="btnToggleGraficos" onclick="toggleGraficos()">
+                    <i class="fas fa-chart-line me-1"></i> Mostrar Gráficos
+                </button>
+            </div>
+            <div id="graficosContainer" style="display: none;">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <canvas id="chartEquiposEstado" style="max-height: 300px;"></canvas>
+                            <p class="text-center mt-2 text-muted">Equipos por Estado</p>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <canvas id="chartEquiposTipo" style="max-height: 300px;"></canvas>
+                            <p class="text-center mt-2 text-muted">Equipos por Tipo (Top 5)</p>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-12 mb-4">
+                            <canvas id="chartMovimientosMensuales" style="max-height: 300px;"></canvas>
+                            <p class="text-center mt-2 text-muted">Movimientos por Mes (últimos 6 meses)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleGraficos() {
+    var container = document.getElementById('graficosContainer');
+    var btn = document.getElementById('btnToggleGraficos');
+    
+    if (container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'block';
+        btn.innerHTML = '<i class="fas fa-chart-line me-1"></i> Ocultar Gráficos';
+        cargarGraficos();
+    } else {
+        container.style.display = 'none';
+        btn.innerHTML = '<i class="fas fa-chart-line me-1"></i> Mostrar Gráficos';
+    }
+}
+
+function cargarGraficos() {
+    fetch('/inventario_ti/api/dashboard_stats.php')
+        .then(response => response.json())
+        .then(data => {
+            if (window.chartEstado) return;
+            
+            window.chartEstado = new Chart(document.getElementById('chartEquiposEstado'), {
+                type: 'doughnut',
+                data: { labels: data.estados.labels, datasets: [{ data: data.estados.values, backgroundColor: ['#28a745', '#ffc107', '#17a2b8', '#dc3545', '#6c757d'] }] },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+            });
+            
+            window.chartTipo = new Chart(document.getElementById('chartEquiposTipo'), {
+                type: 'bar',
+                data: { labels: data.tipos.labels, datasets: [{ label: 'Cantidad', data: data.tipos.values, backgroundColor: '#5a2d8c', borderRadius: 8 }] },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+            
+            window.chartMovimientos = new Chart(document.getElementById('chartMovimientosMensuales'), {
+                type: 'line',
+                data: { labels: data.movimientos.labels, datasets: [{ label: 'Asignaciones', data: data.movimientos.asignaciones, borderColor: '#28a745', backgroundColor: 'rgba(40,167,69,0.1)', fill: true, tension: 0.3 }, { label: 'Devoluciones', data: data.movimientos.devoluciones, borderColor: '#ffc107', backgroundColor: 'rgba(255,193,7,0.1)', fill: true, tension: 0.3 }] },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { tooltip: { mode: 'index', intersect: false } }, scales: { y: { beginAtZero: true } } }
+            });
+        })
+        .catch(error => console.error('Error:', error));
+}
+</script>
 <?php include '../includes/footer.php'; ?>

@@ -15,6 +15,7 @@ if ($_SESSION['user_rol'] != 1) {
 
 require_once '../../config/database.php';
 include '../../includes/header.php';
+require_once '../../config/validaciones.php';
 
 // Verificar si viene el ID
 if (!isset($_GET['id']) || empty($_GET['id'])) {

@@ -605,40 +605,5 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     </div>
 </div>
 
-<!-- Botón simple que abre el modal -->
-<button class="btn btn-success btn-lg w-100" onclick="document.getElementById('miModal').style.display='block'">
-    <i class="fas fa-plus-circle me-2"></i>Asignar componente
-</button>
-
-<!-- Modal simple sin Bootstrap -->
-<div id="miModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5);">
-    <div style="background-color:white; margin:15% auto; padding:20px; width:80%; max-width:500px; border-radius:10px;">
-        <h4>Asignar Componente</h4>
-        <form method="POST" action="asignar_componente.php">
-            <input type="hidden" name="persona_id" value="<?php echo (int)$id; ?>">
-            
-            <div class="mb-3">
-                <label>Componente disponible</label>
-                <select class="form-control" name="componente_id" required>
-                    <option value="">-- Seleccione --</option>
-                    <?php foreach ($componentes_disponibles as $c): ?>
-                        <option value="<?php echo $c['id']; ?>">
-                            <?php echo $c['tipo'] . ' - ' . $c['nombre_componente']; ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
-            <div class="mb-3">
-                <label>Observaciones</label>
-                <textarea class="form-control" name="observaciones" rows="2"></textarea>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Asignar</button>
-            <button type="button" class="btn btn-secondary" onclick="document.getElementById('miModal').style.display='none'">Cancelar</button>
-        </form>
-    </div>
-</div>
-
 <?php endif; ?>
 <?php include '../../includes/footer.php'; ?>

@@ -21,6 +21,12 @@ if (!$conn) {
 // Obtener filtro de ubicación si existe
 $ubicacion_id = isset($_GET['ubicacion_id']) ? intval($_GET['ubicacion_id']) : 0;
 $where_ubicacion = $ubicacion_id > 0 ? "AND e.ubicacion_id = $ubicacion_id" : "";
+// Obtener filtro de estado
+$estado_filtro = isset($_GET['estado']) ? $_GET['estado'] : 'todos';
+$where_estado = '';
+if ($estado_filtro != 'todos') {
+    $where_estado = "AND e.estado = '$estado_filtro'";
+}
 
 // ============================================
 // CONSULTA PRINCIPAL (excluye eliminados)
@@ -30,6 +36,7 @@ $sql = "SELECT e.*, u.nombre as ubicacion_nombre, u.codigo_ubicacion as ubicacio
         LEFT JOIN ubicaciones u ON e.ubicacion_id = u.id
         WHERE e.fecha_eliminacion IS NULL
         $where_ubicacion
+        $where_estado
         ORDER BY e.id DESC";
 $result = $conn->query($sql);
 ?>
@@ -85,6 +92,26 @@ $result = $conn->query($sql);
                                autocomplete="off"
                                style="max-width: 300px; border-radius: 30px; padding: 10px 15px; border: 1px solid #5a2d8c;">
                     </div>
+                    <!-- PESTAÑAS DE FILTRO POR ESTADO -->
+<div class="mb-3">
+    <div class="btn-group w-100" role="group">
+        <a href="listar.php?estado=todos" class="btn btn-outline-primary <?php echo (!isset($_GET['estado']) || $_GET['estado'] == 'todos') ? 'active' : ''; ?>">
+            <i class="fas fa-list me-1"></i>Todos
+        </a>
+        <a href="listar.php?estado=Disponible" class="btn btn-outline-success <?php echo (isset($_GET['estado']) && $_GET['estado'] == 'Disponible') ? 'active' : ''; ?>">
+            <i class="fas fa-check-circle me-1"></i>Disponibles
+        </a>
+        <a href="listar.php?estado=Asignado" class="btn btn-outline-warning <?php echo (isset($_GET['estado']) && $_GET['estado'] == 'Asignado') ? 'active' : ''; ?>">
+            <i class="fas fa-user-check me-1"></i>Asignados
+        </a>
+        <a href="listar.php?estado=En mantenimiento" class="btn btn-outline-info <?php echo (isset($_GET['estado']) && $_GET['estado'] == 'En mantenimiento') ? 'active' : ''; ?>">
+            <i class="fas fa-tools me-1"></i>En mantenimiento
+        </a>
+        <a href="listar.php?estado=Baja" class="btn btn-outline-danger <?php echo (isset($_GET['estado']) && $_GET['estado'] == 'Baja') ? 'active' : ''; ?>">
+            <i class="fas fa-trash-alt me-1"></i>Dados de baja
+        </a>
+    </div>
+</div>
                     
                     <!-- Mensajes de éxito/error -->
                     <?php if (isset($_GET['mensaje'])): ?>
