@@ -59,10 +59,10 @@ if ($tiene_movimientos || $tiene_asignaciones) {
 // ============================================
 // ELIMINACIÓN LÓGICA (SOFT DELETE)
 // ============================================
-$usuario_actual = $_SESSION['user_id'];
-$sql = "UPDATE personas SET fecha_eliminacion = NOW(), eliminado_por = ? WHERE id = ?";
+// Nota: el campo eliminado_por no existe en la tabla actual.
+$sql = "UPDATE personas SET fecha_eliminacion = NOW() WHERE id = ?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $usuario_actual, $id);
+$stmt->bind_param("i", $id);
 
 if ($stmt->execute()) {
     header('Location: listar.php?mensaje=' . urlencode("✅ Persona eliminada (lógicamente): $nombre_persona"));

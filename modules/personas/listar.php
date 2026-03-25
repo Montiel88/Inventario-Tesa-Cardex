@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 
 // Verificar autenticación
@@ -92,7 +92,7 @@ if ($result_elim) {
                     <!-- Enlace para ver eliminados (solo admin) -->
                     <?php if ($es_admin && $total_eliminadas > 0): ?>
                         <div class="mb-3">
-                            <a href="eliminadas.php" class="text-danger"><i class="fas fa-trash-alt me-1"></i>Ver personas eliminadas (<?php echo $total_eliminadas; ?>)</a>
+                            <a href="listar_eliminados.php" class="text-danger"><i class="fas fa-trash-alt me-1"></i>Ver personas eliminadas (<?php echo $total_eliminadas; ?>)</a>
                         </div>
                     <?php endif; ?>
 
@@ -182,7 +182,7 @@ if ($result_elim) {
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle me-2"></i>No hay personas activas registradas.
                             <?php if ($es_admin && $total_eliminadas > 0): ?>
-                                <a href="eliminadas.php" class="alert-link ms-2">Ver personas eliminadas</a>
+                                <a href="listar_eliminados.php" class="alert-link ms-2">Ver personas eliminadas</a>
                             <?php endif; ?>
                             <?php if ($es_admin && $total_eliminadas == 0): ?>
                                 <a href="agregar.php" class="alert-link ms-2">Agregar primera persona</a>

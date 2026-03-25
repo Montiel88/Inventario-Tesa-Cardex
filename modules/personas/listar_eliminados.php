@@ -16,10 +16,9 @@ if ($_SESSION['user_rol'] != 1) {
 require_once '../../config/database.php';
 include '../../includes/header.php';
 
-// Consultar personas eliminadas
-$sql = "SELECT p.*, u.nombre as eliminado_por_nombre 
+// Consultar personas eliminadas (la columna eliminado_por no existe en la tabla actual)
+$sql = "SELECT p.* 
         FROM personas p
-        LEFT JOIN usuarios u ON p.eliminado_por = u.id
         WHERE p.fecha_eliminacion IS NOT NULL
         ORDER BY p.fecha_eliminacion DESC";
 $result = $conn->query($sql);
@@ -66,7 +65,7 @@ $result = $conn->query($sql);
                                         <td><?php echo htmlspecialchars($row['correo']); ?></td>
                                         <td><?php echo htmlspecialchars($row['telefono']); ?></td>
                                         <td><?php echo date('d/m/Y H:i', strtotime($row['fecha_eliminacion'])); ?></td>
-                                        <td><?php echo htmlspecialchars($row['eliminado_por_nombre'] ?? 'Desconocido'); ?></td>
+                                        <td><?php echo 'No disponible'; ?></td>
                                     </tr>
                                     <?php endwhile; ?>
                                 </tbody>
