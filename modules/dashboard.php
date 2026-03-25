@@ -95,38 +95,44 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
 }
 .institution-title {
     text-align: center;
-    margin: 20px 0 30px 0;
-    padding: 25px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 100%);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(90, 45, 140, 0.1);
-    border: 1px solid rgba(243, 178, 41, 0.2);
+    margin: 20px 0 40px 0;
+    padding: 40px;
+    background: rgba(10, 1, 24, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 30px;
+    border: 1px solid rgba(243, 178, 41, 0.3);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
+
 .institution-title h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #5a2d8c 0%, #7b42a8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
+    font-size: 3.2rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+    letter-spacing: -1px;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
+
 .institution-title h2 {
-    font-size: 1.8rem;
-    color: #f3b229;
-    font-weight: 700;
-    letter-spacing: 4px;
-    margin-bottom: 8px;
+    font-size: 2.2rem;
+    color: var(--c-gold);
+    font-weight: 800;
+    letter-spacing: 10px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    text-shadow: 0 0 15px rgba(243, 178, 41, 0.5);
 }
+
 .institution-title .subtitle {
-    font-size: 1.1rem;
-    color: #666;
-    font-style: italic;
-    border-top: 2px solid #f3b229;
-    padding-top: 12px;
+    font-size: 1.3rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    border-top: 2px solid var(--c-gold);
+    padding-top: 15px;
     display: inline-block;
-    margin-top: 8px;
+    margin-top: 10px;
+    letter-spacing: 2px;
 }
 
 /* Estilos para las tarjetas del dashboard */
@@ -296,33 +302,6 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
 <!-- ============================================ -->
 <!-- CONTENIDO PRINCIPAL -->
 <!-- ============================================ -->
-<style>
-body {
-    background: linear-gradient(135deg, 
-        #f8f3ff 0%,
-        #efe5ff 20%,
-        #fef7e0 50%,
-        #fff2cc 80%,
-        #ffe6b3 100%) !important;
-    background-attachment: fixed !important;
-    min-height: 100vh !important;
-}
-
-/* Toque final: un sutil brillo dorado */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 70% 20%, rgba(243, 178, 41, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 30% 80%, rgba(90, 45, 140, 0.05) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-}
-</style>
-
 <div class="brand-watermark">
     <div class="content">
         

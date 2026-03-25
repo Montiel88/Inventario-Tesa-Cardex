@@ -38,15 +38,22 @@ $url_base = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP
 $url_destino = $url_base . '/inventario_ti/modules/personas/ver_equipos_qr.php?id=' . $persona_id;
 
 // Redirigir a la librería de generación de QR
-// Usaremos la librería phpqrcode que ya tienes en vendor/
-require_once '../vendor/phpqrcode/qrlib.php';
+require_once '../vendor/autoload.php';
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 
 // Configurar el QR
-$tamaño = 10; // Tamaño del QR (0-10)
-$level = QR_ECLEVEL_M; // Nivel de corrección de errores
-$margin = 2; // Margen
+$options = new QROptions([
+    'version'      => QRCode::VERSION_AUTO,
+    'outputType'   => QRCode::OUTPUT_IMAGE_PNG,
+    'eccLevel'     => QRCode::ECC_M,
+    'scale'        => 5,
+    'imageBase64'  => false,
+]);
 
 // Generar QR y enviarlo al navegador
-QRcode::png($url_destino, null, $level, $tamaño, $margin);
+header('Content-Type: image/png');
+header('Content-Disposition: inline; filename="qr_persona_' . $persona['cedula'] . '.png"');
+echo (new QRCode($options))->render($url_destino);
 exit();
 ?>

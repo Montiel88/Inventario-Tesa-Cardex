@@ -46,33 +46,22 @@ $url_base = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP
 $url_destino = $url_base . '/inventario_ti/modules/escaneo/verificar.php?codigo=' . $equipo['codigo_barras'];
 
 // Redirigir a la librería de generación de QR
-require_once '../vendor/phpqrcode/qrlib.php';
+require_once '../vendor/autoload.php';
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 
 // Configurar el QR
-$tamaño = 10;
-$level = QR_ECLEVEL_M;
-$margin = 2;
+$options = new QROptions([
+    'version'      => QRCode::VERSION_AUTO,
+    'outputType'   => QRCode::OUTPUT_IMAGE_PNG,
+    'eccLevel'     => QRCode::ECC_M,
+    'scale'        => 5,
+    'imageBase64'  => false,
+]);
 
-// Generar QR con los datos JSON
-// NOTA: qrlib.php no soporta directamente enviar al navegador, necesitamos guardar temporalmente
-
-// Crear directorio temporal si no existe
-$temp_dir = '../temp/';
-if (!file_exists($temp_dir)) {
-    mkdir($temp_dir, 0777, true);
-}
-
-$temp_file = $temp_dir . 'qr_' . $equipo_id . '.png';
-
-// Generar QR con la URL (más compatible)
-QRcode::png($url_destino, $temp_file, $level, $tamaño, $margin);
-
-// Enviar el archivo al navegador
+// Generar QR y enviarlo al navegador
 header('Content-Type: image/png');
-header('Content-Disposition: attachment; filename="qr_equipo_' . $equipo['codigo_barras'] . '.png"');
-readfile($temp_file);
-
-// Opcional: eliminar el archivo temporal después de enviarlo
-unlink($temp_file);
+header('Content-Disposition: inline; filename="qr_equipo_' . $equipo['codigo_barras'] . '.png"');
+echo (new QRCode($options))->render($url_destino);
 exit();
 ?>

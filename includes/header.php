@@ -41,13 +41,14 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
        TESA PREMIUM NAVBAR  —  DARK LUXURY GLASSMORPHISM
     ============================================================= */
     :root {
-        --c-bg:         #120228;
-        --c-deep:       #0d0118;
-        --c-mid:        #1e0840;
-        --c-violet:     #7c3aed;
+        --c-bg:         #0a0118;
+        --c-deep:       #05000a;
+        --c-mid:        #160530;
+        --c-violet:     #8b5cf6;
+        --c-violet-glow: rgba(139, 92, 246, 0.4);
         --c-gold:       #f3b229;
         --c-gold-lt:    #ffd166;
-        --c-gold-glow:  rgba(243,178,41,0.35);
+        --c-gold-glow:  rgba(243, 178, 41, 0.4);
         --c-danger:     #f43f5e;
         --c-success:    #10b981;
         --c-info:       #06b6d4;
@@ -60,10 +61,94 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         --r:            12px;
         --ease:         cubic-bezier(.4,0,.2,1);
         --font:         'Outfit','Poppins',sans-serif;
+        front :var(--c-bg)
+        -cal_from_jd :var(--c-mid)
     }
 
     * { box-sizing: border-box; }
-    body { font-family: var(--font); background: #f4f0fa; margin: 0; }
+    body { 
+        font-family: var(--font); 
+        background: var(--c-deep); 
+        color: #fff;
+        margin: 0; 
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* ── Global Readable Cards & Alerts ──────────────── */
+    .card {
+        background: rgba(255, 255, 255, 0.04) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 20px !important;
+        color: #fff !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .card-header {
+        background: rgba(255, 255, 255, 0.03) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        color: #fff !important;
+        padding: 1rem 1.5rem !important;
+    }
+
+    .card-title, .card-text, .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+        color: #fff !important;
+    }
+
+    .text-muted {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .alert {
+        background: rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 16px !important;
+        color: #fff !important;
+    }
+
+    .alert-warning { border-left: 4px solid var(--c-gold) !important; }
+    .alert-info { border-left: 4px solid var(--c-info) !important; }
+    .alert-success { border-left: 4px solid var(--c-success) !important; }
+    .alert-danger { border-left: 4px solid var(--c-danger) !important; }
+
+    /* Fix for light cards in some modules */
+    [class*="bg-white"], [style*="background-color: white"], [style*="background: white"] {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: #fff !important;
+    }
+
+    /* Tables legibility */
+    .table { color: #fff !important; }
+    .table thead th { color: var(--c-gold) !important; border-bottom: 2px solid rgba(243, 178, 41, 0.3) !important; }
+    .table td { border-color: rgba(255, 255, 255, 0.05) !important; }
+    .table-hover tbody tr:hover { background-color: rgba(255, 255, 255, 0.03) !important; }
+
+    /* ── Spectacular LED Background ────────────────────── */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: 
+            radial-gradient(circle at 10% 10%, var(--c-violet-glow) 0%, transparent 40%),
+            radial-gradient(circle at 90% 10%, var(--c-gold-glow) 0%, transparent 40%),
+            radial-gradient(circle at 50% 50%, #1a0533 0%, var(--c-deep) 100%);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    body::after {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+        z-index: -1;
+        pointer-events: none;
+        opacity: 0.4;
+    }
 
     /* ── Navbar shell ─────────────────────────────────── */
     .tn {
