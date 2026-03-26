@@ -126,14 +126,15 @@ if (!$result) {
     </div>
 </div>
 
-<!-- Bootstrap JS (para tooltips) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap JS (para tooltips - YA INCLUIDO EN EL HEADER) -->
 <script>
-// Inicializar tooltips
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl)
-})
+// Inicializar tooltips con la versión de Bootstrap cargada en el header
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+});
 </script>
 
 <?php include '../../includes/footer.php'; ?>

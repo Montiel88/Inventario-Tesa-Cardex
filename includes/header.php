@@ -696,15 +696,15 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     /* ── Search overlay ───────────────────────────────── */
     .tn-search-overlay {
         position: fixed;
-        top: var(--h); left: 0; right: 0;
+        top: var(--h); left: 0; right: 0; bottom: 0;
         z-index: 1039;
         display: none;
-        justify-content: center;
-        padding: 16px 24px;
-        background: rgba(10,1,22,0.93);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        border-bottom: 1px solid rgba(124,58,237,0.18);
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 24px;
+        background: rgba(10,1,22,0.96);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
         box-shadow: 0 18px 50px rgba(0,0,0,0.45);
     }
 
@@ -820,21 +820,33 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     .tn-notif-panel {
         position: fixed;
         top: calc(var(--h) + 10px); right: 20px;
-        width: 370px; max-width: calc(100vw - 32px);
-        background: rgba(12,2,26,0.97);
-        backdrop-filter: blur(22px);
-        -webkit-backdrop-filter: blur(22px);
-        border: 1px solid rgba(124,58,237,0.22);
-        border-radius: 20px;
-        box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04) inset;
-        z-index: 1050;
+        width: 380px; max-width: calc(100vw - 40px);
+        background: rgba(15, 5, 30, 0.98) !important;
+        backdrop-filter: blur(25px) saturate(1.8) !important;
+        -webkit-backdrop-filter: blur(25px) saturate(1.8) !important;
+        border: 1px solid rgba(124, 58, 237, 0.3) !important;
+        border-radius: 24px !important;
+        box-shadow: 0 30px 100px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
+        z-index: 10002 !important;
         display: none; flex-direction: column; overflow: hidden;
+        animation: panelIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .tn-notif-panel.show {
-        display: flex;
-        animation: panelIn 0.22s var(--ease);
+    .tn-notif-panel.show { display: flex; }
+
+    /* Overlay global para cerrar paneles */
+    .tn-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        z-index: 1038;
+        display: none;
+        animation: fadeIn 0.3s ease;
     }
+    .tn-overlay.active { display: block; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     @keyframes panelIn {
         from { opacity: 0; transform: translateY(-10px) scale(0.97); }
@@ -1136,7 +1148,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                 <div class="tn-sep"></div>
 
                 <button class="tn-icon-btn" id="notifBtn"
-                        onclick="toggleNotificationPanel()" type="button" title="Notificaciones">
+                        onclick="toggleNotifications()" type="button" title="Notificaciones">
                     <i class="fas fa-bell"></i>
                     <span class="tn-badge" id="notificationBadgeHeader"></span>
                 </button>
@@ -1155,6 +1167,26 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         </div><!-- /collapse -->
     </div>
 </nav>
+
+<!-- Overlay global -->
+<div class="tn-overlay" id="globalOverlay" onclick="closeAllPanels()"></div>
+
+<!-- Panel de notificaciones -->
+<div class="tn-notif-panel" id="notifPanel">
+    <div class="tn-notif-head">
+        <h6><i class="fas fa-bell me-2"></i>Notificaciones</h6>
+        <button class="tn-notif-x" onclick="closeAllPanels()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="tn-notif-list" id="notifList">
+        <div class="tn-notif-empty">
+            <i class="fas fa-spinner fa-spin fa-2x mb-3 d-block"></i>
+            Cargando notificaciones...
+        </div>
+    </div>
+    <div class="tn-notif-foot">
+        <a href="/inventario_ti/modules/admin/logs.php">Ver todo el historial</a>
+    </div>
+</div>
 
 <!-- Search overlay -->
 <?php if (isset($_SESSION['user_id'])): ?>
@@ -1179,29 +1211,62 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
 <?php endif; ?>
 
 <script>
+/* Global Panel Management */
+function closeAllPanels() {
+    const o=document.getElementById('globalOverlay'),
+          n=document.getElementById('notifPanel'),
+          s=document.getElementById('searchOverlay');
+    if(o)o.classList.remove('active');
+    if(n)n.classList.remove('show');
+    if(s)s.classList.remove('active');
+}
+
+function toggleNotifications() {
+    const p=document.getElementById('notifPanel'),
+          o=document.getElementById('globalOverlay');
+    if(!p)return;
+    const isShowing = p.classList.contains('show');
+    closeAllPanels();
+    if(!isShowing) {
+        p.classList.add('show');
+        if(o)o.classList.add('active');
+        if(typeof cargarNotificaciones === 'function') cargarNotificaciones();
+    }
+}
+
 /* Search System */
 (function(){
     const t=document.getElementById('searchTrigger'),
           o=document.getElementById('searchOverlay'),
+          v=document.getElementById('globalOverlay'),
           i=document.getElementById('searchInput'),
           c=document.getElementById('searchClose');
 
-    const open=()=>{ if(!o)return; o.classList.add('active'); setTimeout(()=>i&&i.focus(),80); };
-    const shut=()=>{ if(!o)return; o.classList.remove('active'); if(i)i.value=''; };
-
+    const open=()=>{ 
+        if(!o)return; 
+        closeAllPanels();
+        o.classList.add('active'); 
+        if(v)v.classList.add('active');
+        setTimeout(()=>i&&i.focus(),80); 
+    };
+    
     if(t)t.addEventListener('click',open);
-    if(c)c.addEventListener('click',shut);
-    document.addEventListener('keydown',e=>{
-        if(e.key==='Escape')shut();
-        if((e.ctrlKey||e.metaKey)&&(e.key==='k' || e.key==='f')){
+    if(c)c.addEventListener('click',closeAllPanels);
+    
+    // Atajo de teclado CTRL + F
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'f' || e.key === 'k')) {
             e.preventDefault();
             open();
         }
+        if (e.key === 'Escape') closeAllPanels();
     });
 
     const searchInput = document.getElementById('searchInput');
     const resultsContainer = document.getElementById('searchResultsContainer');
     const filters = document.querySelectorAll('.tn-search-filter');
+
+    if (!searchInput || !resultsContainer) return;
 
     let activeFilters = ['todos'];
 
@@ -1213,11 +1278,12 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                 filters.forEach(f => f.classList.remove('active'));
                 filter.classList.add('active');
             } else {
-                document.querySelector('.tn-search-filter[data-filter="todos"]').classList.remove('active');
+                const todosBtn = document.querySelector('.tn-search-filter[data-filter="todos"]');
+                if(todosBtn) todosBtn.classList.remove('active');
                 filter.classList.toggle('active');
                 activeFilters = Array.from(document.querySelectorAll('.tn-search-filter.active')).map(f => f.dataset.filter);
                 if (activeFilters.length === 0) {
-                    document.querySelector('.tn-search-filter[data-filter="todos"]').classList.add('active');
+                    if(todosBtn) todosBtn.classList.add('active');
                     activeFilters = ['todos'];
                 }
             }
@@ -1241,7 +1307,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                 resultsContainer.innerHTML = '';
                 let html = '';
 
-                if (data.equipos.length > 0) {
+                if (data.equipos && data.equipos.length > 0) {
                     html += `<div class="search-result-category">Equipos</div>`;
                     data.equipos.forEach(item => {
                         html += `
@@ -1255,7 +1321,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                     });
                 }
 
-                if (data.personas.length > 0) {
+                if (data.personas && data.personas.length > 0) {
                     html += `<div class="search-result-category">Personas</div>`;
                     data.personas.forEach(item => {
                         html += `
@@ -1269,7 +1335,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                     });
                 }
 
-                if (data.componentes.length > 0) {
+                if (data.componentes && data.componentes.length > 0) {
                     html += `<div class="search-result-category">Componentes</div>`;
                     data.componentes.forEach(item => {
                         html += `
@@ -1296,4 +1362,4 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
 </div>
 <?php endif; ?>
 
-<main class="container mt-4">
+<main>
