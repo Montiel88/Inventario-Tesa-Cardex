@@ -449,50 +449,64 @@ body::before {
 
 /* ===== TARJETAS CON EFECTO FLOTANTE ===== */
 .card {
-    border: none;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(5px);
-    box-shadow: var(--tesa-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 24px !important;
+    background: rgba(20, 5, 40, 0.85) !important;
+    backdrop-filter: blur(20px) saturate(1.8) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(1.8) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
     transition: var(--transition);
     position: relative;
     overflow: hidden;
-    animation: fadeInScale 0.5s ease;
     margin-bottom: 30px;
 }
 
-@keyframes fadeInScale {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--tesa-purple), var(--tesa-gold), var(--tesa-purple));
-    transform: translateX(-100%);
-    transition: transform 0.5s;
-}
-
-.card:hover::before {
-    transform: translateX(100%);
-}
-
-.card:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--tesa-shadow-hover);
-}
-
 .card-header {
-    background: transparent;
-    border-bottom: 1px solid rgba(90, 45, 140, 0.1);
-    color: var(--tesa-purple);
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
     font-weight: 600;
     padding: 20px;
+}
+
+.card-body {
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Tablas legibilidad */
+.table {
+    color: #fff !important;
+    background: transparent !important;
+}
+
+.table thead th {
+    background: rgba(139, 92, 246, 0.15) !important;
+    color: var(--tesa-gold) !important;
+    border-bottom: 2px solid var(--tesa-gold) !important;
+    padding: 15px !important;
+}
+
+.table tbody td {
+    background: transparent !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Remover fondos blancos de listas */
+.list-group-item {
+    background: transparent !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.bg-white, .bg-light {
+    background-color: transparent !important;
+    color: #fff !important;
 }
 
 .card-header h2, .card-header h4 {

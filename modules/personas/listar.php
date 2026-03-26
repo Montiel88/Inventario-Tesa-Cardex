@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 
 // Verificar autenticación
@@ -262,28 +262,28 @@ document.addEventListener('DOMContentLoaded', function() {
 .search-icon {
     position: absolute;
     right: 10px;
-    color: #5a2d8c;
+    color: var(--c-gold);
     font-size: 1.2rem;
     cursor: pointer;
     z-index: 2;
     transition: all 0.3s ease;
-    background: white;
+    background: rgba(255, 255, 255, 0.1);
     padding: 8px;
     border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 15px rgba(0,0,0,0.2);
 }
 
 .search-input {
     width: 0;
     padding: 8px 0;
-    border: 2px solid #5a2d8c;
+    border: 2px solid var(--c-violet);
     border-radius: 30px;
     font-size: 1rem;
     outline: none;
     opacity: 0;
     transition: width 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
-    background: white;
-    color: #333;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
 }
 
 /* Al hacer hover sobre el contenedor, el input se expande */
@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .search-wrapper:hover .search-icon {
-    background: #5a2d8c;
+    background: var(--c-violet);
     color: white;
     transform: scale(1.1);
     right: 10px; /* se mantiene a la derecha */
@@ -321,11 +321,11 @@ document.addEventListener('DOMContentLoaded', function() {
     .table tbody tr {
         display: block !important;
         margin-bottom: 20px !important;
-        border: 1px solid #e0e0e0 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
         border-radius: 15px !important;
         padding: 15px !important;
-        background: white !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
     }
     
     .table tbody td {
@@ -334,10 +334,11 @@ document.addEventListener('DOMContentLoaded', function() {
         align-items: center !important;
         padding: 10px 8px !important;
         border: none !important;
-        border-bottom: 1px dashed #eee !important;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.1) !important;
         font-size: 14px !important;
         white-space: normal !important;
         word-break: break-word !important;
+        color: #fff !important;
     }
     
     .table tbody td:last-child {
@@ -347,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
     .table tbody td:before {
         content: attr(data-label) !important;
         font-weight: 700 !important;
-        color: #5a2d8c !important;
+        color: var(--c-gold) !important;
         margin-right: 15px !important;
         min-width: 90px !important;
         font-size: 13px !important;

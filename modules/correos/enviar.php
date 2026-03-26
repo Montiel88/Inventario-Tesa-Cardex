@@ -119,6 +119,10 @@ if ($check_table && $check_table->num_rows > 0) {
         $email_enviado ? "Correo enviado a {$persona['nombres']}: {$asunto}" : "Error al enviar correo a {$persona['nombres']}: {$error_email}",
         $email_enviado ? "/inventario_ti/modules/correos/historial.php?id={$correo_id}" : null
     );
+    
+    // Registrar log de la operación
+    require_once '../../includes/logs_functions.php';
+    registrarLog($conn, 'Enviar correo', "Destinatario: {$persona['email']}, Asunto: {$asunto}", $usuario_id);
 }
 
 $conn->close();

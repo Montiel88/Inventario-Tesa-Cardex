@@ -35,7 +35,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     <link rel="stylesheet" href="/inventario_ti/assets/css/estilo.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
+    
     <style>
     /* =============================================================
        TESA PREMIUM NAVBAR  —  DARK LUXURY GLASSMORPHISM
@@ -61,6 +61,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         --r:            12px;
         --ease:         cubic-bezier(.4,0,.2,1);
         --font:         'Outfit','Poppins',sans-serif;
+    
         
     
     }
@@ -77,55 +78,183 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     }
 
     /* ── Global Readable Cards & Alerts ──────────────── */
-    .card {
-        background: rgba(255, 255, 255, 0.04) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 20px !important;
+    .card, .modal-content, .list-group-item, .alert {
+        background: rgba(20, 5, 45, 0.9) !important;
+        backdrop-filter: blur(25px) saturate(2) !important;
+        -webkit-backdrop-filter: blur(25px) saturate(2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 24px !important;
         color: #fff !important;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3) !important;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7) !important;
     }
 
-    .card-header {
+    .card-header, .modal-header, .table thead th {
+        background: rgba(139, 92, 246, 0.2) !important;
+        border-bottom: 2px solid var(--c-gold) !important;
+        color: var(--c-gold) !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .card-body, .modal-body, .table-responsive, .table {
+        background: transparent !important;
+        color: #fff !important;
+    }
+
+    /* Tables legibility - AGGRESSIVE FIX */
+    .table { 
+        color: #fff !important; 
+        border-collapse: separate !important;
+        border-spacing: 0 8px !important;
+    }
+    .table thead th { 
+        background: rgba(139, 92, 246, 0.25) !important;
+        color: var(--c-gold) !important; 
+        border: none !important;
+        border-bottom: 2px solid var(--c-gold) !important;
+        padding: 15px !important;
+    }
+    .table tbody tr {
         background: rgba(255, 255, 255, 0.03) !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        transition: all 0.3s ease;
+    }
+    .table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+        transform: scale(1.002);
+    }
+    .table tbody td { 
+        border: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        padding: 15px !important;
         color: #fff !important;
-        padding: 1rem 1.5rem !important;
+        background: transparent !important;
     }
 
-    .card-title, .card-text, .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
-        color: #fff !important;
-    }
-
-    .text-muted {
-        color: rgba(255, 255, 255, 0.6) !important;
-    }
-
-    .alert {
+    /* Input & Forms visibility */
+    .form-control, .form-select, .input-group-text, .form-check-input, select, .select2-container--bootstrap-5 .select2-selection {
         background: rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(10px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 16px !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+    }
+
+    /* Fix for form-select arrow color to be white */
+    .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 16px 12px !important;
+    }
+
+    /* Estilo para las opciones de los selectores (dropdown nativo) */
+    select option {
+        background-color: #1a0533 !important;
         color: #fff !important;
     }
 
-    .alert-warning { border-left: 4px solid var(--c-gold) !important; }
-    .alert-info { border-left: 4px solid var(--c-info) !important; }
-    .alert-success { border-left: 4px solid var(--c-success) !important; }
-    .alert-danger { border-left: 4px solid var(--c-danger) !important; }
+    .form-control:focus, .form-select:focus {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: var(--c-violet) !important;
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.3) !important;
+        color: #fff !important;
+    }
 
-    /* Fix for light cards in some modules */
-    [class*="bg-white"], [style*="background-color: white"], [style*="background: white"] {
+    /* Corregir selectores de iconos o dropdowns personalizados que se ven blancos */
+    .dropdown-menu {
+        background: rgba(20, 5, 45, 0.98) !important;
+        backdrop-filter: blur(25px) saturate(2) !important;
+        -webkit-backdrop-filter: blur(25px) saturate(2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8) !important;
+        padding: 10px !important;
+    }
+
+    .dropdown-item {
+        color: rgba(255, 255, 255, 0.8) !important;
+        border-radius: 12px !important;
+        padding: 10px 15px !important;
+        margin-bottom: 2px !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .dropdown-item:hover {
+        background: linear-gradient(90deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.1)) !important;
+        color: #fff !important;
+        transform: translateX(5px);
+    }
+
+    .dropdown-divider {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    /* Force NO WHITE anywhere */
+    .bg-white, .bg-light, .list-group-item-action, 
+    [class*="bg-white"], [class*="bg-light"],
+    [style*="background: white"], [style*="background-color: white"],
+    [style*="background: #fff"], [style*="background-color: #fff"],
+    [style*="background: #ffffff"], [style*="background-color: #ffffff"],
+    [style*="background: #f8f9fa"], [style*="background-color: #f8f9fa"],
+    .modal-body, .modal-footer, .card-footer {
+        background: rgba(255, 255, 255, 0.05) !important;
         background-color: rgba(255, 255, 255, 0.05) !important;
         color: #fff !important;
     }
 
-    /* Tables legibility */
-    .table { color: #fff !important; }
-    .table thead th { color: var(--c-gold) !important; border-bottom: 2px solid rgba(243, 178, 41, 0.3) !important; }
-    .table td { border-color: rgba(255, 255, 255, 0.05) !important; }
-    .table-hover tbody tr:hover { background-color: rgba(255, 255, 255, 0.03) !important; }
+    /* Select2 Dark Global Fix */
+    .select2-container--default .select2-selection--single,
+    .select2-container--default .select2-selection--multiple,
+    .select2-container--bootstrap-5 .select2-selection {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        height: auto !important;
+        min-height: 45px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered,
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+        color: #fff !important;
+        line-height: 40px !important;
+    }
+
+    .select2-dropdown {
+        background: rgba(20, 5, 45, 0.98) !important;
+        backdrop-filter: blur(20px) !important;
+        border: 1px solid var(--c-violet) !important;
+        color: #fff !important;
+    }
+
+    .select2-results__option--highlighted[aria-selected] {
+        background-color: var(--c-violet) !important;
+    }
+
+    .select2-results__option[aria-selected=true] {
+        background-color: rgba(139, 92, 246, 0.3) !important;
+    }
+
+    .text-dark, .text-black, .text-muted, [style*="color: black"], [style*="color: #000"], [style*="color: #333"] {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+
+    /* Buttons Fix */
+    .btn-outline-primary, .btn-outline-secondary, .btn-outline-success, .btn-outline-info, .btn-outline-warning, .btn-outline-danger {
+        border-width: 2px !important;
+    }
+
+    /* Badges */
+    .badge {
+        padding: 0.6em 1em !important;
+        border-radius: 10px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.5px;
+    }
 
     /* ── Spectacular LED Background ────────────────────── */
     body::before {
@@ -426,20 +555,21 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     .tn .dropdown-item .di {
         width: 34px; height: 34px;
         border-radius: 10px;
-        background: rgba(124, 58, 237, 0.15);
-        border: 1px solid rgba(124, 58, 237, 0.25);
+        background: rgba(243, 178, 41, 0.1);
+        border: 1px solid rgba(243, 178, 41, 0.2);
         display: flex; align-items: center; justify-content: center;
-        font-size: 0.85rem; color: var(--c-gold);
+        font-size: 0.85rem; color: var(--c-gold-lt);
         flex-shrink: 0;
         transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 0 15px rgba(243, 178, 41, 0.2);
     }
 
     .tn .dropdown-item:hover .di {
-        background: rgba(243, 178, 41, 0.2);
-        border-color: var(--c-gold);
-        color: #fff;
+        background: var(--c-gold);
+        border-color: var(--c-gold-lt);
+        color: var(--c-deep);
         transform: scale(1.15) rotate(-5deg);
-        box-shadow: 0 0 15px rgba(243, 178, 41, 0.3);
+        box-shadow: 0 0 25px rgba(243, 178, 41, 0.5);
     }
 
     .tn .dropdown-header {
@@ -627,6 +757,64 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     }
 
     .tn-s-close:hover { background: rgba(244,63,94,0.2); color: #fff; }
+
+    .tn-search-filters {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .tn-search-filter {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-radius: 10px;
+        padding: 5px 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .tn-search-filter.active, .tn-search-filter:hover {
+        background: var(--c-violet);
+        border-color: var(--c-violet);
+        box-shadow: 0 0 15px var(--c-violet-glow);
+    }
+
+    #searchResultsContainer {
+        margin-top: 10px;
+        background: rgba(20, 5, 45, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .search-result-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: background 0.3s;
+    }
+
+    .search-result-item:hover {
+        background: rgba(139, 92, 246, 0.2);
+    }
+
+    .search-result-item .icon {
+        font-size: 1.2rem;
+        color: var(--c-gold);
+    }
+
+    .search-result-item .title {
+        font-weight: 600;
+    }
+
+    .search-result-item .subtitle {
+        font-size: 0.8rem;
+        color: var(--c-w60);
+    }
 
     /* ── Notification panel ───────────────────────────── */
     .tn-notif-panel {
@@ -975,11 +1163,18 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         <span class="tn-s-icon"><i class="fas fa-magnifying-glass"></i></span>
         <input type="text" name="q" id="searchInput" class="tn-s-input"
                placeholder="Buscar equipos, personas, componentes…" autocomplete="off">
-        <span class="tn-s-hint">ESC para cerrar &nbsp;·&nbsp; Ctrl+K</span>
+        <span class="tn-s-hint">ESC para cerrar &nbsp;·&nbsp; Ctrl+K / F</span>
         <button type="button" class="tn-s-close" id="searchClose">
             <i class="fas fa-xmark"></i>
         </button>
     </form>
+    <div class="tn-search-filters">
+        <button class="tn-search-filter active" data-filter="todos">Todos</button>
+        <button class="tn-search-filter" data-filter="equipos">Equipos</button>
+        <button class="tn-search-filter" data-filter="personas">Personas</button>
+        <button class="tn-search-filter" data-filter="componentes">Componentes</button>
+    </div>
+    <div id="searchResultsContainer"></div>
 </div>
 <?php endif; ?>
 
@@ -998,8 +1193,99 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     if(c)c.addEventListener('click',shut);
     document.addEventListener('keydown',e=>{
         if(e.key==='Escape')shut();
-        if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();open();}
+        if((e.ctrlKey||e.metaKey)&&(e.key==='k' || e.key==='f')){
+            e.preventDefault();
+            open();
+        }
     });
+
+    const searchInput = document.getElementById('searchInput');
+    const resultsContainer = document.getElementById('searchResultsContainer');
+    const filters = document.querySelectorAll('.tn-search-filter');
+
+    let activeFilters = ['todos'];
+
+    filters.forEach(filter => {
+        filter.addEventListener('click', () => {
+            const filterValue = filter.dataset.filter;
+            if (filterValue === 'todos') {
+                activeFilters = ['todos'];
+                filters.forEach(f => f.classList.remove('active'));
+                filter.classList.add('active');
+            } else {
+                document.querySelector('.tn-search-filter[data-filter="todos"]').classList.remove('active');
+                filter.classList.toggle('active');
+                activeFilters = Array.from(document.querySelectorAll('.tn-search-filter.active')).map(f => f.dataset.filter);
+                if (activeFilters.length === 0) {
+                    document.querySelector('.tn-search-filter[data-filter="todos"]').classList.add('active');
+                    activeFilters = ['todos'];
+                }
+            }
+            performSearch();
+        });
+    });
+
+    searchInput.addEventListener('input', performSearch);
+
+    function performSearch() {
+        const query = searchInput.value;
+
+        if (query.length < 2) {
+            resultsContainer.innerHTML = '';
+            return;
+        }
+
+        fetch(`/inventario_ti/api/busqued-inteligente.php?q=${query}&filtros=${JSON.stringify(activeFilters)}`)
+            .then(response => response.json())
+            .then(data => {
+                resultsContainer.innerHTML = '';
+                let html = '';
+
+                if (data.equipos.length > 0) {
+                    html += `<div class="search-result-category">Equipos</div>`;
+                    data.equipos.forEach(item => {
+                        html += `
+                            <a href="/inventario_ti/modules/equipos/editar.php?id=${item.id}" class="search-result-item">
+                                <div class="icon"><i class="fas fa-desktop"></i></div>
+                                <div>
+                                    <div class="title">${item.tipo_equipo} ${item.marca} ${item.modelo}</div>
+                                    <div class="subtitle">${item.codigo_barras} - ${item.estado}</div>
+                                </div>
+                            </a>`;
+                    });
+                }
+
+                if (data.personas.length > 0) {
+                    html += `<div class="search-result-category">Personas</div>`;
+                    data.personas.forEach(item => {
+                        html += `
+                            <a href="/inventario_ti/modules/personas/editar.php?id=${item.id}" class="search-result-item">
+                                <div class="icon"><i class="fas fa-user"></i></div>
+                                <div>
+                                    <div class="title">${item.nombres}</div>
+                                    <div class="subtitle">${item.cedula} - ${item.correo}</div>
+                                </div>
+                            </a>`;
+                    });
+                }
+
+                if (data.componentes.length > 0) {
+                    html += `<div class="search-result-category">Componentes</div>`;
+                    data.componentes.forEach(item => {
+                        html += `
+                            <a href="/inventario_ti/modules/componentes/editar.php?id=${item.id}" class="search-result-item">
+                                <div class="icon"><i class="fas fa-microchip"></i></div>
+                                <div>
+                                    <div class="title">${item.nombre} ${item.marca} ${item.modelo}</div>
+                                    <div class="subtitle">${item.tipo}</div>
+                                </div>
+                            </a>`;
+                    });
+                }
+
+                resultsContainer.innerHTML = html;
+            });
+    }
 })();
 </script>
 

@@ -91,6 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     "/inventario_ti/modules/equipos/detalle.php?id=" . $equipo_id
                 );
                 
+                // Registrar log de la operación
+                require_once '../../includes/logs_functions.php';
+                registrarLog($conn, 'Crear equipo', "Código: {$codigo_barras}, Tipo: {$tipo_equipo}", $_SESSION['user_id']);
+                
                 $mensaje = "✅ Equipo registrado exitosamente. Código: $codigo_barras";
                 
                 // SweetAlert para generar acta

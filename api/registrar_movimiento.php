@@ -88,6 +88,10 @@ if ($datos) {
             $url
         );
         
+        // Registrar log de la operación
+        require_once __DIR__ . '/../includes/logs_functions.php';
+        registrarLog($conn, $tipo . ' producto', "Producto: {$producto_nombre}, Cantidad: {$cantidad}", $_SESSION['user_id']);
+        
         echo json_encode(['success' => true, 'mensaje' => 'Movimiento registrado correctamente']);
         
     } catch (Exception $e) {

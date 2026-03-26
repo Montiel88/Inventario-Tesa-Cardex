@@ -110,6 +110,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
                     "/inventario_ti/modules/equipos/detalle.php?id={$equipo_id}"
                 );
                 
+                // Registrar log de la operación
+                require_once '../../includes/logs_functions.php';
+                registrarLog($conn, 'Devolución equipo', "Equipo: {$asignacion['codigo_barras']}, Persona: {$asignacion['persona_nombre']}", $_SESSION['user_id']);
+                
                 $mensaje_adicional = ($estado_equipo != 'BUENO') ? ' Se ha creado un registro automático en Mantenimientos.' : '';
                 
                 echo "<script>

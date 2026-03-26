@@ -88,6 +88,10 @@ if (!empty($telefono) && !validarTelefono($telefono)) {
                     "/inventario_ti/modules/personas/detalle.php?id=" . $id_persona
                 );
                 
+                // Registrar log de la operación
+                require_once '../../includes/logs_functions.php';
+                registrarLog($conn, 'Crear persona', "Cédula: {$cedula}, Nombre: {$nombres}", $_SESSION['user_id']);
+                
                 $mensaje = "✅ Persona registrada exitosamente";
                 
                 // Redirigir después de 2 segundos

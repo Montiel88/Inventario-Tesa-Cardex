@@ -56,9 +56,9 @@ $result = $conn->query($sql);
             </div>
             <?php endif; ?>
             
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0"><i class="fas fa-laptop me-2"></i>Listado de Equipos</h4>
+            <div class="card shadow-sm border-0">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: rgba(139, 92, 246, 0.2) !important; border-bottom: 2px solid var(--c-gold) !important;">
+                    <h4 class="mb-0 text-white"><i class="fas fa-laptop me-2 text-warning"></i>Listado de Equipos</h4>
                     
                     <!-- Botones AGREGAR - Solo visible para admin -->
                     <?php if ($es_admin): ?>
@@ -95,7 +95,7 @@ $result = $conn->query($sql);
                     <!-- PESTAÑAS DE FILTRO POR ESTADO -->
 <div class="mb-3">
     <div class="btn-group w-100" role="group">
-        <a href="listar.php?estado=todos" class="btn btn-outline-primary <?php echo (!isset($_GET['estado']) || $_GET['estado'] == 'todos') ? 'active' : ''; ?>">
+        <a href="listar.php?estado=todos" class="btn btn-outline-light <?php echo (!isset($_GET['estado']) || $_GET['estado'] == 'todos') ? 'active' : ''; ?>">
             <i class="fas fa-list me-1"></i>Todos
         </a>
         <a href="listar.php?estado=Disponible" class="btn btn-outline-success <?php echo (isset($_GET['estado']) && $_GET['estado'] == 'Disponible') ? 'active' : ''; ?>">

@@ -89,11 +89,11 @@ $result = $conn->query($sql);
             </div>
             <?php endif; ?>
 
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0"><i class="fas fa-history me-2"></i><?php echo $titulo; ?></h4>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="background: rgba(139, 92, 246, 0.2) !important; border-bottom: 2px solid var(--c-gold) !important;">
+                    <h5 class="mb-0 text-white"><i class="fas fa-history me-2 text-warning"></i><?php echo $titulo; ?></h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-0">
                     
                     <!-- Botones de filtro -->
                     <div class="mb-3">
@@ -103,8 +103,8 @@ $result = $conn->query($sql);
                     
                     <?php if ($result && $result->num_rows > 0): ?>
                         <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
+                            <table class="table table-hover mb-0" id="tablaHistorial">
+                                <thead class="table-light" style="background: rgba(255,255,255,0.05) !important;">
                                     <tr>
                                         <?php if ($filtro == 'activos'): ?>
                                             <th>Fecha</th>
@@ -219,10 +219,10 @@ $result = $conn->query($sql);
     .table tbody tr {
         display: block !important;
         margin-bottom: 20px !important;
-        border: 1px solid #e0e0e0 !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
         border-radius: 15px !important;
         padding: 15px !important;
-        background: white !important;
+        background: rgba(255, 255, 255, 0.05) !important;
     }
     
     .table tbody td {
@@ -231,8 +231,9 @@ $result = $conn->query($sql);
         align-items: center !important;
         padding: 8px 5px !important;
         border: none !important;
-        border-bottom: 1px dashed #eee !important;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.1) !important;
         font-size: 13px !important;
+        color: #fff !important;
     }
     
     .table tbody td:last-child {
@@ -242,7 +243,7 @@ $result = $conn->query($sql);
     .table tbody td:before {
         content: attr(data-label) !important;
         font-weight: 700 !important;
-        color: #5a2d8c !important;
+        color: var(--c-gold) !important;
         margin-right: 10px !important;
         min-width: 80px !important;
         font-size: 12px !important;

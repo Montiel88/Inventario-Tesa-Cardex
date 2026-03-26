@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'config/database.php';
+require_once 'includes/logs_functions.php';
 
 if (isset($_SESSION['user_id'])) {
     header('Location: modules/dashboard.php');
@@ -12,11 +13,12 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $conn->real_escape_string($_POST['email']);
     $password = $_POST['password'];
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
     
     $stmt = $conn->prepare("SELECT id, nombre, email, password, rol FROM usuarios WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
-    $result = $stmt->get_result();
+    $result = $result = $stmt->get_result();
     
     if ($result->num_rows == 1) {
         $user = $result->fetch_assoc();
@@ -37,13 +39,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['user_rol'] = $rol_numero;
             
+            // Registrar log de inicio de sesión exitoso
+            registrarLog($conn, 'Inicio de sesión', 'Usuario: ' . $user['email'], $user['id']);
+            
             header('Location: modules/dashboard.php');
             exit();
         } else {
             $error = "❌ Contraseña incorrecta";
+            // Registrar log de intento fallido
+            registrarLog($conn, 'Login fallido', 'Contraseña incorrecta para email: ' . $email, null);
         }
     } else {
         $error = "❌ Usuario no encontrado";
+        // Registrar log de intento fallido
+        registrarLog($conn, 'Login fallido', 'Usuario no encontrado: ' . $email, null);
     }
     $stmt->close();
 }

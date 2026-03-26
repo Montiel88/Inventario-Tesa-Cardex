@@ -62,6 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             "/inventario_ti/modules/componentes/detalle.php?id={$componente_id}"
         );
         
+        // Registrar log de la operación
+        require_once '../../includes/logs_functions.php';
+        registrarLog($conn, 'Asignar componente', "Componente: {$componente_nombre}, Persona: {$persona_nombre}", $_SESSION['user_id']);
+        
         header('Location: listar.php?mensaje=Componente asignado correctamente');
     } else {
         $error = "Error al asignar: " . $conn->error;
