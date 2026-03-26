@@ -485,15 +485,15 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                         <div class="col-md-6">
                             <table class="table table-bordered">
                                 <?php if ($es_admin): ?>
-                                <tr><th width="30%">Cédula</th><td><?php echo $persona['cedula']; ?></td></tr>
+                                 <tr><th width="30%">Cédula</th><td><?php echo $persona['cedula']; ?></td></tr>
                                 <?php endif; ?>
-                                <tr><th>Nombres</th><td><?php echo $persona['nombres']; ?></td></tr>
-                                <tr><th>Cargo</th><td><?php echo $persona['cargo']; ?></td></tr>
-                                <tr><th>Correo</th><td><?php echo $persona['correo'] ?: 'No registrado'; ?></td></tr>
+                                 <tr><th>Nombres</th><td><?php echo $persona['nombres']; ?></td></tr>
+                                 <tr><th>Cargo</th><td><?php echo $persona['cargo']; ?></td></tr>
+                                 <tr><th>Correo</th><td><?php echo $persona['correo'] ?: 'No registrado'; ?></td></tr>
                                 <?php if ($es_admin): ?>
-                                <tr><th>Teléfono</th><td><?php echo $persona['telefono'] ?: 'No registrado'; ?></td></tr>
+                                 <tr><th>Teléfono</th><td><?php echo $persona['telefono'] ?: 'No registrado'; ?></td></tr>
                                 <?php endif; ?>
-                            </table>
+                             </table>
                         </div>
                         
                         <div class="col-md-6">
@@ -604,6 +604,116 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
         </div>
     </div>
 </div>
-
 <?php endif; ?>
+                                               <!-- ============================================ -->
+                    <!-- EQUIPOS Y COMPONENTES - DOS COLUMNAS OCUPANDO TODO EL ANCHO -->
+                    <!-- ============================================ -->
+                    <div class="row mt-4">
+                        <!-- COLUMNA IZQUIERDA: EQUIPOS -->
+                        <div class="col-md-6 pe-md-2">
+                            <div class="card h-100">
+                                <div class="card-header bg-warning">
+                                    <h5 class="mb-0"><i class="fas fa-laptop me-2"></i>Equipos Asignados Actualmente</h5>
+                                </div>
+                                <div class="card-body">
+                                    <?php if ($total_equipos > 0): ?>
+                                        <?php foreach ($equipos_asignados as $eq): ?>
+                                        <div class="border rounded p-3 mb-2 bg-light">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <strong><?php echo htmlspecialchars($eq['tipo_equipo']); ?></strong>
+                                                    <br>
+                                                    <small class="text-muted"><?php echo htmlspecialchars($eq['marca'] . ' ' . $eq['modelo']); ?></small>
+                                                </div>
+                                                <span class="badge bg-secondary"><?php echo $eq['codigo_barras']; ?></span>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small><i class="fas fa-calendar-alt me-1"></i> Desde: <?php echo date('d/m/Y', strtotime($eq['fecha_asignacion'])); ?></small>
+                                            </div>
+                                            <div class="mt-2">
+                                                <a href="/inventario_ti/modules/equipos/detalle.php?id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-info">Ver</a>
+                                                <?php if ($es_admin): ?>
+                                                <a href="/inventario_ti/modules/movimientos/devolucion.php?equipo_id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-success">Devolver</a>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="fas fa-info-circle fa-2x mb-2"></i>
+                                            <p class="mb-0">No tiene equipos asignados actualmente.</p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- COLUMNA DERECHA: COMPONENTES -->
+                        <div class="col-md-6 ps-md-2">
+                            <div class="card h-100">
+                                <div class="card-header bg-info text-white">
+                                    <h5 class="mb-0"><i class="fas fa-microchip me-2"></i>Componentes Asignados Actualmente</h5>
+                                </div>
+                                <div class="card-body">
+                                    <?php if ($total_componentes > 0): ?>
+                                        <?php foreach ($componentes_directos as $comp): ?>
+                                        <div class="border rounded p-3 mb-2 bg-light">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <strong><?php echo htmlspecialchars($comp['tipo']); ?></strong>
+                                                    <br>
+                                                    <small><?php echo htmlspecialchars($comp['nombre_componente']); ?></small>
+                                                </div>
+                                                <span class="badge bg-info">Directo</span>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small><?php echo htmlspecialchars($comp['marca'] . ' ' . $comp['modelo']); ?></small>
+                                            </div>
+                                            <div class="mt-2">
+                                                <a href="/inventario_ti/modules/componentes/detalle.php?id=<?php echo $comp['id']; ?>" class="btn btn-sm btn-info">Ver</a>
+                                                <?php if ($es_admin): ?>
+                                                <a href="/inventario_ti/modules/componentes/devolver.php?id=<?php echo $comp['id']; ?>" class="btn btn-sm btn-warning">Devolver</a>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <?php endforeach; ?>
+                                        
+                                        <?php foreach ($componentes_asignados as $comp): ?>
+                                        <div class="border rounded p-3 mb-2 bg-light">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <strong><?php echo htmlspecialchars($comp['tipo']); ?></strong>
+                                                    <br>
+                                                    <small><?php echo htmlspecialchars($comp['nombre_componente']); ?></small>
+                                                </div>
+                                                <span class="badge bg-secondary">En equipo</span>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small><i class="fas fa-laptop me-1"></i> Equipo: <?php echo htmlspecialchars($comp['tipo_equipo']); ?></small>
+                                                <br>
+                                                <small><?php echo htmlspecialchars($comp['marca'] . ' ' . $comp['modelo']); ?></small>
+                                            </div>
+                                            <div class="mt-2">
+                                                <a href="/inventario_ti/modules/equipos/detalle.php?id=<?php echo $comp['equipo_id']; ?>" class="btn btn-sm btn-info">Ver Equipo</a>
+                                                <a href="/inventario_ti/modules/componentes/detalle.php?id=<?php echo $comp['id']; ?>" class="btn btn-sm btn-secondary">Componente</a>
+                                            </div>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="text-center py-4 text-muted">
+                                            <i class="fas fa-info-circle fa-2x mb-2"></i>
+                                            <p class="mb-0">No tiene componentes asignados actualmente.</p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div> <!-- cierra card-body -->
+            </div> <!-- cierra card -->
+        </div> <!-- cierra col-12 -->
+    </div> <!-- cierra row -->
+</div> <!-- cierra container-fluid -->
+
 <?php include '../../includes/footer.php'; ?>
