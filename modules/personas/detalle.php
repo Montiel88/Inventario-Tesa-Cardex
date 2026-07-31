@@ -347,6 +347,23 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
 .tracking-wider { letter-spacing: 1.5px; }
 .fw-900 { font-weight: 900; }
 .bg-white-bg-opacity-05 { background: rgba(255,255,255,0.05) !important; }
+
+.persona-topbar {
+    position: relative;
+    z-index: 1050;
+    overflow: visible;
+}
+
+.persona-topbar .card-header {
+    position: relative;
+    z-index: 1060;
+    overflow: visible;
+}
+
+.persona-topbar .dropdown,
+.persona-topbar .dropdown-menu {
+    z-index: 1070;
+}
 </style>
 
 <!-- MODAL PARA MOSTRAR QR -->
@@ -361,7 +378,7 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
 
 <div class="container-fluid py-4">
     <!-- Header Principal -->
-    <div class="card mb-4">
+    <div class="card mb-4 persona-topbar">
         <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
             <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i>Perfil de Usuario</h4>
             <div class="d-flex flex-wrap gap-2">

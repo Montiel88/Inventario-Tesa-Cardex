@@ -1066,7 +1066,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/traspaso.php">
                             <span class="di"><i class="fas fa-shuffle"></i></span>Traspaso de Custodio
                         </a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/prestamo.php">
+                        <li><a class="dropdown-item" href="/inventario_ti/modules/prestamos_rapidos/registrar.php">
                             <span class="di"><i class="fas fa-hand-holding"></i></span>Registrar Préstamo
                         </a></li>
                         <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/devolucion.php">
@@ -1301,7 +1301,8 @@ function toggleNotifications() {
             return;
         }
 
-        fetch(`/inventario_ti/api/busqued-inteligente.php?q=${query}&filtros=${JSON.stringify(activeFilters)}`)
+        const filtrosToSend = activeFilters.includes('todos') ? [] : activeFilters;
+        fetch(`/inventario_ti/api/busqued-inteligente.php?q=${encodeURIComponent(query)}&filtros=${encodeURIComponent(JSON.stringify(filtrosToSend))}`)
             .then(response => response.json())
             .then(data => {
                 resultsContainer.innerHTML = '';

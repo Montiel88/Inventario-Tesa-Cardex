@@ -174,7 +174,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <select name="estado" class="form-control">
                                     <option value="Disponible" <?php echo $equipo['estado'] == 'Disponible' ? 'selected' : ''; ?>>Disponible</option>
                                     <option value="Asignado" <?php echo $equipo['estado'] == 'Asignado' ? 'selected' : ''; ?>>Asignado</option>
-                                    <option value="Mantenimiento" <?php echo $equipo['estado'] == 'Mantenimiento' ? 'selected' : ''; ?>>Mantenimiento</option>
+                                    <option value="Prestado" <?php echo $equipo['estado'] == 'Prestado' ? 'selected' : ''; ?>>Prestado</option>
+                                    <option value="En mantenimiento" <?php echo $equipo['estado'] == 'En mantenimiento' ? 'selected' : ''; ?>>En mantenimiento</option>
                                     <option value="Baja" <?php echo $equipo['estado'] == 'Baja' ? 'selected' : ''; ?>>Baja</option>
                                 </select>
                             </div>

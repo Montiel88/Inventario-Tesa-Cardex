@@ -4,6 +4,12 @@ require_once '../config/database.php';
 
 $q = $_GET['q'] ?? '';
 $filtros = isset($_GET['filtros']) ? json_decode($_GET['filtros'], true) : [];
+if (!is_array($filtros)) {
+    $filtros = [];
+}
+if (in_array('todos', $filtros, true)) {
+    $filtros = [];
+}
 
 $resultados = [
     'equipos' => [],

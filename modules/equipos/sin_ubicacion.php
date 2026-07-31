@@ -123,8 +123,9 @@ $total_sin_ubicacion = $result->num_rows;
                                         $badge_color = 'secondary';
                                         if ($row['estado'] == 'Disponible') $badge_color = 'success';
                                         elseif ($row['estado'] == 'Asignado') $badge_color = 'primary';
-                                        elseif ($row['estado'] == 'Mantenimiento') $badge_color = 'warning';
-                                        elseif ($row['estado'] == 'Dañado') $badge_color = 'danger';
+                                        elseif ($row['estado'] == 'Prestado') $badge_color = 'info';
+                                        elseif ($row['estado'] == 'En mantenimiento') $badge_color = 'warning';
+                                        elseif ($row['estado'] == 'Baja') $badge_color = 'danger';
                                         ?>
                                         <span class="badge bg-<?php echo $badge_color; ?>">
                                             <?php echo htmlspecialchars($row['estado'] ?? 'Sin estado'); ?>
