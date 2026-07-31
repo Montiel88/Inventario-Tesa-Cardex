@@ -52,9 +52,9 @@ if (!$result) {
             <?php endif; ?>
 
             <?php if ($result->num_rows > 0): ?>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
+            <div class="table-responsive" style="max-height: 550px; overflow-y: auto !important; scrollbar-width: thin; scrollbar-color: var(--c-gold) transparent; border-radius: 15px;">
+                <table class="table table-hover mb-0">
+                    <thead class="sticky-top" style="z-index: 1; background: var(--c-deep);">
                         <tr>
                             <th>ID</th>
                             <th>Tipo</th>

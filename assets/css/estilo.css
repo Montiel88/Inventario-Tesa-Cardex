@@ -919,6 +919,34 @@ body::before {
     align-items: center !important;
 }
 
+/* ===== SCROLLBAR CUSTOM ===== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(20, 5, 40, 0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--c-violet) 0%, var(--c-gold) 100%);
+    border-radius: 10px;
+    border: 2px solid rgba(20, 5, 40, 0.8);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--c-gold) 0%, var(--c-violet) 100%);
+    box-shadow: 0 0 10px var(--c-gold-glow);
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--c-gold) rgba(20, 5, 40, 0.3);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
     .header-title h1 {
@@ -1451,7 +1479,7 @@ body::before {
 
 @media (min-width: 768px) {
     .table-responsive {
-        overflow: visible !important;
+        overflow-x: auto;
     }
 }
 

@@ -97,9 +97,9 @@ if ($result_elim) {
                     <?php endif; ?>
 
                     <?php if ($result && $result->num_rows > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="tablaPersonas">
-                                <thead>
+                        <div class="table-responsive" style="max-height: 550px; overflow-y: auto !important; scrollbar-width: thin; scrollbar-color: var(--c-gold) transparent; border-radius: 15px;">
+                            <table class="table table-hover mb-0" id="tablaPersonas">
+                                <thead class="sticky-top" style="z-index: 1; background: var(--c-deep);">
                                     <tr>
                                         <?php if ($es_admin): ?>
                                             <th>Cédula</th>

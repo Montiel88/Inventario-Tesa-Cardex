@@ -8,7 +8,7 @@ require_once '../../config/permisos.php';
 verificarSesion();
 requiereAdmin();
 
-require_once '../../config/database.php';
+require_once '../../config/database.php'; 
 require_once '../../config/listas.php';
 include '../../includes/header.php';
 

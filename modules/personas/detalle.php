@@ -299,7 +299,8 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
 /* NUEVOS ESTILOS REESTRUCTURACIÓN */
 .profile-avatar-container {
     position: relative;
-    width: 100px; height: 100px;
+    width: 120px; height: 120px;
+    margin-right: 2rem;
 }
 .profile-avatar {
     width: 100%; height: 100%;
@@ -347,6 +348,69 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
 .tracking-wider { letter-spacing: 1.5px; }
 .fw-900 { font-weight: 900; }
 .bg-white-bg-opacity-05 { background: rgba(255,255,255,0.05) !important; }
+
+/* EFECTOS DE BRILLO LED PARA TEXTO */
+.led-glow-white {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4), 0 0 20px rgba(139, 92, 246, 0.3);
+}
+.led-glow-gold {
+    color: var(--c-gold);
+    text-shadow: 0 0 8px rgba(243, 178, 41, 0.5);
+}
+.led-glow-success {
+    color: #10b981;
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+.led-glow-info {
+    color: #06b6d4;
+    text-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+}
+
+.profile-name {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 0.8rem;
+    font-weight: 900;
+}
+
+.profile-cargo {
+    font-size: 1rem;
+    letter-spacing: 3px;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    color: var(--c-gold) !important;
+}
+
+.contact-badge-premium {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 10px 20px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.contact-badge-premium:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--c-gold-glow);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.contact-badge-premium i {
+    font-size: 1.2rem;
+}
+
+.contact-badge-premium span {
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: #fff !important;
+}
 </style>
 
 <!-- MODAL PARA MOSTRAR QR -->
@@ -431,20 +495,35 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
                         <div class="d-flex align-items-center gap-4 w-100">
                             <div class="profile-avatar-container">
                                 <div class="profile-avatar">
-                                    <i class="fas fa-user-tie fa-3x text-white"></i>
+                                    <i class="fas fa-user-tie fa-4x text-white led-glow-white"></i>
                                 </div>
                                 <div class="profile-status-online"></div>
                             </div>
                             <div class="flex-grow-1">
-                                <h3 class="text-white fw-900 mb-1" style="letter-spacing: -0.5px;"><?php echo $persona['nombres']; ?></h3>
-                                <p class="text-warning small fw-bold mb-2 text-uppercase tracking-wider"><?php echo $persona['cargo']; ?></p>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <span class="badge bg-white bg-opacity-10 border border-white border-opacity-10 py-1 px-3 rounded-pill small">
-                                        <i class="fas fa-id-card me-1 opacity-50"></i> <?php echo $persona['cedula']; ?>
-                                    </span>
-                                    <span class="badge bg-white bg-opacity-10 border border-white border-opacity-10 py-1 px-3 rounded-pill small">
-                                        <i class="fas fa-envelope me-1 opacity-50"></i> <?php echo $persona['correo'] ?: 'Sin correo'; ?>
-                                    </span>
+                                <h1 class="profile-name fw-900 text-white led-glow-white mb-2" style="text-transform: capitalize;"><?php echo $persona['nombres']; ?></h1>
+                                <p class="profile-cargo text-warning fw-bold mb-4 text-uppercase tracking-wider led-glow-gold"><?php echo $persona['cargo']; ?></p>
+                                
+                                <div class="row g-3">
+                                    <div class="col-auto">
+                                        <div class="contact-badge-premium">
+                                            <i class="fas fa-id-card led-glow-gold"></i>
+                                            <span class="text-white-50"><?php echo $persona['cedula']; ?></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="contact-badge-premium">
+                                            <i class="fas fa-envelope led-glow-info"></i>
+                                            <span class="text-white-50 text-uppercase"><?php echo $persona['correo'] ?: 'SIN CORREO'; ?></span>
+                                        </div>
+                                    </div>
+                                    <?php if ($persona['telefono']): ?>
+                                    <div class="col-auto">
+                                        <div class="contact-badge-premium">
+                                            <i class="fas fa-phone-alt led-glow-success"></i>
+                                            <span class="text-white-50"><?php echo $persona['telefono']; ?></span>
+                                        </div>
+                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>

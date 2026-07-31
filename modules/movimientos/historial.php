@@ -102,9 +102,9 @@ $result = $conn->query($sql);
                     </div>
                     
                     <?php if ($result && $result->num_rows > 0): ?>
-                        <div class="table-responsive">
+                        <div class="table-responsive" style="max-height: 550px; overflow-y: auto !important; scrollbar-width: thin; scrollbar-color: var(--c-gold) transparent; border-radius: 15px;">
                             <table class="table table-hover mb-0" id="tablaHistorial">
-                                <thead class="table-light" style="background: rgba(255,255,255,0.05) !important;">
+                                <thead class="sticky-top" style="z-index: 1; background: var(--c-deep);">
                                     <tr>
                                         <?php if ($filtro == 'activos'): ?>
                                             <th>Fecha</th>

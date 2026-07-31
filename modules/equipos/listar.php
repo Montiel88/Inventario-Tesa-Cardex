@@ -137,9 +137,9 @@ $result = $conn->query($sql);
                     <?php endif; ?>
                     
                     <?php if ($result && $result->num_rows > 0): ?>
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="tablaEquipos">
-                                <thead>
+                        <div class="table-responsive" style="max-height: 550px; overflow-y: auto !important; scrollbar-width: thin; scrollbar-color: var(--c-gold) transparent; border-radius: 15px;">
+                            <table class="table table-hover mb-0" id="tablaEquipos">
+                                <thead class="sticky-top" style="z-index: 1; background: var(--c-deep);">
                                     <tr>
                                         <!-- 👇 NUEVA COLUMNA DE SELECCIÓN -->
                                         <th style="width: 40px;"><input type="checkbox" id="seleccionarTodos"></th>
