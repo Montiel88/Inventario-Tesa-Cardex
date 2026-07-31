@@ -10,6 +10,12 @@ include '../../includes/header.php';
 $mensaje = '';
 $error = '';
 
+$flash_devolucion = null;
+if (isset($_SESSION['flash_devolucion'])) {
+    $flash_devolucion = $_SESSION['flash_devolucion'];
+    unset($_SESSION['flash_devolucion']);
+}
+
 // ============================================
 // PROCESAR DEVOLUCIÓN SI SE ENVÍA EL FORMULARIO
 // ============================================
@@ -95,10 +101,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
                 $conn->query($sql_movimiento);
                 
                 // 4. Generar acta de devolución automáticamente
-                $acta_url = "/inventario_ti/api/generar_acta_mpdf.php?tipo=devolucion&persona_id=" . $asignacion['persona_id'];
+                $acta_url = "/inventario_ti/api/generar_acta_devolucion.php?persona_id=" . $asignacion['persona_id'];
                 
                 $conn->commit();
-                $mensaje = "✅ Devolución registrada correctamente";
+                $_SESSION['flash_devolucion'] = [
+                    'estado_equipo' => $estado_equipo,
+                    'mensaje_adicional' => ($estado_equipo != 'BUENO') ? ' Se ha creado un registro automático en Mantenimientos.' : '',
+                    'acta_url' => $acta_url
+                ];
                 
                 // Registrar notificación
                 require_once '../../config/notificaciones_helper.php';
@@ -113,26 +123,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
                 // Registrar log de la operación
                 require_once '../../includes/logs_functions.php';
                 registrarLog($conn, 'Devolución equipo', "Equipo: {$asignacion['codigo_barras']}, Persona: {$asignacion['persona_nombre']}", $_SESSION['user_id']);
-                
-                $mensaje_adicional = ($estado_equipo != 'BUENO') ? ' Se ha creado un registro automático en Mantenimientos.' : '';
-                
-                echo "<script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Devolución exitosa!',
-                        html: '<p>El equipo ha sido devuelto correctamente</p><p>Estado: <strong>$estado_equipo</strong></p><p><small>$mensaje_adicional</small></p>',
-                        showCancelButton: true,
-                        confirmButtonText: '📄 Ver Acta',
-                        cancelButtonText: 'Ir al Historial'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.open('$acta_url', '_blank');
-                            window.location.href = 'historial.php';
-                        } else {
-                            window.location.href = 'historial.php';
-                        }
-                    });
-                </script>";
+                header('Location: devolucion.php?ok=1');
+                exit;
                 
             } catch (Exception $e) {
                 $conn->rollback();
@@ -190,6 +182,20 @@ $equipo_seleccionado = isset($_GET['equipo_id']) ? intval($_GET['equipo_id']) : 
         border: none;
         border-radius: 15px;
         box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        background: rgba(20, 5, 45, 0.7) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    .devolucion-card .card-header {
+        background: rgba(139, 92, 246, 0.15) !important;
+        border-bottom: 1px solid rgba(243, 178, 41, 0.35) !important;
+    }
+    .devolucion-card .card-header h4,
+    .devolucion-card .card-header a,
+    .devolucion-card .card-header i {
+        color: #fff !important;
+    }
+    .devolucion-card .card-body {
+        color: rgba(255, 255, 255, 0.9) !important;
     }
     .btn-devolver {
         border-radius: 30px;
@@ -207,19 +213,72 @@ $equipo_seleccionado = isset($_GET['equipo_id']) ? intval($_GET['equipo_id']) : 
     }
     /* Estilo para el formulario de devolución */
     #formularioDevolucion {
-        background: #f8f9fc;
+        background: rgba(15, 5, 30, 0.6);
         border-radius: 15px;
         padding: 20px;
         margin-top: 20px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    #formularioDevolucion h5,
+    #formularioDevolucion label,
+    #formularioDevolucion small {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+    #formularioDevolucion .form-control,
+    #formularioDevolucion .form-select,
+    #formularioDevolucion textarea,
+    #formularioDevolucion input[type="file"] {
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #fff !important;
+    }
+    #formularioDevolucion .form-control::placeholder,
+    #formularioDevolucion textarea::placeholder {
+        color: rgba(255, 255, 255, 0.35) !important;
+    }
+    #formularioDevolucion select option {
+        background-color: #1a0533 !important;
+        color: #fff !important;
+    }
+    .devolucion-card .table {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    .devolucion-card .table thead th {
+        color: rgba(255, 255, 255, 0.9) !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    .devolucion-card .table td {
+        border-color: rgba(255, 255, 255, 0.08) !important;
     }
 </style>
 
 <div class="container-fluid py-4">
+    <?php if ($flash_devolucion && isset($_GET['ok'])): ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: '¡Devolución exitosa!',
+                html: '<p>El equipo ha sido devuelto correctamente</p><p>Estado: <strong><?php echo htmlspecialchars($flash_devolucion["estado_equipo"] ?? ""); ?></strong></p><p><small><?php echo htmlspecialchars($flash_devolucion["mensaje_adicional"] ?? ""); ?></small></p>',
+                showCancelButton: true,
+                confirmButtonText: '📄 Ver Acta',
+                cancelButtonText: 'Ir al Historial'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open('<?php echo htmlspecialchars($flash_devolucion["acta_url"] ?? ""); ?>', '_blank');
+                    window.location.href = 'historial.php';
+                } else {
+                    window.location.href = 'historial.php';
+                }
+            });
+        </script>
+    <?php endif; ?>
     <div class="row">
         <div class="col-12">
             <div class="card devolucion-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
+                    <a href="/inventario_ti/modules/dashboard.php" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
                     <h4 class="mb-0"><i class="fas fa-undo-alt me-2"></i>Registrar Devolución de Equipo</h4>
                     <a href="historial.php" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-history me-1"></i> Historial

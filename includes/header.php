@@ -1140,6 +1140,9 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             <div class="tn-tools ms-2">
 
                 <?php if (isset($_SESSION['user_id'])): ?>
+                <button class="tn-icon-btn" id="backBtn" type="button" title="Volver">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
                 <button class="tn-icon-btn" id="searchTrigger" type="button" title="Buscar (Ctrl+K)">
                     <i class="fas fa-magnifying-glass"></i>
                 </button>
@@ -1221,6 +1224,20 @@ function closeAllPanels() {
     if(s)s.classList.remove('active');
 }
 
+(function(){
+    const b = document.getElementById('backBtn');
+    if(!b) return;
+    b.addEventListener('click', function() {
+        const ref = document.referrer || '';
+        const okRef = ref.startsWith(window.location.origin) && ref.includes('/inventario_ti/');
+        if (window.history.length > 1 && okRef) {
+            window.history.back();
+            return;
+        }
+        window.location.href = '/inventario_ti/modules/dashboard.php';
+    });
+})();
+
 function toggleNotifications() {
     const p=document.getElementById('notifPanel'),
           o=document.getElementById('globalOverlay');
@@ -1301,7 +1318,8 @@ function toggleNotifications() {
             return;
         }
 
-        fetch(`/inventario_ti/api/busqued-inteligente.php?q=${query}&filtros=${JSON.stringify(activeFilters)}`)
+        const filtrosToSend = activeFilters.includes('todos') ? [] : activeFilters;
+        fetch(`/inventario_ti/api/busqued-inteligente.php?q=${encodeURIComponent(query)}&filtros=${encodeURIComponent(JSON.stringify(filtrosToSend))}`)
             .then(response => response.json())
             .then(data => {
                 resultsContainer.innerHTML = '';

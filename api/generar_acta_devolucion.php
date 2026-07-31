@@ -52,13 +52,64 @@ $sql_persona = "SELECT * FROM personas WHERE id = $persona_id";
 $persona = $conn->query($sql_persona)->fetch_assoc();
 if (!$persona) die("Persona no encontrada");
 
-// Consulta corregida: usando e.estado y m.observaciones
-$sql_equipos = "SELECT e.*, e.estado AS estado_equipo, m.observaciones AS condiciones, m.fecha_movimiento 
+// Tomar devoluciones recientes (desde la última acta de devolución, o desde hoy)
+$fecha_desde = date('Y-m-d 00:00:00');
+$check_table = $conn->query("SHOW TABLES LIKE 'actas'");
+if ($check_table && $check_table->num_rows > 0) {
+    $sql_last = "SELECT fecha_generacion
+                 FROM actas
+                 WHERE persona_id = $persona_id AND tipo_acta = 'devolucion'
+                 ORDER BY fecha_generacion DESC
+                 LIMIT 1";
+    $last = $conn->query($sql_last);
+    if ($last && $last->num_rows > 0) {
+        $row_last = $last->fetch_assoc();
+        if (!empty($row_last['fecha_generacion'])) {
+            $fecha_desde = $row_last['fecha_generacion'];
+        }
+    }
+}
+
+$sql_equipos = "SELECT e.*, e.estado AS estado_equipo, m.observaciones AS condiciones, m.fecha_movimiento
                 FROM movimientos m
                 JOIN equipos e ON m.equipo_id = e.id
-                WHERE m.persona_id = $persona_id AND m.tipo_movimiento = 'DEVOLUCION'
-                ORDER BY m.fecha_movimiento DESC";
+                WHERE m.persona_id = $persona_id
+                  AND m.tipo_movimiento IN ('DEVOLUCION','DEVOLUCION_RAPIDA')
+                  AND m.fecha_movimiento >= '$fecha_desde'
+                ORDER BY m.fecha_movimiento ASC";
 $equipos = $conn->query($sql_equipos);
+
+$sql_componentes = "SELECT c.*, c.estado AS estado_comp, mc.fecha_movimiento
+                    FROM movimientos_componentes mc
+                    JOIN componentes c ON mc.componente_id = c.id
+                    WHERE mc.persona_id = $persona_id
+                      AND mc.tipo_movimiento = 'DEVOLUCION'
+                      AND mc.fecha_movimiento >= '$fecha_desde'
+                    ORDER BY mc.fecha_movimiento ASC";
+$componentes = $conn->query($sql_componentes);
+
+$fecha_hoy_inicio = date('Y-m-d 00:00:00');
+$sin_resultados = ((!$equipos || $equipos->num_rows === 0) && (!$componentes || $componentes->num_rows === 0));
+if ($sin_resultados && $fecha_desde !== $fecha_hoy_inicio) {
+    $fecha_desde = $fecha_hoy_inicio;
+    $sql_equipos = "SELECT e.*, e.estado AS estado_equipo, m.observaciones AS condiciones, m.fecha_movimiento
+                    FROM movimientos m
+                    JOIN equipos e ON m.equipo_id = e.id
+                    WHERE m.persona_id = $persona_id
+                      AND m.tipo_movimiento IN ('DEVOLUCION','DEVOLUCION_RAPIDA')
+                      AND m.fecha_movimiento >= '$fecha_desde'
+                    ORDER BY m.fecha_movimiento ASC";
+    $equipos = $conn->query($sql_equipos);
+
+    $sql_componentes = "SELECT c.*, c.estado AS estado_comp, mc.fecha_movimiento
+                        FROM movimientos_componentes mc
+                        JOIN componentes c ON mc.componente_id = c.id
+                        WHERE mc.persona_id = $persona_id
+                          AND mc.tipo_movimiento = 'DEVOLUCION'
+                          AND mc.fecha_movimiento >= '$fecha_desde'
+                        ORDER BY mc.fecha_movimiento ASC";
+    $componentes = $conn->query($sql_componentes);
+}
 
 $codigo_acta = generarCodigoActa('devolucion');
 
@@ -79,7 +130,6 @@ if ($equipos->num_rows > 0) {
     }
 }
 $equipos_ids_string = implode(',', $equipos_ids_array);
-$check_table = $conn->query("SHOW TABLES LIKE 'actas'");
 if ($check_table && $check_table->num_rows > 0) {
     $sql_insert = "INSERT INTO actas (codigo_acta, tipo_acta, persona_id, usuario_id, fecha_generacion, equipos_ids) 
                    VALUES ('$codigo_acta', 'devolucion', $persona_id, " . ($_SESSION["user_id"] ?? 1) . ", NOW(), '$equipos_ids_string')";
@@ -89,13 +139,18 @@ $equipos->data_seek(0);
 
 // Construir tabla de equipos
 $tabla_equipos = '';
-if ($equipos->num_rows > 0) {
-    $contador = 1;
+$contador = 1;
+$total_items = 0;
+
+if ($equipos && $equipos->num_rows > 0) {
     while($eq = $equipos->fetch_assoc()) {
-        $estado = $eq["estado_equipo"] ?? "BUENO";
-        $color_estado = "#28a745"; // verde
-        if ($estado == "REGULAR") $color_estado = "#ffc107";
-        if ($estado == "MALO" || $estado == "DAÑADO") $color_estado = "#dc3545";
+        $estado = $eq["estado_equipo"] ?? "Disponible";
+        $color_estado = "#6c757d";
+        if ($estado === "Disponible") $color_estado = "#28a745";
+        if ($estado === "Asignado") $color_estado = "#0d6efd";
+        if ($estado === "Prestado") $color_estado = "#0dcaf0";
+        if ($estado === "En mantenimiento") $color_estado = "#ffc107";
+        if ($estado === "Baja") $color_estado = "#dc3545";
         
         $tabla_equipos .= "
         <tr>
@@ -106,12 +161,43 @@ if ($equipos->num_rows > 0) {
             <td style='width: 10%; text-align: center;'>1</td>
         </tr>";
         $contador++;
+        $total_items++;
     }
-    $total = $contador - 1;
+}
+
+if ($componentes && $componentes->num_rows > 0) {
+    while($c = $componentes->fetch_assoc()) {
+        $estado = $c["estado_comp"] ?? "Disponible";
+        $color_estado = "#6c757d";
+        if ($estado === "Disponible") $color_estado = "#28a745";
+        if ($estado === "Asignado") $color_estado = "#0d6efd";
+        if ($estado === "Prestado") $color_estado = "#0dcaf0";
+        if ($estado === "En mantenimiento") $color_estado = "#ffc107";
+        if ($estado === "Baja") $color_estado = "#dc3545";
+        
+        $articulo = trim(($c['tipo'] ?? '') . ' ' . ($c['nombre_componente'] ?? '') . ' ' . ($c['marca'] ?? '') . ' ' . ($c['modelo'] ?? ''));
+        if ($articulo === '') {
+            $articulo = 'Componente';
+        }
+        
+        $tabla_equipos .= "
+        <tr>
+            <td style='text-align: center; width: 8%;'>$contador</td>
+            <td style='width: 42%;'>COMPONENTE - {$articulo}</td>
+            <td style='width: 20%;'>" . ($c["numero_serie"] ?: "N/A") . "</td>
+            <td style='width: 15%; text-align: center;'><span style='color: $color_estado; font-weight: bold;'>$estado</span></td>
+            <td style='width: 10%; text-align: center;'>1</td>
+        </tr>";
+        $contador++;
+        $total_items++;
+    }
+}
+
+if ($total_items > 0) {
     $tabla_equipos .= "
         <tr style='font-weight: bold; background-color: #f0f0f0;'>
             <td colspan='4' style='text-align: right;'>TOTAL:</td>
-            <td style='text-align: center;'>$total</td>
+            <td style='text-align: center;'>$total_items</td>
         </tr>";
 } else {
     $tabla_equipos = "<tr><td colspan='5' style='text-align: center; padding: 15px;'>No hay devoluciones registradas</td></tr>";

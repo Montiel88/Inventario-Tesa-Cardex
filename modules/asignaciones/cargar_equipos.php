@@ -23,6 +23,11 @@ $error = '';
 // Obtener persona_id de la URL si viene
 $persona_id_seleccionada = isset($_GET['persona_id']) ? intval($_GET['persona_id']) : 0;
 
+if (isset($_SESSION['flash_asignacion_ok'])) {
+    $mensaje = (string)$_SESSION['flash_asignacion_ok'];
+    unset($_SESSION['flash_asignacion_ok']);
+}
+
 // Obtener lista de personas
 $personas = $conn->query("SELECT id, nombres FROM personas ORDER BY nombres");
 
@@ -94,10 +99,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($conn->query($sql_asignacion)) {
                 $conn->query("INSERT INTO movimientos (equipo_id, persona_id, tipo_movimiento, fecha_movimiento) 
                              VALUES ($equipo_id, $persona_id, 'ASIGNACION', NOW())");
-                
-                $mensaje = "✅ Equipo asignado correctamente.";
-                // Recargar equipos de bodega
-                $equipos_bodega = $conn->query("SELECT id, codigo_barras, tipo_equipo, marca, modelo FROM equipos WHERE estado = 'Disponible' ORDER BY codigo_barras");
+                $_SESSION['flash_asignacion_ok'] = "✅ Equipo asignado correctamente.";
+                header("Location: cargar_equipos.php?persona_id={$persona_id}");
+                exit;
             } else {
                 $error = "❌ Error al asignar: " . $conn->error;
             }
@@ -132,8 +136,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Asignar Equipo a Persona</h4>
+                <div class="card-header d-flex align-items-center justify-content-between gap-2">
+                    <a class="btn btn-outline-secondary btn-sm" href="<?php echo $persona_id_seleccionada ? ('/inventario_ti/modules/personas/detalle.php?id=' . $persona_id_seleccionada) : '/inventario_ti/modules/personas/listar.php'; ?>">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </a>
+                    <h4 class="mb-0 flex-grow-1 text-center"><i class="fas fa-plus-circle me-2"></i>Asignar Equipo a Persona</h4>
+                    <span style="width: 90px;"></span>
                 </div>
                 <div class="card-body">
                     
