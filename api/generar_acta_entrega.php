@@ -1,14 +1,16 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-ini_set("display_errors", 1);
-ini_set("display_startup_errors", 1);
-error_reporting(E_ALL);
+if (getenv('APP_DEBUG') === '1') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+} else {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+}
 
 session_start();
 
-define('BASE_PATH', 'C:/xampp/htdocs/inventario_ti/');
+define('BASE_PATH', rtrim(str_replace('\\', '/', realpath(__DIR__ . '/..')), '/') . '/');
 require_once BASE_PATH . 'config/database.php';
 require_once BASE_PATH . 'config/permisos.php';
 require_once BASE_PATH . 'config/actas_config.php';
@@ -60,6 +62,19 @@ $sql_equipos = "SELECT e.* FROM equipos e
                 JOIN asignaciones a ON e.id = a.equipo_id
                 WHERE a.persona_id = $persona_id AND a.fecha_devolucion IS NULL";
 $equipos = $conn->query($sql_equipos);
+$sql_componentes = "SELECT c.*
+                    FROM componentes c
+                    JOIN movimientos_componentes mc ON c.id = mc.componente_id
+                    WHERE mc.persona_id = $persona_id
+                      AND mc.tipo_movimiento = 'ASIGNACION'
+                      AND NOT EXISTS (
+                          SELECT 1 FROM movimientos_componentes mc2
+                          WHERE mc2.componente_id = mc.componente_id
+                            AND mc2.tipo_movimiento = 'DEVOLUCION'
+                            AND mc2.fecha_movimiento > mc.fecha_movimiento
+                      )
+                    ORDER BY mc.fecha_movimiento DESC";
+$componentes = $conn->query($sql_componentes);
 $mes_actual = $meses[date("F")];
 
 // Guardar en BD
@@ -81,9 +96,11 @@ $equipos->data_seek(0);
 
 // Construir tabla de equipos
 $tabla_equipos = '';
-if ($equipos->num_rows > 0) {
-    $contador = 1;
-    while($eq = $equipos->fetch_assoc()) {
+$contador = 1;
+$total_items = 0;
+
+if ($equipos && $equipos->num_rows > 0) {
+    while ($eq = $equipos->fetch_assoc()) {
         $tabla_equipos .= "
         <tr>
             <td style='text-align: center; width: 8%;'>$contador</td>
@@ -92,15 +109,36 @@ if ($equipos->num_rows > 0) {
             <td style='text-align: center; width: 10%;'>1</td>
         </tr>";
         $contador++;
+        $total_items++;
     }
-    $total = $contador - 1;
+}
+
+if ($componentes && $componentes->num_rows > 0) {
+    while ($c = $componentes->fetch_assoc()) {
+        $articulo = trim(($c['tipo'] ?? '') . ' ' . ($c['nombre_componente'] ?? '') . ' ' . ($c['marca'] ?? '') . ' ' . ($c['modelo'] ?? ''));
+        if ($articulo === '') {
+            $articulo = 'Componente';
+        }
+        $tabla_equipos .= "
+        <tr>
+            <td style='text-align: center; width: 8%;'>$contador</td>
+            <td style='width: 52%;'>COMPONENTE - {$articulo}</td>
+            <td style='width: 30%;'>" . ($c["numero_serie"] ?: "N/A") . "</td>
+            <td style='text-align: center; width: 10%;'>1</td>
+        </tr>";
+        $contador++;
+        $total_items++;
+    }
+}
+
+if ($total_items > 0) {
     $tabla_equipos .= "
         <tr style='font-weight: bold; background-color: #f0f0f0;'>
             <td colspan='3' style='text-align: right;'>TOTAL:</td>
-            <td style='text-align: center;'>$total</td>
+            <td style='text-align: center;'>$total_items</td>
         </tr>";
 } else {
-    $tabla_equipos = "<tr><td colspan='4' style='text-align: center; padding: 20px;'>No hay equipos asignados</td></tr>";
+    $tabla_equipos = "<tr><td colspan='4' style='text-align: center; padding: 20px;'>No hay equipos ni componentes asignados</td></tr>";
 }
 
 // ============================================

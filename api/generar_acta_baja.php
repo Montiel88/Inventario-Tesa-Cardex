@@ -1,11 +1,16 @@
 <?php
-ini_set("display_errors", 1);
-ini_set("display_startup_errors", 1);
-error_reporting(E_ALL);
+if (getenv('APP_DEBUG') === '1') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+} else {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+}
 
 session_start();
 
-define('BASE_PATH', 'C:/xampp/htdocs/inventario_ti/');
+define('BASE_PATH', rtrim(str_replace('\\', '/', realpath(__DIR__ . '/..')), '/') . '/');
 require_once BASE_PATH . 'config/database.php';
 require_once BASE_PATH . 'config/permisos.php';
 require_once BASE_PATH . 'config/actas_config.php';

@@ -1,7 +1,12 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+if (getenv('APP_DEBUG') === '1') {
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+} else {
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+}
 session_start();
 if (!isset($_SESSION['user_id'])) {
     header('Location: /inventario_ti/login.php');
@@ -137,7 +142,7 @@ $incidencias = $conn->query($sql_incidencias);
 // ============================================
 $protocolo = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'];
-$base_url_publica = 'http://192.168.100.154/inventario_ti';
+$base_url_publica = $protocolo . '://' . $host . '/inventario_ti';
 ?>
 
 <style>
@@ -161,6 +166,17 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
     font-weight: 800 !important;
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+.persona-actions-bar,
+.persona-actions-bar .card-header {
+    position: relative;
+    z-index: 20;
+    overflow: visible;
+}
+
+.persona-actions-bar .dropdown-menu {
+    z-index: 30;
 }
 
 /* Tablas de información */
@@ -425,7 +441,7 @@ $base_url_publica = 'http://192.168.100.154/inventario_ti';
 
 <div class="container-fluid py-4">
     <!-- Header Principal -->
-    <div class="card mb-4">
+    <div class="card mb-4 persona-actions-bar">
         <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
             <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i>Perfil de Usuario</h4>
             <div class="d-flex flex-wrap gap-2">

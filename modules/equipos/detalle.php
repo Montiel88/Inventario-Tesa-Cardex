@@ -284,7 +284,7 @@ $componentes = $conn->query($sql_componentes);
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
-const baseUrl = 'http://192.168.100.154/inventario_ti';
+const baseUrl = window.location.origin + '/inventario_ti';
 
 function generarQR(id) {
     document.getElementById('qrModal').style.display = 'flex';

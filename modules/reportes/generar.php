@@ -229,6 +229,64 @@ $columnas = $resultado['columnas'];
 $datos = $resultado['datos'];
 $extraInfo = $resultado['extraInfo'];
 
+$hasSpreadsheet = class_exists('PhpOffice\\PhpSpreadsheet\\Spreadsheet');
+if (!$hasSpreadsheet) {
+    $filenameBase = $reporte . '_' . date('Ymd');
+    if ($tipo === 'excel') {
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment;filename="' . $filenameBase . '.csv"');
+        $out = fopen('php://output', 'w');
+        fwrite($out, "\xEF\xBB\xBF");
+        fputcsv($out, ['TECNOLÓGICO SAN ANTONIO - TESA'], ';');
+        fputcsv($out, [$titulo], ';');
+        fputcsv($out, ['Fecha: ' . date('d/m/Y H:i:s')], ';');
+        if ($extraInfo) {
+            fputcsv($out, [$extraInfo], ';');
+        }
+        fputcsv($out, [], ';');
+        fputcsv($out, $columnas, ';');
+        foreach ($datos as $data) {
+            $row = [];
+            foreach ($data as $valor) {
+                $row[] = strip_tags((string)($valor ?? ''));
+            }
+            fputcsv($out, $row, ';');
+        }
+        fclose($out);
+        exit();
+    }
+
+    if ($tipo === 'pdf') {
+        $mpdf = new \Mpdf\Mpdf(['tempDir' => sys_get_temp_dir()]);
+        $html = '<h3>TECNOLÓGICO SAN ANTONIO - TESA</h3>';
+        $html .= '<h4>' . htmlspecialchars($titulo) . '</h4>';
+        $html .= '<div>Fecha: ' . htmlspecialchars(date('d/m/Y H:i:s')) . '</div>';
+        if ($extraInfo) {
+            $html .= '<div>' . htmlspecialchars($extraInfo) . '</div>';
+        }
+        $html .= '<br><table width="100%" border="1" cellspacing="0" cellpadding="6"><thead><tr>';
+        foreach ($columnas as $c) {
+            $html .= '<th style="background:#5A2D8C;color:#fff;">' . htmlspecialchars($c) . '</th>';
+        }
+        $html .= '</tr></thead><tbody>';
+        foreach ($datos as $data) {
+            $html .= '<tr>';
+            foreach ($data as $valor) {
+                $html .= '<td>' . htmlspecialchars(strip_tags((string)($valor ?? ''))) . '</td>';
+            }
+            $html .= '</tr>';
+        }
+        $html .= '</tbody></table>';
+        $mpdf->WriteHTML($html);
+        $mpdf->Output($filenameBase . '.pdf', 'D');
+        exit();
+    }
+
+    http_response_code(500);
+    echo 'Falta la dependencia phpoffice/phpspreadsheet para generar este reporte.';
+    exit();
+}
+
 // Crear nuevo documento
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();

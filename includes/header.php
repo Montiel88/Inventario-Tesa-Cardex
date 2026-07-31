@@ -283,7 +283,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     .tn {
         position: sticky;
         top: 0;
-        z-index: 10000;
+        z-index: 2000000;
         height: var(--h);
         background: linear-gradient(108deg,
             var(--c-deep) 0%,
@@ -524,7 +524,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         min-width: 240px !important;
         margin-top: 12px !important;
         animation: menuIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-        z-index: 10001 !important;
+        z-index: 2000000 !important;
         overflow: hidden !important;
     }
 
@@ -932,7 +932,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             border-bottom: 1px solid rgba(124,58,237,0.22);
             padding: 12px 16px 16px;
             box-shadow: 0 18px 48px rgba(0,0,0,0.55);
-            z-index: 1038;
+            z-index: 2000000;
             animation: colIn 0.22s var(--ease);
         }
 
