@@ -113,22 +113,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <style>
     /* Estilos mínimos necesarios */
     .opcion-btn {
-        background: #f8f9fa;
-        border: 2px solid #5a2d8c;
+        background: rgba(90, 45, 140, 0.75) !important;
+        border: 1px solid rgba(243, 178, 41, 0.35) !important;
         border-radius: 10px;
         padding: 20px;
         text-align: center;
         cursor: pointer;
         transition: all 0.3s;
         margin-bottom: 20px;
+        color: #ffffff !important;
     }
     .opcion-btn:hover {
-        background: #5a2d8c;
-        color: white;
+        background: rgba(90, 45, 140, 0.95) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
     }
     .opcion-btn.active {
-        background: #5a2d8c;
-        color: white;
+        background: rgba(90, 45, 140, 0.95) !important;
+        border-color: var(--c-gold, #f3b229) !important;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
     }
 </style>
 

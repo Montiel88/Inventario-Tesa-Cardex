@@ -25,8 +25,10 @@ if (is_string($ids_input) && !empty($ids_input)) {
 $equipos_seleccionados = array_map('intval', array_filter($equipos_seleccionados));
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar'])) {
-    $motivo = $conn->real_escape_string($_POST['motivo']);
-    $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
+    $motivo_raw = trim((string)($_POST['motivo'] ?? ''));
+    $observaciones_raw = trim((string)($_POST['observaciones'] ?? ''));
+    $motivo = $conn->real_escape_string($motivo_raw);
+    $observaciones = $conn->real_escape_string($observaciones_raw);
     $ids = $_POST['equipos'] ?? [];
     
     if (empty($ids)) {
@@ -59,17 +61,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirmar'])) {
                 
                 // Guardar en sesión para generar el acta después
                 $_SESSION['baja_masiva_ids'] = $ids_string;
-                $_SESSION['baja_masiva_motivo'] = $motivo;
-                $_SESSION['baja_masiva_observaciones'] = $observaciones;
+                $_SESSION['baja_masiva_motivo'] = $motivo_raw;
+                $_SESSION['baja_masiva_observaciones'] = $observaciones_raw;
+                $_SESSION['flash_baja_masiva_ok'] = 1;
                 
                 $conn->commit();
                 
-                // ✅ ABRIR PDF EN NUEVA PESTAÑA Y REDIRIGIR
-                echo "<script>
-                    window.open('/inventario_ti/api/generar_acta_baja_masiva.php', '_blank');
-                    window.location.href = 'listar.php?mensaje=" . urlencode("✅ Baja procesada correctamente. Se generó el acta en una nueva pestaña.") . "';
-                </script>";
-                exit();
+                header('Location: listar.php?baja_masiva_ok=1');
+                exit;
             } catch (Exception $e) {
                 $conn->rollback();
                 $error = "❌ Error al procesar la baja: " . $e->getMessage();

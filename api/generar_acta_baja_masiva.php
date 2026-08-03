@@ -10,6 +10,12 @@ if (getenv('APP_DEBUG') === '1') {
 
 session_start();
 
+if (!isset($_SESSION['baja_masiva_ids']) || empty($_SESSION['baja_masiva_ids'])) {
+    die("<h3 style='color: #dc3545; text-align:center; margin-top:50px;'>❌ No se encontraron datos de la baja masiva en la sesión.</h3>
+         <p style='text-align:center;'>Por favor, regresa al listado de equipos y realiza el proceso de baja masiva nuevamente para generar el acta.</p>
+         <p style='text-align:center;'><a href='/inventario_ti/modules/equipos/listar.php' style='padding:10px 20px; background:#5a2d8c; color:white; text-decoration:none; border-radius:5px;'>Volver al Listado</a></p>");
+}
+
 define('BASE_PATH', rtrim(str_replace('\\', '/', realpath(__DIR__ . '/..')), '/') . '/');
 require_once BASE_PATH . 'config/database.php';
 require_once BASE_PATH . 'config/permisos.php';
@@ -22,6 +28,27 @@ if (!isset($_SESSION["user_id"])) {
 
 require_once BASE_PATH . 'vendor/autoload.php';
 use Mpdf\Mpdf;
+
+function h($value) {
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+}
+
+$ids_raw = $_SESSION['baja_masiva_ids'] ?? '';
+$ids = [];
+if (is_array($ids_raw)) {
+    $ids = $ids_raw;
+} else {
+    $ids = preg_split('/\s*,\s*/', (string)$ids_raw, -1, PREG_SPLIT_NO_EMPTY);
+}
+$ids = array_values(array_filter(array_map('intval', $ids), function ($v) { return $v > 0; }));
+if (count($ids) === 0) {
+    die("<h3 style='color: #dc3545; text-align:center; margin-top:50px;'>❌ No se encontraron equipos válidos para generar el acta.</h3>
+         <p style='text-align:center;'><a href='/inventario_ti/modules/equipos/listar.php' style='padding:10px 20px; background:#5a2d8c; color:white; text-decoration:none; border-radius:5px;'>Volver al Listado</a></p>");
+}
+$ids_string = implode(',', $ids);
+
+$motivo = trim((string)($_SESSION['baja_masiva_motivo'] ?? ''));
+$observaciones = trim((string)($_SESSION['baja_masiva_observaciones'] ?? ''));
 
 $config = cargarConfiguracion();
 
@@ -48,6 +75,11 @@ $sql = "SELECT e.*, u.nombre as ubicacion_nombre
         LEFT JOIN ubicaciones u ON e.ubicacion_id = u.id
         WHERE e.id IN ($ids_string)";
 $equipos = $conn->query($sql);
+if (!$equipos || $equipos->num_rows === 0) {
+    die("<h3 style='color: #dc3545; text-align:center; margin-top:50px;'>❌ No se encontraron equipos en la base de datos para generar el acta.</h3>
+         <p style='text-align:center;'>Es posible que los IDs no existan o que ya no estén disponibles.</p>
+         <p style='text-align:center;'><a href='/inventario_ti/modules/equipos/listar.php' style='padding:10px 20px; background:#5a2d8c; color:white; text-decoration:none; border-radius:5px;'>Volver al Listado</a></p>");
+}
 
 $user_id = $_SESSION["user_id"];
 $sql_admin = "SELECT * FROM usuarios WHERE id = $user_id";
@@ -209,7 +241,7 @@ $html = "
         </tr>
         <tr>
             <td class=\"label\">MOTIVO:</td>
-            <td>$motivo</td>
+            <td>" . h($motivo) . "</td>
         </tr>
     </table>
 
@@ -233,7 +265,7 @@ $html = "
     </table>
 
     <div class=\"observaciones\">
-        <strong>OBSERVACIONES:</strong> $observaciones
+        <strong>OBSERVACIONES:</strong> " . h($observaciones) . "
     </div>
 
     <div class=\"firmas\">

@@ -1066,6 +1066,9 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/traspaso.php">
                             <span class="di"><i class="fas fa-shuffle"></i></span>Traspaso de Custodio
                         </a></li>
+                        <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/traspaso_multiple.php">
+                            <span class="di"><i class="fas fa-arrows-spin"></i></span>Traspaso Múltiple
+                        </a></li>
                         <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/prestamo.php">
                             <span class="di"><i class="fas fa-hand-holding"></i></span>Registrar Préstamo
                         </a></li>
@@ -1155,6 +1158,9 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                     <i class="fas fa-bell"></i>
                     <span class="tn-badge" id="notificationBadgeHeader"></span>
                 </button>
+
+                <?php if (isset($_SESSION['user_id'])): ?>
+                <?php endif; ?>
 
                 <div class="tn-sep"></div>
 

@@ -4,7 +4,7 @@
     const themes = ['light', 'dark'];
     
     function getTheme() {
-        return localStorage.getItem(THEME_KEY) || 'light';
+        return localStorage.getItem(THEME_KEY) || 'dark';
     }
     
     function setTheme(theme) {
@@ -48,15 +48,9 @@
         applyTheme(theme);
         updateToggleButton(theme);
         
-        // Agregar botón al header si no existe
-        const navRight = document.querySelector('.navbar-nav.ms-auto, .d-flex.align-items-center');
-        if (navRight && !document.getElementById('themeToggle')) {
-            const btn = document.createElement('button');
-            btn.id = 'themeToggle';
-            btn.className = 'btn btn-sm btn-outline-secondary ms-2';
-            btn.onclick = toggleTheme;
-            btn.style.cssText = 'border-radius: 50%; width: 36px; height: 36px; padding: 0;';
-            navRight.appendChild(btn);
+        const btn = document.getElementById('themeToggle');
+        if (btn) {
+            btn.addEventListener('click', toggleTheme);
         }
     });
     

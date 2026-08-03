@@ -1642,7 +1642,7 @@ body::before {
 }
 
 /* Botón de tema oscuro flotante */
-#themeToggle {
+#themeToggle.theme-fab {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -1662,7 +1662,7 @@ body::before {
     font-size: 18px;
 }
 
-#themeToggle:hover {
+#themeToggle.theme-fab:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(90, 45, 140, 0.6);
 }

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../../config/database.php';
+require_once '../../config/permisos.php';
 
 $usuario_id = $_SESSION['usuario_id'] ?? $_SESSION['user_id'] ?? null;
 $rol_id = $_SESSION['rol_id'] ?? $_SESSION['user_rol'] ?? null;
@@ -8,6 +9,8 @@ if (!$usuario_id || $rol_id != 1) {
     header('Location: /inventario_ti/login.php');
     exit;
 }
+verificarSesion();
+requiereAdmin();
 
 $sql_vencidos = "SELECT a.id, a.fecha_asignacion,
                         e.codigo_barras, e.tipo_equipo, e.marca, e.modelo, e.id as equipo_id,
@@ -43,16 +46,9 @@ $sql_sin_ubicacion = "SELECT e.id as equipo_id, e.codigo_barras, e.tipo_equipo, 
                       LIMIT 50";
 $result_sin_ubicacion = $conn->query($sql_sin_ubicacion);
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Correos | TESA</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
+<?php include '../../includes/header.php'; ?>
+
+<style>
         :root {
             --c-bg: #120228;
             --c-deep: #0d0118;
@@ -280,8 +276,12 @@ $result_sin_ubicacion = $conn->query($sql_sin_ubicacion);
             .table-modern tbody td::before { content: attr(data-label); font-weight: 800; font-size: 0.7rem; color: var(--c-gold); text-transform: uppercase; }
         }
     </style>
-</head>
-<body>
+
+<div class="d-flex justify-content-between align-items-center gap-2 px-3 pt-3">
+    <a href="/inventario_ti/modules/dashboard.php" class="btn btn-outline-secondary btn-sm">
+        <i class="fas fa-arrow-left me-2"></i>Volver al sistema
+    </a>
+</div>
 
 <div class="hero-header">
     <div class="container hero-content">
@@ -431,6 +431,4 @@ $result_sin_ubicacion = $conn->query($sql_sin_ubicacion);
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php include '../../includes/footer.php'; ?>

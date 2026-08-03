@@ -34,7 +34,8 @@ $personas = $conn->query("SELECT id, nombres, cedula, cargo FROM personas ORDER 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['realizar_traspaso_multiple'])) {
     $asignacion_ids = $_POST['asignacion_ids'] ?? [];
     $nueva_persona_id = intval($_POST['nueva_persona_id']);
-    $observaciones = $conn->real_escape_string($_POST['observaciones'] ?? '');
+    $observaciones_raw = trim((string)($_POST['observaciones'] ?? ''));
+    $observaciones = $conn->real_escape_string($observaciones_raw);
     
     if (empty($asignacion_ids)) {
         $error = "❌ Debe seleccionar al menos un equipo para traspasar";
@@ -100,7 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['realizar_traspaso_mult
                 $_SESSION['ultimo_traspaso_multiple'] = [
                     'asignacion_ids' => $asignacion_ids,
                     'nueva_persona_id' => $nueva_persona_id,
-                    'cantidad' => $exitos
+                    'cantidad' => $exitos,
+                    'observaciones' => $observaciones_raw
                 ];
             } else {
                 $conn->rollback();
@@ -167,7 +169,6 @@ $asignaciones = $conn->query($sql_asignaciones);
                                 </a>
                             </div>
                         </div>
-                        <?php unset($_SESSION['ultimo_traspaso_multiple']); ?>
                         <?php endif; ?>
                         
                     <?php endif; ?>

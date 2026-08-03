@@ -212,8 +212,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     top: 50%;
     transform: translateY(-50%);
     font-size: 1rem;
-    display: none;
-    pointer-events: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    line-height: 1;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Barra de estado debajo de la cédula */
@@ -223,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     border-radius: 9px;
     font-size: 0.8rem;
     font-weight: 500;
-    display: none;
+    display: flex;
     align-items: center;
     gap: 8px;
     animation: fadeSlideIn 0.2s ease;
@@ -239,6 +247,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 .cedula-feedback.success { display:flex; background:rgba(16,185,129,0.07); border:1px solid rgba(16,185,129,0.22); color:#047857; font-weight:600; }
 .cedula-feedback.warning { display:flex; background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.22); color:#92400e; font-size:0.76rem; }
 .cedula-feedback.error   { display:flex; background:rgba(244,63,94,0.06);  border:1px solid rgba(244,63,94,0.2);   color:#be123c; }
+.cedula-feedback.idle    { display:flex; background:rgba(107,114,128,0.06); border:1px solid rgba(107,114,128,0.18); color:#6b7280; }
 
 /* Mini spinner */
 .mini-spin {
@@ -393,10 +402,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                            autocomplete="off"
                                            required>
                                     <!-- Ícono de estado dentro del input -->
-                                    <span class="cedula-status-icon" id="cedulaStatusIcon"></span>
+                                    <button type="button" class="cedula-status-icon" id="cedulaStatusIcon" aria-label="Limpiar cédula">
+                                        <i class="fas fa-circle-info" style="color:#9ca3af"></i>
+                                    </button>
                                 </div>
                                 <!-- Barra de feedback debajo -->
-                                <div class="cedula-feedback" id="cedulaFeedback"></div>
+                                <div class="cedula-feedback idle" id="cedulaFeedback">
+                                    <i class="fas fa-circle-info"></i> Ingresa la cédula para consultar en el SRI
+                                </div>
                                 <small class="text-muted" style="font-size:0.72rem">
                                     <i class="fas fa-circle-info me-1"></i>
                                     Se consultará el SRI automáticamente al completar los 10 dígitos
@@ -544,9 +557,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         clearTimeout(debounceTimer);
         resetEstado();
 
-        if (val.length === 0) return;
+        if (val.length === 0) {
+            setIdle();
+            return;
+        }
 
         if (val.length < 10) {
+            setIcon('clear');
             setFeedback('typing', `<i class="fas fa-keyboard"></i> ${val.length}/10 dígitos`);
             return;
         }
@@ -642,26 +659,45 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         feedback.innerHTML = html;
     }
 
+    function setIdle() {
+        feedback.className = 'cedula-feedback idle';
+        feedback.innerHTML = '<i class="fas fa-circle-info"></i> Ingresa la cédula para consultar en el SRI';
+        setIcon('idle');
+    }
+
     function resetEstado() {
-        feedback.className = 'cedula-feedback';
-        feedback.innerHTML = '';
-        statusIcon.style.display = 'none';
-        statusIcon.innerHTML     = '';
         inputCedula.classList.remove('is-valid', 'is-invalid');
+        statusIcon.disabled = false;
     }
 
     function setIcon(estado) {
-        statusIcon.style.display = 'block';
+        statusIcon.style.display = 'inline-flex';
+        statusIcon.disabled = false;
         if (estado === 'loading') {
             statusIcon.innerHTML = '<span class="mini-spin" style="display:inline-block"></span>';
+            statusIcon.disabled = true;
         } else if (estado === 'success') {
             statusIcon.innerHTML = '<i class="fas fa-circle-check" style="color:#10b981"></i>';
             inputCedula.classList.add('is-valid');
         } else if (estado === 'error') {
             statusIcon.innerHTML = '<i class="fas fa-circle-xmark" style="color:#f43f5e"></i>';
             inputCedula.classList.add('is-invalid');
+        } else if (estado === 'clear') {
+            statusIcon.innerHTML = '<i class="fas fa-circle-xmark" style="color:#9ca3af"></i>';
+        } else if (estado === 'idle') {
+            statusIcon.innerHTML = '<i class="fas fa-circle-info" style="color:#9ca3af"></i>';
+            statusIcon.disabled = inputCedula.value.length === 0;
         }
     }
+
+    statusIcon.addEventListener('click', function () {
+        inputCedula.value = '';
+        ultimaCedula = '';
+        resetEstado();
+        setIdle();
+        limpiarNombre();
+        inputCedula.focus();
+    });
 
     /* ── Validación final al enviar ── */
     document.getElementById('formPersona')?.addEventListener('submit', function (e) {
@@ -681,6 +717,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     });
 
+    setIdle();
 })();
 </script>
 

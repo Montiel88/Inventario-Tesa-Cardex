@@ -127,6 +127,29 @@ $result = $conn->query($sql);
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <?php endif; ?>
+
+                    <?php
+                    $mostrar_baja_masiva_ok =
+                        (isset($_GET['baja_masiva_ok']) && (string)$_GET['baja_masiva_ok'] === '1')
+                        || (isset($_SESSION['flash_baja_masiva_ok']) && (int)$_SESSION['flash_baja_masiva_ok'] === 1);
+                    if (isset($_SESSION['flash_baja_masiva_ok'])) {
+                        unset($_SESSION['flash_baja_masiva_ok']);
+                    }
+                    ?>
+
+                    <?php if ($mostrar_baja_masiva_ok): ?>
+                        <div class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>✅ Baja procesada correctamente.</strong>
+                            <p class="mb-2 mt-1">Los equipos seleccionados han sido dados de baja. Haz clic en el botón para generar el acta.</p>
+                            <div>
+                                <a href="/inventario_ti/api/generar_acta_baja_masiva.php" target="_blank" class="btn btn-sm btn-success">
+                                    <i class="fas fa-file-pdf me-1"></i> Generar Acta de Baja
+                                </a>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    <?php endif; ?>
                     
                     <!-- Mostrar filtro activo -->
                     <?php if ($ubicacion_id > 0): ?>
