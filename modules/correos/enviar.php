@@ -58,10 +58,13 @@ try {
     $mail->Host       = 'smtp.gmail.com';          // Cambia por tu servidor SMTP
     $mail->SMTPAuth   = true;
       $mail->Username   = 'axelpsoriano03@gmail.com';     // Tu correo
-    $mail->Password   = 'ecou rftj tjrr vfxj';        // Contraseña de aplicación
+    $mail->Password   = 'ecourftjtjrrvfxj';        // Contraseña de aplicación (16 chars, sin espacios)
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
     // $mail->SMTPDebug = 2; // Descomenta para depurar
+
+    $mail->CharSet = 'UTF-8';
+    $mail->Encoding = 'base64';
 
     $mail->setFrom('no-reply@tesa.edu.ec', 'Sistema de Inventario TESA');
     $mail->addAddress($persona['email'], $persona['nombres']);
@@ -192,10 +195,10 @@ function convertirAHTML($mensaje, $persona, $conn, $asignacion_id, $componente_i
     }
     
     $parrafos = explode("\n", trim($mensaje));
-    $html = "<html><head><style>body{font-family:Arial; line-height:1.6;}.container{max-width:600px;margin:0 auto;padding:20px;}.header{background:linear-gradient(135deg,#5a2d8c,#7b4ba8);color:white;padding:20px;text-align:center;border-radius:8px 8px 0 0;}.content{padding:20px;background:#f9f9f9;border:1px solid #e0e0e0;border-top:none;border-radius:0 0 8px 8px;}.footer{padding:15px;text-align:center;font-size:12px;color:#666;background:#f0f0f0;border-radius:0 0 8px 8px;}</style></head><body><div class='container'><div class='header'><h2>INSTITUTO TECNOLÓGICO SAN ANTONIO - TESA</h2><p>Departamento de Tecnología</p></div><div class='content'>";
+    $html = "<html><head><meta charset='UTF-8'><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'><style>body{font-family:Arial; line-height:1.6;}.container{max-width:600px;margin:0 auto;padding:20px;}.header{background:linear-gradient(135deg,#5a2d8c,#7b4ba8);color:white;padding:20px;text-align:center;border-radius:8px 8px 0 0;}.content{padding:20px;background:#f9f9f9;border:1px solid #e0e0e0;border-top:none;border-radius:0 0 8px 8px;}.footer{padding:15px;text-align:center;font-size:12px;color:#666;background:#f0f0f0;border-radius:0 0 8px 8px;}</style></head><body><div class='container'><div class='header'><h2>INSTITUTO TECNOLÓGICO SAN ANTONIO - TESA</h2><p>Departamento de Tecnología</p></div><div class='content'>";
     foreach ($parrafos as $linea) {
         if (trim($linea) !== '') {
-            $html .= "<p>" . nl2br(htmlspecialchars($linea)) . "</p>";
+            $html .= "<p>" . nl2br(htmlspecialchars($linea, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')) . "</p>";
         }
     }
     $html .= "</div><div class='footer'><p>Este es un mensaje automático del Sistema de Gestión de Inventario TESA</p><p>Por favor no responda este correo directamente</p></div></div></body></html>";

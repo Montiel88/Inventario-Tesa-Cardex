@@ -101,6 +101,10 @@ $componentes = $conn->query($sql_componentes);
                             </ul>
                         </div>
                         
+                        <a href="documentos.php?id=<?php echo $id; ?>" class="btn btn-sm btn-secondary">
+                            <i class="fas fa-folder-open me-1"></i>Documentos
+                        </a>
+                        
                         <a href="#" onclick="generarQR(<?php echo $id; ?>)" class="btn btn-info btn-sm">
                             <i class="fas fa-qrcode me-1"></i>Ver QR
                         </a>

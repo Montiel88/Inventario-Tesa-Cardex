@@ -47,7 +47,7 @@ function cargarNotificaciones() {
         .then(data => {
             const notificaciones = (data && data.notificaciones) ? data.notificaciones : [];
             notificacionesGlobales = notificaciones;
-            actualizarBadge(notificaciones.length);
+            actualizarBadge(parseInt(data && data.unread_count ? data.unread_count : 0, 10) || 0);
             renderizarNotificaciones(notificaciones);
         })
         .catch(error => {

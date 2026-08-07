@@ -78,12 +78,54 @@ function validarTelefono($telefono) {
 }
 
 /**
- * Valida correo electrónico
+ * Dominios de correo permitidos en el sistema TESA
+ * - @tesa.edu.ec      : personal administrativo / docentes / admins
+ * - @estud.tesa.edu.ec: estudiantes
+ */
+function tesa_dominios_email_permitidos(): array {
+    return [
+        '@tesa.edu.ec',
+        '@estud.tesa.edu.ec',
+    ];
+}
+
+/**
+ * Valida que el email pertenezca a un dominio institucional TESA permitido.
+ * Retorna true si es válido; false en caso contrario.
+ * Si $email está vacío, retorna true (deja la obligatoriedad a cada módulo).
+ */
+function validarDominioEmailTESA($email): bool {
+    $email = (string)$email;
+    if ($email === '') {
+        return true;
+    }
+    $emailLower = mb_strtolower(trim($email));
+    foreach (tesa_dominios_email_permitidos() as $dominio) {
+        if (str_ends_with($emailLower, $dominio)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Devuelve un mensaje de error amigable con los dominios permitidos.
+ */
+function tesa_mensaje_dominios_email(): string {
+    $dominios = implode(', ', tesa_dominios_email_permitidos());
+    return "El correo electrónico debe pertenecer a un dominio institucional permitido ($dominios).";
+}
+
+/**
+ * Valida correo electrónico (formato + dominio institucional TESA)
  */
 function validarEmail($email) {
     if (empty($email)) {
         return true;
     }
-    return filter_var($email, FILTER_VALIDATE_EMAIL);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    return validarDominioEmailTESA($email);
 }
 ?>

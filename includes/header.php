@@ -1130,6 +1130,9 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         <li><a class="dropdown-item" href="/inventario_ti/modules/admin/configuracion.php">
                             <span class="di"><i class="fas fa-file-pdf"></i></span>Config. de Actas
                         </a></li>
+                        <li><a class="dropdown-item" href="/inventario_ti/modules/admin/configuracion_email.php">
+                            <span class="di"><i class="fas fa-envelope-circle-check"></i></span>Config. de Email
+                        </a></li>
                         <li><a class="dropdown-item" href="/inventario_ti/modules/admin/logs.php">
                             <span class="di"><i class="fas fa-scroll"></i></span>Logs del Sistema
                         </a></li>

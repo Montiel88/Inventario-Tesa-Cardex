@@ -310,18 +310,50 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(async response => {
+            const text = await response.text();
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                throw new Error('El servidor no devolvió una respuesta JSON. Respuesta: ' + (text.length > 300 ? text.substring(0, 300) + '…' : text));
+            }
+            if (!response.ok && data && !data.message) {
+                data.message = 'Código HTTP ' + response.status;
+            }
+            return data;
+        })
         .then(data => {
             if (data.success) {
-                Swal.fire('¡Éxito!', data.message, 'success').then(() => {
+                Swal.close();
+                modalSubida.hide();
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: data.message || 'Archivo subido correctamente',
+                    confirmButtonColor: '#5a2d8c',
+                    confirmButtonText: 'OK'
+                }).then(() => {
                     location.reload();
                 });
             } else {
-                Swal.fire('Error', data.message, 'error');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message || 'Error desconocido',
+                    confirmButtonColor: '#b91c1c',
+                    confirmButtonText: 'OK'
+                });
             }
         })
         .catch(error => {
-            Swal.fire('Error', 'Hubo un problema con la conexión', 'error');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un problema con la conexión: ' + (error.message || ''),
+                confirmButtonColor: '#b91c1c',
+                confirmButtonText: 'OK'
+            });
         });
     });
 });

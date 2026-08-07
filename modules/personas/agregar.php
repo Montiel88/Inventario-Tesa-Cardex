@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $observaciones = trim($conn->real_escape_string($_POST['observaciones'] ?? ''));
     
     $errores = [];
+    $advertencias = [];
     
     if (empty($cedula)) {
         $errores[] = "La cédula es obligatoria";
@@ -57,6 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if (!empty($correo) && !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
         $errores[] = "El correo electrónico no es válido";
+    } elseif (!empty($correo) && !validarDominioEmailTESA($correo)) {
+        $advertencias[] = "Se recomienda usar correos institucionales @tesa.edu.ec / @estud.tesa.edu.ec. El correo $correo fue aceptado de todos modos.";
     }
     
     if (empty($errores)) {
@@ -83,12 +86,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 require_once '../../includes/logs_functions.php';
                 registrarLog($conn, 'Crear persona', "Cédula: {$cedula}, Nombre: {$nombres}", $_SESSION['user_id']);
                 
+                $txt_sw = "Persona registrada correctamente";
+                if (!empty($advertencias)) {
+                    $txt_sw .= "\n\n⚠️ " . implode("\n", $advertencias);
+                }
+                
                 echo "<script>
                     Swal.fire({
                         icon: 'success',
                         title: '¡Éxito!',
-                        text: 'Persona registrada correctamente',
-                        timer: 2000,
+                        text: " . json_encode($txt_sw, JSON_UNESCAPED_UNICODE) . ",
+                        timer: 2600,
                         showConfirmButton: false
                     }).then(() => {
                         window.location.href = 'listar.php';

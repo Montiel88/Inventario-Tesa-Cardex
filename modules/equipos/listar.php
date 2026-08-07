@@ -258,6 +258,10 @@ $result = $conn->query($sql);
                                                         <i class="fas fa-eye me-2" style="color: #5a2d8c;"></i> Ver Detalle
                                                     </a>
                                                     
+                                                    <a href="documentos.php?id=<?php echo $row['id']; ?>" class="list-group-item list-group-item-action">
+                                                        <i class="fas fa-folder-open me-2" style="color: #5a2d8c;"></i> Documentos Adjuntos
+                                                    </a>
+                                                    
                                                     <a href="editar.php?id=<?php echo $row['id']; ?>" class="list-group-item list-group-item-action">
                                                         <i class="fas fa-edit me-2" style="color: #5a2d8c;"></i> Editar
                                                     </a>

@@ -1,0 +1,5 @@
+Options -Indexes
+<FilesMatch "\.(php|phtml|phar|php5)$">
+Require all denied
+</FilesMatch>
+AddType application/pdf .pdf

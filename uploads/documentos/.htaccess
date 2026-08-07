@@ -1,0 +1,5 @@
+Options -Indexes
+<FilesMatch "\.(php|phtml|phar|php5|php7)$">
+Require all denied
+</FilesMatch>
+AddType application/octet-stream .pdf .doc .docx .xls .xlsx .zip

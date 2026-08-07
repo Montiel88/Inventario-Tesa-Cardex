@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // Validar campos obligatorios
     $errores = [];
+    $advertencias = [];
     
     if (empty($cedula)) {
         $errores[] = "La cédula es obligatoria";
@@ -71,6 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validar correo si se proporcionó
     if (!empty($correo) && !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
         $errores[] = "El correo electrónico no es válido";
+    } elseif (!empty($correo) && !validarDominioEmailTESA($correo)) {
+        $advertencias[] = "ℹ️ Se recomienda usar correos institucionales (@tesa.edu.ec / @estud.tesa.edu.ec). El correo $correo fue aceptado de todos modos.";
     }
     
     // Si no hay errores, proceder a actualizar
@@ -95,16 +98,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             if ($conn->query($sql)) {
                 $success = "Persona actualizada correctamente";
+                if (!empty($advertencias)) {
+                    $success .= '<div class="alert alert-info mt-2 mb-0 small">' . implode('<br>', $advertencias) . '</div>';
+                }
                 // Recargar datos actualizados
                 $result = $conn->query("SELECT * FROM personas WHERE id = $id");
                 $persona = $result->fetch_assoc();
+                
+                $txt_sw = "Persona actualizada correctamente";
+                if (!empty($advertencias)) {
+                    $txt_sw .= "\n\n" . implode("\n", $advertencias);
+                }
                 
                 echo "<script>
                     Swal.fire({
                         icon: 'success',
                         title: '¡Actualizado!',
-                        text: 'Persona actualizada correctamente',
-                        timer: 2000,
+                        text: " . json_encode($txt_sw, JSON_UNESCAPED_UNICODE) . ",
+                        timer: 2300,
                         showConfirmButton: true,
                         confirmButtonColor: '#5a2d8c'
                     });

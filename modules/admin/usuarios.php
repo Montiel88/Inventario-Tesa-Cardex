@@ -2,6 +2,7 @@
 session_start();
 require_once '../../config/permisos.php';
 require_once '../../config/database.php';
+require_once '../../config/validaciones.php';
 verificarSesion();
 requiereAdmin();
 
@@ -17,22 +18,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['accion'])) {
     
     // CREAR NUEVO USUARIO
     if ($_POST['accion'] == 'crear') {
-        $nombre = $conn->real_escape_string($_POST['nombre']);
-        $email = $conn->real_escape_string($_POST['email']);
-        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $nombre = trim((string)($_POST['nombre'] ?? ''));
+        $email = trim((string)($_POST['email'] ?? ''));
+        $password = $_POST['password'] ?? '';
         $rol = $_POST['rol'] == 'admin' ? 1 : 2;
-        
-        // Verificar si el email ya existe
-        $check = $conn->query("SELECT id FROM usuarios WHERE email = '$email'");
-        if ($check && $check->num_rows > 0) {
-            $error = "❌ El email ya está registrado";
+
+        $errores_crear = [];
+        $advertencias_crear = [];
+        if ($nombre === '') {
+            $errores_crear[] = 'El nombre es obligatorio';
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errores_crear[] = 'Ingresa un correo electrónico válido';
+        } elseif (!validarDominioEmailTESA($email)) {
+            $advertencias_crear[] = 'ℹ️ Se recomienda usar correos institucionales (@tesa.edu.ec / @estud.tesa.edu.ec), pero se aceptan correos externos (Gmail/Hotmail/Outlook).';
+        }
+        if (strlen($password) < 6) {
+            $errores_crear[] = 'La contraseña debe tener al menos 6 caracteres';
+        }
+
+        if (!empty($errores_crear)) {
+            $error = '❌ ' . implode('<br>', $errores_crear);
         } else {
-            $sql = "INSERT INTO usuarios (nombre, email, password, rol, ultimo_acceso, created_at) 
-                    VALUES ('$nombre', '$email', '$password', '$rol', NOW(), NOW())";
-            if ($conn->query($sql)) {
-                $mensaje = "✅ Usuario creado correctamente";
+            $nombre_db = $conn->real_escape_string($nombre);
+            $email_db = $conn->real_escape_string($email);
+            $password_db = password_hash($password, PASSWORD_DEFAULT);
+
+            // Verificar si el email ya existe
+            $stmt_check = $conn->prepare("SELECT id FROM usuarios WHERE email = ? LIMIT 1");
+            $stmt_check->bind_param('s', $email);
+            $stmt_check->execute();
+            $res_check = $stmt_check->get_result();
+            if ($res_check && $res_check->num_rows > 0) {
+                $error = "❌ El email ya está registrado";
+                $stmt_check->close();
             } else {
-                $error = "❌ Error: " . $conn->error;
+                $stmt_check->close();
+                $sql = "INSERT INTO usuarios (nombre, email, password, rol, ultimo_acceso, created_at) 
+                        VALUES (?, ?, ?, ?, NOW(), NOW())";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('sssi', $nombre_db, $email_db, $password_db, $rol);
+                if ($stmt->execute()) {
+                    $mensaje = "✅ Usuario creado correctamente";
+                    if (!empty($advertencias_crear)) {
+                        $mensaje .= '<div class="alert alert-info mt-2 mb-0 small">' . implode('<br>', $advertencias_crear) . '</div>';
+                    }
+                } else {
+                    $error = "❌ Error: " . $conn->error;
+                }
+                $stmt->close();
             }
         }
     }
