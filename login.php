@@ -520,11 +520,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <i class="bi bi-box-arrow-in-right me-2"></i>Entrar al Sistema
                     </button>
 
+                    <!-- 
+                    ====================================================
+                     🔒 MÓDULO DE RECUPERACIÓN DE CONTRASEÑA DESHABILITADO
+                     Para habilitarlo luego: elimina el comentario del <a>
+                     y desactiva el redirect de forgot_password.php
+                    ====================================================
                     <div class="text-center mt-3">
                         <a href="forgot_password.php" style="color: #f3b229; text-decoration: none; font-size: 0.9rem;">
                             <i class="bi bi-question-circle me-1"></i> ¿Olvidaste tu contraseña?
                         </a>
                     </div>
+                    -->
                 </form>
 
                 <div class="footer-copyright">

@@ -353,8 +353,9 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         <?php endif; ?>
         
         <!-- TARJETAS DE ESTADÍSTICAS -->
-        <div class="row g-4 mb-4">
-            <div class="col-xl-3 col-md-6">
+        <!-- FILA 1: 3 tarjetas (Personas, Equipos, Préstamos) -->
+        <div class="row g-4 mb-4 justify-content-center">
+            <div class="col-lg-4 col-md-6">
                 <div class="card dashboard-card card-personas h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_personas; ?></h5>
@@ -365,7 +366,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+            <div class="col-lg-4 col-md-6">
                 <div class="card dashboard-card card-equipos h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_equipos; ?></h5>
@@ -376,7 +377,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+            <div class="col-lg-4 col-md-6">
                 <div class="card dashboard-card card-prestamos h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_prestamos; ?></h5>
@@ -387,7 +388,11 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+        </div>
+
+        <!-- FILA 2: 2 tarjetas (Equipos Disponibles + Componentes) -->
+        <div class="row g-4 mb-4 justify-content-center">
+            <div class="col-lg-5 col-md-6">
                 <div class="card dashboard-card card-disponibles h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_disponibles; ?></h5>
@@ -398,11 +403,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- SEGUNDA FILA (COMPONENTES) -->
-        <div class="row g-4 mb-4">
-            <div class="col-xl-3 col-md-6">
+            <div class="col-lg-5 col-md-6">
                 <div class="card dashboard-card card-personas h-100">
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_componentes; ?></h5>

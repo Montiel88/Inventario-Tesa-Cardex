@@ -4,6 +4,13 @@ require_once 'config/database.php';
 require_once 'config/validaciones.php';
 require_once 'config/NotificadorEmail.php';
 
+// ====================================================
+// 🔒 RECUPERACIÓN DE CONTRASEÑA TEMPORALMENTE DESHABILITADA
+// Para volver a habilitarla: elimina o comenta este bloque.
+// ====================================================
+header('Location: login.php?msg=recuperacion_desactivada');
+exit();
+
 if (isset($_SESSION['user_id'])) {
     header('Location: modules/dashboard.php');
     exit();

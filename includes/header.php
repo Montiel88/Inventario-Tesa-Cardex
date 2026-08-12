@@ -430,7 +430,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     /* ── Nav items wrapper ────────────────────────────── */
     .tn-items {
         display: flex; align-items: center; gap: 2px;
-        flex: 1; min-width: 0; overflow: visible;
+        flex: 0 0 auto; min-width: 0; overflow: visible;
     }
 
     /* ── Nav button ───────────────────────────────────── */
@@ -988,6 +988,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
 
         <!-- Collapse -->
         <div class="collapse navbar-collapse" id="tnMenu">
+            <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
 
             <div class="tn-sep ms-3 me-1"></div>
 
@@ -1091,26 +1092,6 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                 </div>
 
                 <?php if ($es_admin): ?>
-                <!-- Correos -->
-                <div class="dropdown">
-                    <a class="tn-btn dropdown-toggle" href="#"
-                       data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                        <span class="bi"><i class="fas fa-envelope-open-text"></i></span>
-                        Correos
-                        <i class="fas fa-chevron-down tn-caret"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/correos/listar.php">
-                            <span class="di"><i class="fas fa-inbox"></i></span>Gestión de Correos
-                        </a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/correos/composer.php">
-                            <span class="di"><i class="fas fa-pen-to-square"></i></span>Componer Correo
-                        </a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/correos/historial.php">
-                            <span class="di"><i class="fas fa-clock-rotate-left"></i></span>Historial
-                        </a></li>
-                    </ul>
-                </div>
 
                 <!-- Admin -->
                 <div class="dropdown">
@@ -1130,9 +1111,6 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         <li><a class="dropdown-item" href="/inventario_ti/modules/admin/configuracion.php">
                             <span class="di"><i class="fas fa-file-pdf"></i></span>Config. de Actas
                         </a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/admin/configuracion_email.php">
-                            <span class="di"><i class="fas fa-envelope-circle-check"></i></span>Config. de Email
-                        </a></li>
                         <li><a class="dropdown-item" href="/inventario_ti/modules/admin/logs.php">
                             <span class="di"><i class="fas fa-scroll"></i></span>Logs del Sistema
                         </a></li>
@@ -1142,7 +1120,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
 
             </div><!-- /tn-items -->
 
-            <!-- Right tools -->
+            <!-- Right tools: TODO junto al botón Salir (no al extremo izq) -->
             <div class="tn-tools ms-2">
 
                 <?php if (isset($_SESSION['user_id'])): ?>
@@ -1152,17 +1130,11 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                 <button class="tn-icon-btn" id="searchTrigger" type="button" title="Buscar (Ctrl+K)">
                     <i class="fas fa-magnifying-glass"></i>
                 </button>
-                <?php endif; ?>
-
-                <div class="tn-sep"></div>
-
                 <button class="tn-icon-btn" id="notifBtn"
                         onclick="toggleNotifications()" type="button" title="Notificaciones">
                     <i class="fas fa-bell"></i>
                     <span class="tn-badge" id="notificationBadgeHeader"></span>
                 </button>
-
-                <?php if (isset($_SESSION['user_id'])): ?>
                 <?php endif; ?>
 
                 <div class="tn-sep"></div>
@@ -1175,6 +1147,8 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                 <?php endif; ?>
 
             </div>
+
+            </div><!-- /wrapper ms-auto -->
 
         </div><!-- /collapse -->
     </div>

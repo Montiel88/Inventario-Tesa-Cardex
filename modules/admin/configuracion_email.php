@@ -1,6 +1,14 @@
 <?php
 session_start();
 
+// ====================================================
+// 🔒 CONFIGURACIÓN DE EMAIL TEMPORALMENTE DESHABILITADA
+// Para volver a habilitarla: comenta el bloque de redirect
+// y el item del menú Admin > Config. de Email en includes/header.php
+// ====================================================
+header('Location: /inventario_ti/modules/dashboard.php');
+exit();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] != 1) {
     header('Location: /inventario_ti/login.php');
     exit();
