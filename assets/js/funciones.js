@@ -30,6 +30,72 @@ function confirmarAccion(titulo, texto, callback) {
     });
 }
 
+/* =========================================================
+   Extensiones: Fetch con loading global + confirm + loading
+   Requieren SweetAlert2 (cargado en footer) y assets/js/uploading.js
+   ========================================================= */
+
+// Confirmar y luego ejecutar fetch con loading bloqueante
+function confirmarConLoading(tituloConfirm, textoConfirm, loadingTitulo, loadingTexto, callbackAsync) {
+    return Swal.fire({
+        title: tituloConfirm,
+        text: textoConfirm,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#5a2d8c',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, continuar',
+        cancelButtonText: 'Cancelar'
+    }).then(async function (res) {
+        if (!res.isConfirmed) return { confirmed: false };
+        try {
+            if (window.UXLoading && typeof window.UXLoading.mostrarGlobal === 'function') {
+                await window.UXLoading.mostrarGlobal(loadingTitulo || 'Procesando...', loadingTexto || 'Por favor espera...');
+            } else {
+                Swal.fire({
+                    title: loadingTitulo || 'Procesando...',
+                    html: (loadingTexto || 'Por favor espera...') +
+                          ' <div class="spinner-border mt-3 text-primary" role="status"></div>',
+                    allowOutsideClick: false, allowEscapeKey: false, showConfirmButton: false,
+                    didOpen: function () { Swal.showLoading(); }
+                });
+            }
+            const resultado = await callbackAsync();
+            if (window.UXLoading && typeof window.UXLoading.cerrarGlobal === 'function') {
+                window.UXLoading.cerrarGlobal();
+            } else {
+                try { Swal.close(); } catch (e) {}
+            }
+            return { confirmed: true, data: resultado };
+        } catch (err) {
+            if (window.UXLoading && typeof window.UXLoading.cerrarGlobal === 'function') {
+                window.UXLoading.cerrarGlobal();
+            } else {
+                try { Swal.close(); } catch (e) {}
+            }
+            Swal.fire({
+                icon: 'error',
+                title: 'Error inesperado',
+                text: (err && err.message) ? err.message : 'Revisa tu conexión e intenta nuevamente.',
+                confirmButtonColor: '#5a2d8c'
+            });
+            throw err;
+        }
+    });
+}
+
+// Helper: fetch seguro que retorna JSON y antes lee text() para debuggear errores HTML
+async function fetchSeguro(url, opts) {
+    const r = await fetch(url, opts || {});
+    const t = await r.text();
+    let json = null;
+    try { json = JSON.parse(t); } catch (e) {
+        const msg = 'Respuesta inválida del servidor: ' + t.substring(0, 300);
+        throw new Error(msg);
+    }
+    return { response: r, text: t, data: json };
+}
+
 // Formatear fecha para mostrar
 function formatearFecha(fecha) {
     return new Date(fecha).toLocaleDateString('es-EC', {

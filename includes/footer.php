@@ -117,6 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- Sistema de Notificaciones Toast -->
 <script src="/inventario_ti/js/notificaciones-toast.js"></script>
 <script src="/inventario_ti/assets/js/funciones.js"></script>
+<!-- UX Loading GLOBAL — Feedback visual en botones, forms y operaciones largas -->
+<script>window.__APP_BASE__ = '/inventario_ti';</script>
+<script src="/inventario_ti/assets/js/uploading.js"></script>
 <!-- Sistema de Alertas -->
 <script src="/inventario_ti/assets/js/alertas_sistema.js"></script>
 <?php ob_end_flush(); ?>

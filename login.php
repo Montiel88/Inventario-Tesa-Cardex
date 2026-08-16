@@ -453,16 +453,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         ¡Bienvenido!
                         <span>TESA Inventario</span>
                     </h1>
-                    <p>Sistema de gestión profesional para el control de inventario y préstamos del Tecnológico San Antonio.</p>
+                    <p>Sistema de gestión profesional para el control de inventario del Instituto Tecnológico San Antonio. TESA</p>
                     
                     <ul class="feature-list">
-                        <li>
-                            <i class="bi bi-people-fill"></i>
-                            <div>
-                                <strong>Gestión de Personas</strong>
-                                <p>Control total de docentes y estudiantes</p>
-                            </div>
-                        </li>
                         <li>
                             <i class="bi bi-laptop-fill"></i>
                             <div>

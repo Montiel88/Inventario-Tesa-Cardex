@@ -341,7 +341,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
         <div class="institution-title">
             <h1>INSTITUTO TECNOLÓGICO SAN ANTONIO</h1>
             <h2>TESA</h2>
-            <p class="subtitle">Sistema de Gestión de Inventario y Préstamos</p>
+            <p class="subtitle">Sistema de Gestión de Inventario</p>
         </div>
         
         <!-- AVISO PARA LECTORES -->

@@ -1091,6 +1091,30 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                     </ul>
                 </div>
 
+                <!-- Actas -->
+                <div class="dropdown">
+                    <a class="tn-btn dropdown-toggle" href="#"
+                       data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                        <span class="bi"><i class="fas fa-file-pdf"></i></span>
+                        Actas
+                        <i class="fas fa-chevron-down tn-caret"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/inventario_ti/modules/actas/index.php">
+                            <span class="di"><i class="fas fa-file-lines"></i></span>Listado de Actas
+                        </a></li>
+                        <?php if ($es_admin): ?>
+                        <li><a class="dropdown-item" href="/inventario_ti/modules/actas/generar.php">
+                            <span class="di"><i class="fas fa-file-circle-plus"></i></span>Generar Nueva Acta
+                        </a></li>
+                        <?php endif; ?>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/inventario_ti/modules/reportes/actas_generadas.php">
+                            <span class="di"><i class="fas fa-clock-rotate-left"></i></span>Actas desde Movimientos
+                        </a></li>
+                    </ul>
+                </div>
+
                 <?php if ($es_admin): ?>
 
                 <!-- Admin -->
@@ -1364,4 +1388,5 @@ function toggleNotifications() {
 <?php endif; ?>
 
 <main>
+
 
