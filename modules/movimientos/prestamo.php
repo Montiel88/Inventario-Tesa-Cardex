@@ -145,39 +145,170 @@ document.getElementById('buscar_persona').addEventListener('click', function() {
 });
 
 // Registrar préstamo
-document.getElementById('registrar_prestamo').addEventListener('click', function() {
+document.getElementById('registrar_prestamo').addEventListener('click', async function() {
     if (!productoSeleccionado || !personaSeleccionada) {
-        alert('Debes seleccionar producto y persona');
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Faltan datos',
+                text: 'Debes seleccionar un producto (equipo) y una persona antes de registrar el préstamo.',
+                confirmButtonColor: '#5a2d8c'
+            });
+        } else {
+            alert('Debes seleccionar producto y persona');
+        }
         return;
     }
-    
-    let datos = {
+
+    const btn = document.getElementById('registrar_prestamo');
+
+    // Paso 1: Confirmación amigable
+    let confirmado = true;
+    if (typeof Swal !== 'undefined') {
+        const res = await Swal.fire({
+            title: '¿Registrar préstamo?',
+            html:
+                '<div class="text-start">' +
+                '<p><strong>Producto:</strong> ' + (productoSeleccionado.nombre || 'Sin nombre') + '</p>' +
+                '<p><strong>Entregado a:</strong> ' + (personaSeleccionada.nombre_completo || personaSeleccionada.nombre || 'Sin nombre') + '</p>' +
+                '<p class="small text-muted mb-0">Se registrará como movimiento de SALIDA en el historial.</p>' +
+                '</div>',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#5a2d8c',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, registrar préstamo',
+            cancelButtonText: 'Cancelar'
+        });
+        confirmado = !!res.isConfirmed;
+        if (!confirmado) return;
+    }
+
+    // Paso 2: Loading global + aplicar loading en botón
+    if (typeof window.UXLoading !== 'undefined' && window.UXLoading.btnAplicar) {
+        window.UXLoading.btnAplicar(btn, 'Registrando préstamo...');
+    } else {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Registrando préstamo...';
+    }
+    if (typeof window.UXLoading !== 'undefined' && window.UXLoading.mostrarGlobal) {
+        try { await window.UXLoading.mostrarGlobal('Registrando préstamo...', 'Por favor espera mientras se guarda el movimiento y se actualiza el stock.'); } catch(e) {}
+    }
+
+    const datos = {
         producto_id: productoSeleccionado.id,
         persona_id: personaSeleccionada.id,
         tipo: 'SALIDA',
-        cantidad: -1, // Restar del inventario
+        cantidad: -1,
         observacion: 'Préstamo de equipo'
     };
-    
-    fetch('../../api/registrar_movimiento.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(datos)
-    })
-    .then(response => response.json())
-    .then(data => {
+
+    try {
+        const response = await fetch('../../api/registrar_movimiento.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datos)
+        });
+        const texto = await response.text();
+        let data;
+        try { data = JSON.parse(texto); } catch(e) {
+            throw new Error('Respuesta inválida del servidor: ' + texto.substring(0, 200));
+        }
+
+        if (typeof window.UXLoading !== 'undefined' && window.UXLoading.cerrarGlobal) {
+            try { window.UXLoading.cerrarGlobal(); } catch(e) {}
+        }
+        if (typeof window.UXLoading !== 'undefined' && window.UXLoading.btnRestaurar) {
+            window.UXLoading.btnRestaurar(btn);
+        } else {
+            btn.disabled = false;
+            btn.textContent = 'Registrar Préstamo';
+        }
+
         if (data.success) {
-            alert('Préstamo registrado con éxito');
-            // Limpiar y reiniciar
+            if (typeof Swal === 'undefined') {
+                alert('Préstamo registrado con éxito');
+                productoSeleccionado = null;
+                personaSeleccionada = null;
+                location.reload();
+                return;
+            }
+
+            const productoNombre = productoSeleccionado.nombre || 'Producto';
+            const personaNombre = (personaSeleccionada.nombre_completo || personaSeleccionada.nombre || 'Persona');
+
             productoSeleccionado = null;
             personaSeleccionada = null;
-            location.reload();
+
+            const resSwal = await Swal.fire({
+                icon: 'success',
+                title: '¡Préstamo Registrado con Éxito! ✅',
+                html:
+                    '<div class="text-start">' +
+                    '<div class="mb-2"><strong>Entregado a:</strong></div>' +
+                    '<div class="alert alert-light py-2 px-3 mb-3 border">' + personaNombre + '</div>' +
+                    '<div class="mb-1"><strong>Producto:</strong></div>' +
+                    '<div class="alert alert-warning py-2 px-3 mb-3 border border-warning bg-opacity-20">' + productoNombre + '</div>' +
+                    '<p class="small text-muted mb-0"><i class="fas fa-info-circle me-1"></i> El movimiento ya quedó registrado en Historial de Movimientos.</p>' +
+                    '</div>',
+                showCancelButton: true,
+                showDenyButton: true,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                reverseButtons: true,
+                confirmButtonColor: '#198754',
+                denyButtonColor: '#f3b229',
+                cancelButtonColor: '#6c757d',
+                cancelButtonText: '<i class="fas fa-home me-1"></i> Volver al Inicio',
+                denyButtonText: '<i class="fas fa-redo me-1"></i> Registrar Otro Préstamo',
+                confirmButtonText: '<i class="fas fa-history me-1"></i> Ver Historial'
+            });
+
+            if (resSwal.isConfirmed) {
+                window.location.href = 'historial.php';
+                return;
+            }
+            if (resSwal.isDenied) {
+                // Limpiar formularios visualmente y recargar para reiniciar
+                location.reload();
+                return;
+            }
+            window.location.href = '/inventario_ti/modules/dashboard.php';
+            return;
+
         } else {
-            alert('Error: ' + data.mensaje);
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'No se pudo registrar',
+                    text: data.mensaje || 'Error desconocido al guardar el préstamo.',
+                    confirmButtonColor: '#dc3545'
+                });
+            } else {
+                alert('Error: ' + (data.mensaje || 'No se pudo guardar'));
+            }
         }
-    });
+    } catch(err) {
+        if (typeof window.UXLoading !== 'undefined' && window.UXLoading.cerrarGlobal) {
+            try { window.UXLoading.cerrarGlobal(); } catch(e) {}
+        }
+        if (typeof window.UXLoading !== 'undefined' && window.UXLoading.btnRestaurar) {
+            window.UXLoading.btnRestaurar(btn);
+        } else {
+            btn.disabled = false;
+            btn.textContent = 'Registrar Préstamo';
+        }
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error inesperado',
+                text: (err && err.message) ? err.message : 'Revisa tu conexión e intenta nuevamente.',
+                confirmButtonColor: '#dc3545'
+            });
+        } else {
+            alert('Error inesperado: ' + (err && err.message ? err.message : ''));
+        }
+    }
 });
 </script>
 
