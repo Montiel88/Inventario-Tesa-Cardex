@@ -18,30 +18,72 @@ require_once '../../config/notificaciones_helper.php';
 include '../../includes/header.php';
 require_once '../../config/validaciones.php';
 
+// ============================================
+// HELPERS PRG + FLASH PARA PERSONAS
+// ============================================
+$_IS_XHR_PERS = (
+    isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+    && strcasecmp($_SERVER['HTTP_X_REQUESTED_WITH'], 'xmlhttprequest') === 0
+);
+
+function _persona_redir($url, $extraJson = [])
+{
+    global $_IS_XHR_PERS;
+    while (ob_get_level() > 0) {
+        @ob_end_clean();
+    }
+    if ($_IS_XHR_PERS) {
+        header('Content-Type: application/json; charset=utf-8');
+        $payload = array_merge(['ok' => 1, 'redirect_url' => $url], $extraJson);
+        echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+    header('Location: ' . $url);
+    exit();
+}
+
+function _fallo_pers($msgErr, $restore = [])
+{
+    $_SESSION['error'] = $msgErr;
+    if (!empty($restore)) {
+        $_SESSION['flash_personas_restore'] = $restore;
+    }
+    _persona_redir('agregar.php?err=1');
+}
+
 $mensaje = '';
-$error = '';
+$error   = '';
 
 // ============================================
 // PROCESAR EL FORMULARIO CUANDO SE ENVÍA
 // ============================================
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    
-    $cedula        = trim($conn->real_escape_string($_POST['cedula']));
-    $nombres       = trim($conn->real_escape_string($_POST['nombres']));
-    $correo        = trim($conn->real_escape_string($_POST['correo'] ?? ''));
-    $cargo         = trim($conn->real_escape_string($_POST['cargo']));
-    $telefono      = trim($conn->real_escape_string($_POST['telefono'] ?? ''));
-    $observaciones = trim($conn->real_escape_string($_POST['observaciones'] ?? ''));
-    
-    $errores = [];
+
+    $cedula        = trim(strval($_POST['cedula']        ?? ''));
+    $nombres       = trim(strval($_POST['nombres']       ?? ''));
+    $correo        = trim(strval($_POST['correo']        ?? ''));
+    $cargo         = trim(strval($_POST['cargo']         ?? ''));
+    $telefono      = trim(strval($_POST['telefono']      ?? ''));
+    $observaciones = trim(strval($_POST['observaciones'] ?? ''));
+
+    $restore = [
+        'cedula'        => $cedula,
+        'nombres'       => $nombres,
+        'correo'        => $correo,
+        'cargo'         => $cargo,
+        'telefono'      => $telefono,
+        'observaciones' => $observaciones,
+    ];
+
+    $errores      = [];
     $advertencias = [];
-    
+
     if (empty($cedula)) {
         $errores[] = "La cédula es obligatoria";
     } elseif (!validarCedulaEcuador($cedula)) {
         $errores[] = "La cédula no es válida. Debe tener 10 dígitos y cumplir el algoritmo ecuatoriano.";
     }
-    
+
     if (empty($nombres)) {
         $errores[] = "El nombre es obligatorio";
     } elseif (!validarNombre($nombres)) {
@@ -51,65 +93,117 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!empty($telefono) && !validarTelefono($telefono)) {
         $errores[] = "El teléfono debe tener entre 7 y 10 dígitos numéricos.";
     }
-    
+
     if (empty($cargo)) {
         $errores[] = "El cargo es obligatorio";
     }
-    
+
     if (!empty($correo) && !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
         $errores[] = "El correo electrónico no es válido";
     } elseif (!empty($correo) && !validarDominioEmailTESA($correo)) {
         $advertencias[] = "Se recomienda usar correos institucionales @tesa.edu.ec / @estud.tesa.edu.ec. El correo $correo fue aceptado de todos modos.";
     }
-    
-    if (empty($errores)) {
-        $check_sql    = "SELECT id FROM personas WHERE cedula = '$cedula'";
-        $check_result = $conn->query($check_sql);
-        
-        if ($check_result && $check_result->num_rows > 0) {
-            $error = "❌ La cédula $cedula ya está registrada en el sistema. No se puede duplicar.";
-        } else {
-            $sql = "INSERT INTO personas (cedula, nombres, correo, cargo, telefono, observaciones) 
-                    VALUES ('$cedula', '$nombres', '$correo', '$cargo', '$telefono', '$observaciones')";
-            
-            if ($conn->query($sql)) {
-                $id_persona = $conn->insert_id;
-                
-                registrar_notificacion(
-                    $_SESSION['user_id'],
-                    'success',
-                    '👤 Persona agregada',
-                    "Se agregó a {$nombres} (cédula {$cedula})",
-                    "/inventario_ti/modules/personas/detalle.php?id=" . $id_persona
-                );
-                
-                require_once '../../includes/logs_functions.php';
-                registrarLog($conn, 'Crear persona', "Cédula: {$cedula}, Nombre: {$nombres}", $_SESSION['user_id']);
-                
-                $txt_sw = "Persona registrada correctamente";
-                if (!empty($advertencias)) {
-                    $txt_sw .= "\n\n⚠️ " . implode("\n", $advertencias);
-                }
-                
-                echo "<script>
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: " . json_encode($txt_sw, JSON_UNESCAPED_UNICODE) . ",
-                        timer: 2600,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = 'listar.php';
-                    });
-                </script>";
-            } else {
-                $error = "❌ Error al guardar: " . $conn->error;
-            }
-        }
-    } else {
-        $error = implode("<br>", $errores);
+
+    if (!empty($errores)) {
+        _fallo_pers(implode("<br>", $errores), $restore);
     }
+
+    // Check cédula duplicada (prepared)
+    $id_persona = 0;
+    try {
+        $stmtCheck = $conn->prepare("SELECT id FROM personas WHERE cedula = ? LIMIT 1");
+        if (!$stmtCheck) {
+            _fallo_pers("Error preparando verificación de cédula: " . $conn->error, $restore);
+        }
+        $stmtCheck->bind_param('s', $cedula);
+        $stmtCheck->execute();
+        $stmtCheck->store_result();
+        if ($stmtCheck->num_rows > 0) {
+            $stmtCheck->close();
+            _fallo_pers("❌ La cédula $cedula ya está registrada en el sistema. No se puede duplicar.", $restore);
+        }
+        $stmtCheck->close();
+    } catch (\Exception $eChk) {
+        _fallo_pers("Error verificando cédula duplicada: " . $eChk->getMessage(), $restore);
+    }
+
+    // Transacción: INSERT persona + notificaciones + logs
+    $conn->begin_transaction();
+    try {
+        $sqlIns = "INSERT INTO personas (cedula, nombres, correo, cargo, telefono, observaciones) VALUES (?,?,?,?,?,?)";
+        $stmtIns = $conn->prepare($sqlIns);
+        if (!$stmtIns) {
+            throw new \Exception("Error preparando INSERT persona: " . $conn->error);
+        }
+        $stmtIns->bind_param('ssssss', $cedula, $nombres, $correo, $cargo, $telefono, $observaciones);
+        if (!$stmtIns->execute()) {
+            throw new \Exception("Error al insertar persona: " . $stmtIns->error);
+        }
+        $id_persona = intval($conn->insert_id);
+        $stmtIns->close();
+
+        try {
+            registrar_notificacion(
+                $_SESSION['user_id'],
+                'success',
+                '👤 Persona agregada',
+                "Se agregó a {$nombres} (cédula {$cedula})",
+                "/inventario_ti/modules/personas/detalle.php?id=" . $id_persona
+            );
+        } catch (\Exception $eNotif) { $eNotif = null; }
+
+        try {
+            require_once '../../includes/logs_functions.php';
+            registrarLog($conn, 'Crear persona', "Cédula: {$cedula}, Nombre: {$nombres}", $_SESSION['user_id']);
+        } catch (\Exception $eLog) { $eLog = null; }
+
+        $conn->commit();
+    } catch (\Exception $e) {
+        try { $conn->rollback(); } catch (\Exception $eRb) { $eRb = null; }
+        _fallo_pers("❌ Error al guardar: " . $e->getMessage(), $restore);
+    }
+
+    // ================== ÉXITO ==================
+    $successMsg = "Persona registrada correctamente (ID #$id_persona).";
+    if (!empty($advertencias)) {
+        $successMsg .= " | " . implode(" | ", $advertencias);
+    }
+
+    $_SESSION['success'] = "✅ Persona $nombres agregada con éxito (ID #$id_persona).";
+    $_SESSION['ui_popup_personas'] = [
+        'persona_id'   => $id_persona,
+        'cedula'       => $cedula,
+        'nombres'      => $nombres,
+        'cargo'        => $cargo,
+        'correo'       => $correo,
+        'telefono'     => $telefono,
+        'observaciones'=> $observaciones,
+        'resumen_url'  => '/inventario_ti/modules/personas/listar.php',
+    ];
+    $_SESSION['ultima_persona_agregada'] = $id_persona;
+    unset($_SESSION['flash_personas_restore']);
+
+    _persona_redir('agregar.php?ok=1', [
+        'persona_id' => $id_persona,
+        'cedula'     => $cedula,
+        'nombres'    => $nombres,
+    ]);
 }
+
+// ============================================
+// GET: RESTORE FLASH + CONSTANTES JS RESTORE_*
+// ============================================
+$persRestore = !empty($_SESSION['flash_personas_restore']) && is_array($_SESSION['flash_personas_restore'])
+    ? $_SESSION['flash_personas_restore']
+    : [];
+unset($_SESSION['flash_personas_restore']);
+
+$RESTORE_CEDULA     = isset($persRestore['cedula'])        ? strval($persRestore['cedula'])        : '';
+$RESTORE_NOMBRES    = isset($persRestore['nombres'])       ? strval($persRestore['nombres'])       : '';
+$RESTORE_CORREO     = isset($persRestore['correo'])        ? strval($persRestore['correo'])        : '';
+$RESTORE_CARGO      = isset($persRestore['cargo'])         ? strval($persRestore['cargo'])         : '';
+$RESTORE_TELEFONO   = isset($persRestore['telefono'])      ? strval($persRestore['telefono'])      : '';
+$RESTORE_OBS        = isset($persRestore['observaciones']) ? strval($persRestore['observaciones']) : '';
 ?>
 
 <!-- ══════════════════════════════════════════════════
@@ -381,7 +475,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <!-- ════════════════════════════
                          FORMULARIO
                     ════════════════════════════ -->
-                    <form method="POST" action="" id="formPersona">
+                    <form method="POST" action="" id="frmAgregarPersona">
 
                         <!-- ── Sección: Identificación ── -->
                         <div class="section-label">
@@ -402,7 +496,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                            id="cedula"
                                            name="cedula"
                                            class="form-control"
-                                           value="<?= isset($_POST['cedula']) ? htmlspecialchars($_POST['cedula']) : '' ?>"
+                                           value="<?= htmlspecialchars($RESTORE_CEDULA) ?>"
                                            placeholder="Ej: 1723456789"
                                            maxlength="10"
                                            inputmode="numeric"
@@ -438,7 +532,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                        id="nombres"
                                        name="nombres"
                                        class="form-control"
-                                       value="<?= isset($_POST['nombres']) ? htmlspecialchars($_POST['nombres']) : '' ?>"
+                                       value="<?= htmlspecialchars($RESTORE_NOMBRES) ?>"
                                        placeholder="Se autocompleta al ingresar la cédula"
                                        required>
                             </div>
@@ -461,7 +555,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                        id="correo"
                                        name="correo"
                                        class="form-control"
-                                       value="<?= isset($_POST['correo']) ? htmlspecialchars($_POST['correo']) : '' ?>"
+                                       value="<?= htmlspecialchars($RESTORE_CORREO) ?>"
                                        placeholder="ejemplo@tesa.edu.ec">
                             </div>
 
@@ -474,7 +568,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                        id="telefono"
                                        name="telefono"
                                        class="form-control"
-                                       value="<?= isset($_POST['telefono']) ? htmlspecialchars($_POST['telefono']) : '' ?>"
+                                       value="<?= htmlspecialchars($RESTORE_TELEFONO) ?>"
                                        placeholder="Ej: 0987654321"
                                        maxlength="10"
                                        pattern="[0-9]{7,10}"
@@ -500,7 +594,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                        id="cargo"
                                        name="cargo"
                                        class="form-control"
-                                       value="<?= isset($_POST['cargo']) ? htmlspecialchars($_POST['cargo']) : '' ?>"
+                                       value="<?= htmlspecialchars($RESTORE_CARGO) ?>"
                                        placeholder="Ej: Analista de TI, Docente, Administrativo…"
                                        required>
                             </div>
@@ -514,7 +608,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                           name="observaciones"
                                           class="form-control"
                                           rows="3"
-                                          placeholder="Notas adicionales sobre esta persona…"><?= isset($_POST['observaciones']) ? htmlspecialchars($_POST['observaciones']) : '' ?></textarea>
+                                          placeholder="Notas adicionales sobre esta persona…"><?= htmlspecialchars($RESTORE_OBS) ?></textarea>
                             </div>
 
                         </div>
@@ -525,8 +619,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <a href="listar.php" class="btn btn-cancelar">
                                 <i class="fas fa-arrow-left me-2"></i>Cancelar
                             </a>
-                            <button type="submit" class="btn btn-guardar" id="btnGuardar">
-                                <i class="fas fa-floppy-disk me-2"></i>Guardar Persona
+                            <button type="button" class="btn btn-guardar" id="btnRegistrarPersona">
+                                <span class="btn-text"><i class="fas fa-floppy-disk me-2"></i>Guardar Persona</span>
+                                <span class="btn-spinner d-none spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
                             </button>
                         </div>
 
@@ -538,23 +633,97 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </div>
 
 <!-- ══════════════════════════════════════════════════
-     JAVASCRIPT — AUTOCOMPLETE DE CÉDULA (SRI)
+     JAVASCRIPT — AUTOCOMPLETE DE CÉDULA (SRI) + SUBMIT MANUAL
 ══════════════════════════════════════════════════ -->
 <script>
+const RESTORE_CEDULA   = <?php echo json_encode($RESTORE_CEDULA,   JSON_UNESCAPED_UNICODE); ?>;
+const RESTORE_NOMBRES  = <?php echo json_encode($RESTORE_NOMBRES,  JSON_UNESCAPED_UNICODE); ?>;
+const RESTORE_CORREO   = <?php echo json_encode($RESTORE_CORREO,   JSON_UNESCAPED_UNICODE); ?>;
+const RESTORE_CARGO    = <?php echo json_encode($RESTORE_CARGO,    JSON_UNESCAPED_UNICODE); ?>;
+const RESTORE_TELEFONO = <?php echo json_encode($RESTORE_TELEFONO, JSON_UNESCAPED_UNICODE); ?>;
+const RESTORE_OBS      = <?php echo json_encode($RESTORE_OBS,      JSON_UNESCAPED_UNICODE); ?>;
+
 (function () {
     'use strict';
 
+    function __escapeHtmlP(str) {
+        if (str === null || str === undefined) return '';
+        str = String(str);
+        const map = { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;', '`':'&#96;' };
+        return str.replace(/[&<>"'`]/g, function(ch) { return map[ch] || ch; });
+    }
+
+    function whenReady(fn) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', fn, { once: true });
+        } else {
+            fn();
+        }
+    }
+
     /* ── Referencias DOM ── */
-    const inputCedula  = document.getElementById('cedula');
-    const inputNombres = document.getElementById('nombres');
-    const feedback     = document.getElementById('cedulaFeedback');
-    const statusIcon   = document.getElementById('cedulaStatusIcon');
-    const sriBadge     = document.getElementById('sriBadge');
+    const inputCedula    = document.getElementById('cedula');
+    const inputNombres   = document.getElementById('nombres');
+    const inputCorreo    = document.getElementById('correo');
+    const inputCargo     = document.getElementById('cargo');
+    const inputTelefono  = document.getElementById('telefono');
+    const inputObs       = document.getElementById('observaciones');
+    const feedback       = document.getElementById('cedulaFeedback');
+    const statusIcon     = document.getElementById('cedulaStatusIcon');
+    const sriBadge       = document.getElementById('sriBadge');
+    const formPers       = document.getElementById('frmAgregarPersona');
+    const btnGuardar     = document.getElementById('btnRegistrarPersona');
 
     if (!inputCedula) return;
 
     let debounceTimer = null;
     let ultimaCedula  = '';
+    let _btnOriginalText = '';
+
+    function setLoading(loading, textoOri) {
+        if (!btnGuardar) return;
+        const txtSpan = btnGuardar.querySelector('.btn-text');
+        const spnSpan = btnGuardar.querySelector('.btn-spinner');
+        if (!txtSpan || !spnSpan) return;
+        if (loading) {
+            _btnOriginalText = txtSpan.textContent.trim();
+            txtSpan.textContent = (textoOri && typeof textoOri === 'string') ? textoOri : 'Guardando…';
+            spnSpan.classList.remove('d-none');
+            btnGuardar.disabled = true;
+            btnGuardar.style.opacity = '0.7';
+            btnGuardar.style.pointerEvents = 'none';
+        } else {
+            txtSpan.textContent = (_btnOriginalText && _btnOriginalText.length > 0) ? _btnOriginalText : txtSpan.textContent;
+            spnSpan.classList.add('d-none');
+            btnGuardar.disabled = false;
+            btnGuardar.style.opacity = '';
+            btnGuardar.style.pointerEvents = '';
+        }
+    }
+
+    whenReady(function () {
+        // Restore flash solo si los campos están vacíos (no SRI o user escribió después)
+        try {
+            if (RESTORE_CEDULA && !inputCedula.value) {
+                inputCedula.value = RESTORE_CEDULA;
+            }
+            if (RESTORE_NOMBRES && !inputNombres.value) {
+                inputNombres.value = RESTORE_NOMBRES;
+            }
+            if (RESTORE_CORREO && !inputCorreo.value) {
+                inputCorreo.value = RESTORE_CORREO;
+            }
+            if (RESTORE_CARGO && !inputCargo.value) {
+                inputCargo.value = RESTORE_CARGO;
+            }
+            if (RESTORE_TELEFONO && !inputTelefono.value) {
+                inputTelefono.value = RESTORE_TELEFONO;
+            }
+            if (RESTORE_OBS && !inputObs.value) {
+                inputObs.value = RESTORE_OBS;
+            }
+        } catch (e) {}
+    });
 
     /* ── Escuchar escritura en cédula ── */
     inputCedula.addEventListener('input', function () {
@@ -707,23 +876,132 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         inputCedula.focus();
     });
 
-    /* ── Validación final al enviar ── */
-    document.getElementById('formPersona')?.addEventListener('submit', function (e) {
-        const cedula   = inputCedula.value;
-        const telefono = document.getElementById('telefono')?.value || '';
+    /* ── SUBMIT MANUAL VÍA XHR + Swal confirmación previa ── */
+    function _do_submit() {
+        if (!formPers) return;
+        const cedula    = (inputCedula.value || '').trim();
+        const nombres   = (inputNombres.value || '').trim();
+        const correo    = (inputCorreo.value || '').trim();
+        const cargo     = (inputCargo.value || '').trim();
+        const telefono  = (inputTelefono.value || '').trim();
+        const obs       = (inputObs.value || '').trim();
 
-        if (cedula && !/^\d{10}$/.test(cedula)) {
-            e.preventDefault();
-            Swal.fire({ icon: 'warning', title: 'Cédula inválida', text: 'La cédula debe tener exactamente 10 dígitos numéricos.', confirmButtonColor: '#5a2d8c' });
-            return;
-        }
+        const faltan = [];
+        if (!cedula) faltan.push('La cédula es obligatoria');
+        else if (!/^\d{10}$/.test(cedula)) faltan.push('La cédula debe tener 10 dígitos numéricos');
+
+        if (!nombres) faltan.push('El nombre es obligatorio');
+        else if (nombres.length < 3) faltan.push('El nombre debe tener al menos 3 caracteres');
+
+        if (!cargo) faltan.push('El cargo es obligatorio');
 
         if (telefono && !/^\d{7,10}$/.test(telefono)) {
-            e.preventDefault();
-            Swal.fire({ icon: 'warning', title: 'Teléfono inválido', text: 'El teléfono debe tener entre 7 y 10 dígitos numéricos.', confirmButtonColor: '#5a2d8c' });
+            faltan.push('Teléfono inválido (7 a 10 dígitos)');
+        }
+
+        if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+            faltan.push('Correo electrónico no válido');
+        }
+
+        if (faltan.length > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos obligatorios',
+                html: faltan.map(x => '⚠️ ' + __escapeHtmlP(x)).join('<br>'),
+                confirmButtonText: '<i class="fas fa-pen me-1"></i> Corregir',
+                confirmButtonColor: '#5a2d8c',
+                allowOutsideClick: false
+            });
             return;
         }
-    });
+
+        // ====== Swal confirmación antes de enviar ======
+        let htmlRes = '<div class="text-start">';
+        htmlRes += '<p class="mb-2"><strong>Cédula: </strong><span class="badge bg-purple-200 text-dark" style="background:#e9d5ff">' + __escapeHtmlP(cedula) + '</span></p>';
+        htmlRes += '<p class="mb-2"><strong>Nombres: </strong>' + __escapeHtmlP(nombres) + '</p>';
+        htmlRes += '<p class="mb-2"><strong>Cargo: </strong><span class="badge bg-info text-white">' + __escapeHtmlP(cargo) + '</span></p>';
+        if (correo)   htmlRes += '<p class="mb-2 small"><strong>Correo: </strong>' + __escapeHtmlP(correo) + '</p>';
+        if (telefono) htmlRes += '<p class="mb-2 small"><strong>Teléfono: </strong>' + __escapeHtmlP(telefono) + '</p>';
+        if (obs)      htmlRes += '<p class="mb-1 small"><strong>Observaciones: </strong>' + __escapeHtmlP(obs) + '</p>';
+        htmlRes += '</div>';
+
+        Swal.fire({
+            icon: 'question',
+            title: '¿Guardar nueva persona?',
+            html: htmlRes,
+            showCancelButton: true,
+            confirmButtonColor: '#198754',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-check me-1"></i> Sí, guardar persona',
+            cancelButtonText: '<i class="fas fa-xmark me-1"></i> Cancelar',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        }).then((res) => {
+            if (!res.isConfirmed) return;
+
+            setLoading(true, 'Guardando persona…');
+            try {
+                const fd = new FormData(formPers);
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'agregar.php', true);
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.onload = function () {
+                    setLoading(false);
+                    try {
+                        if (xhr.status >= 200 && xhr.status < 400) {
+                            let payload = null;
+                            try { payload = JSON.parse(xhr.responseText || '{}'); } catch (ej) { payload = null; }
+                            if (payload && payload.redirect_url) {
+                                window.location.href = payload.redirect_url;
+                                return;
+                            }
+                            // Fallback si no hay JSON
+                            window.location.href = 'agregar.php?ok=1';
+                            return;
+                        }
+                        throw new Error('HTTP ' + xhr.status);
+                    } catch (errSub) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al guardar',
+                            text: 'No se pudo completar el guardado. Inténtalo de nuevo.',
+                            confirmButtonText: '<i class="fas fa-rotate me-1"></i> Reintentar',
+                            confirmButtonColor: '#dc3545',
+                            allowOutsideClick: false
+                        }).then((r2) => {
+                            if (r2.isConfirmed) { setTimeout(_do_submit, 200); }
+                        });
+                    }
+                };
+                xhr.onerror = function () {
+                    setLoading(false);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de conexión',
+                        text: 'Revisa tu conexión a internet e inténtalo nuevamente.',
+                        confirmButtonText: '<i class="fas fa-rotate me-1"></i> Reintentar',
+                        confirmButtonColor: '#dc3545',
+                        allowOutsideClick: false
+                    }).then((r2) => {
+                        if (r2.isConfirmed) { setTimeout(_do_submit, 200); }
+                    });
+                };
+                xhr.send(fd);
+            } catch (errBuild) {
+                setLoading(false);
+                Swal.fire({ icon: 'error', title: 'Error interno', text: String(errBuild && errBuild.message || errBuild), confirmButtonColor: '#5a2d8c' });
+            }
+        });
+    }
+
+    if (btnGuardar) {
+        btnGuardar.addEventListener('click', function (e) {
+            if (e && typeof e.preventDefault === 'function') e.preventDefault();
+            if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+            _do_submit();
+            return false;
+        });
+    }
 
     setIdle();
 })();

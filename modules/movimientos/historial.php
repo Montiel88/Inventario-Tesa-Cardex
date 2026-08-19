@@ -47,7 +47,13 @@ if ($filtro == 'activos') {
                 e.tipo_equipo,
                 e.codigo_barras,
                 e.marca,
-                e.modelo
+                e.modelo,
+                (SELECT a.id FROM actas a 
+                    WHERE a.persona_id = m.persona_id 
+                      AND FIND_IN_SET(m.equipo_id, a.equipos_ids)
+                      AND a.tipo_acta = LOWER(m.tipo_movimiento)
+                      AND ABS(TIMESTAMPDIFF(HOUR, a.fecha_generacion, m.fecha_movimiento)) <= 48
+                 ORDER BY a.id DESC LIMIT 1) AS acta_id
             FROM movimientos m
             INNER JOIN equipos e ON m.equipo_id = e.id
             WHERE m.persona_id = $persona_id
@@ -61,7 +67,13 @@ if ($filtro == 'activos') {
                 m.*,
                 e.tipo_equipo,
                 e.codigo_barras,
-                p.nombres as persona_nombre
+                p.nombres as persona_nombre,
+                (SELECT a.id FROM actas a 
+                    WHERE a.persona_id = m.persona_id 
+                      AND FIND_IN_SET(m.equipo_id, a.equipos_ids)
+                      AND a.tipo_acta = LOWER(m.tipo_movimiento)
+                      AND ABS(TIMESTAMPDIFF(HOUR, a.fecha_generacion, m.fecha_movimiento)) <= 48
+                 ORDER BY a.id DESC LIMIT 1) AS acta_id
             FROM movimientos m
             LEFT JOIN equipos e ON m.equipo_id = e.id
             LEFT JOIN personas p ON m.persona_id = p.id
@@ -172,7 +184,11 @@ $result = $conn->query($sql);
                                                         <i class="fas fa-file-pdf"></i> Ver
                                                     </a>
                                                 <?php elseif ($row['tipo_movimiento'] == 'ASIGNACION' || $row['tipo_movimiento'] == 'DEVOLUCION'): ?>
-                                                    <button class="btn btn-sm btn-outline-danger btn-upload-mov" data-id="<?php echo $row['id']; ?>" data-tipo="<?php echo $row['tipo_movimiento']; ?>">
+                                                    <button class="btn btn-sm btn-outline-danger btn-upload-mov" 
+                                                            data-id="<?php echo $row['id']; ?>" 
+                                                            data-movimiento-id="<?php echo $row['id']; ?>" 
+                                                            data-acta-id="<?php echo intval($row['acta_id'] ?? 0); ?>" 
+                                                            data-tipo="<?php echo $row['tipo_movimiento']; ?>">
                                                         <i class="fas fa-upload"></i> Subir
                                                     </button>
                                                 <?php else: ?>
@@ -264,18 +280,27 @@ $result = $conn->query($sql);
                 <h5 class="modal-title"><i class="fas fa-upload me-2"></i>Subir Acta Firmada</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formSubidaActaMov" enctype="multipart/form-data">
+            <form id="formSubidaActaMov" 
+                  method="POST" 
+                  action="../../api/subir_acta_firmada.php" 
+                  enctype="multipart/form-data" 
+                  class="needs-ajax-upload" 
+                  data-ajax="1" 
+                  data-ux-no-auto="1">
                 <div class="modal-body">
-                    <input type="hidden" name="movimiento_id" id="upload_mov_id">
+                    <input type="hidden" name="movimiento_id" id="upload_mov_id" value="0">
+                    <input type="hidden" name="acta_id" id="upload_acta_id" value="0">
                     <div class="mb-3">
                         <label class="form-label">Tipo de Movimiento: <strong id="upload_mov_tipo"></strong></label>
                         <input type="file" name="archivo_firmado" class="form-control" accept=".pdf" required>
-                        <small class="text-muted">Adjunta el acta escaneada en formato PDF.</small>
+                        <small class="text-muted">Adjunta el acta escaneada en formato PDF (máx 15 MB).</small>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Subir Archivo</button>
+                    <button type="submit" class="btn btn-primary btn-subir-acta">
+                        <i class="fas fa-cloud-upload-alt me-1"></i> Subir Archivo
+                    </button>
                 </div>
             </form>
         </div>
@@ -290,23 +315,69 @@ document.addEventListener('DOMContentLoaded', function() {
     
     document.querySelectorAll('.btn-upload-mov').forEach(btn => {
         btn.addEventListener('click', function() {
-            document.getElementById('upload_mov_id').value = this.dataset.id;
-            document.getElementById('upload_mov_tipo').innerText = this.dataset.tipo;
+            const movId = intvalOrZero(this.dataset.movimientoId || this.dataset.id || '0');
+            const actId = intvalOrZero(this.dataset.actaId || '0');
+            const tipo = this.dataset.tipo || '';
+            document.getElementById('upload_mov_id').value = movId;
+            document.getElementById('upload_acta_id').value = actId;
+            document.getElementById('upload_mov_tipo').innerText = tipo;
+            // Reset file input & restore button loading state
+            const fileInput = formSubida.querySelector('input[type="file"]');
+            if (fileInput) fileInput.value = '';
+            const submitBtn = formSubida.querySelector('button[type="submit"]');
+            if (submitBtn && window.UXLoading && window.UXLoading.btnRestaurar) {
+                window.UXLoading.btnRestaurar(submitBtn);
+            }
             modalSubida.show();
         });
     });
 
+    function intvalOrZero(v) {
+        const n = parseInt(String(v || '0'), 10);
+        return Number.isFinite(n) && n > 0 ? n : 0;
+    }
+
     formSubida.addEventListener('submit', function(e) {
         e.preventDefault();
+
+        const movId = intvalOrZero(document.getElementById('upload_mov_id').value);
+        const actId = intvalOrZero(document.getElementById('upload_acta_id').value);
+
+        if (movId <= 0 && actId <= 0) {
+            modalSubida.hide();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de configuración',
+                text: 'No se pudo identificar el movimiento. Por favor recarga la página e intenta nuevamente. Si el problema persiste contacta a soporte.',
+                confirmButtonColor: '#b91c1c',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        const fileInput = formSubida.querySelector('input[name="archivo_firmado"]');
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Falta archivo',
+                text: 'Selecciona un PDF antes de subir.',
+                confirmButtonColor: '#f3b229',
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
+
         const formData = new FormData(this);
         
         Swal.fire({
-            title: 'Subiendo archivo...',
+            title: 'Subiendo archivo firmado...',
             didOpen: () => { Swal.showLoading(); },
-            allowOutsideClick: false
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false
         });
 
-        fetch('../../api/subir_acta_firmada.php', {
+        fetch(formSubida.getAttribute('action') || '../../api/subir_acta_firmada.php', {
             method: 'POST',
             body: formData
         })
@@ -324,9 +395,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return data;
         })
         .then(data => {
+            Swal.close();
+            modalSubida.hide();
             if (data.success) {
-                Swal.close();
-                modalSubida.hide();
                 Swal.fire({
                     icon: 'success',
                     title: '¡Éxito!',
@@ -339,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
+                    title: 'Error al subir',
                     text: data.message || 'Error desconocido',
                     confirmButtonColor: '#b91c1c',
                     confirmButtonText: 'OK'
@@ -347,9 +418,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         })
         .catch(error => {
+            try { Swal.close(); } catch(e) {}
+            try { modalSubida.hide(); } catch(e) {}
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
+                title: 'Error de conexión',
                 text: 'Hubo un problema con la conexión: ' + (error.message || ''),
                 confirmButtonColor: '#b91c1c',
                 confirmButtonText: 'OK'

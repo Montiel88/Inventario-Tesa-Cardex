@@ -23,8 +23,8 @@ if ($check->num_rows > 0) {
     exit;
 }
 
-$sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones) 
-        VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$serie', '$especificaciones')";
+$sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, ubicacion_id, estado) 
+        VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$serie', '$especificaciones', 6, 'Disponible')";
 
 if ($conn->query($sql)) {
     echo json_encode([

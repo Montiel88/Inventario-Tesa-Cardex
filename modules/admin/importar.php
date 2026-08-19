@@ -133,8 +133,8 @@ function importarEquipo($conn, $data) {
     // Generar código único
     $codigo = 'PRO-' . str_pad(mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);
     
-    $sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, estado, fecha_ingreso, created_at)
-            VALUES ('$codigo', '$tipo', '$marca', '$modelo', '$serie', '$estado', NOW(), NOW())";
+    $sql = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, estado, fecha_ingreso, created_at, ubicacion_id)
+            VALUES ('$codigo', '$tipo', '$marca', '$modelo', '$serie', '$estado', NOW(), NOW(), 6)";
     
     if ($conn->query($sql)) {
         return ['success' => true, 'id' => $conn->insert_id];

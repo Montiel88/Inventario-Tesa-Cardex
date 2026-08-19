@@ -211,6 +211,16 @@ if (!empty($_SESSION['ui_popup_traspaso_multiple']) && is_array($_SESSION['ui_po
     $__popupM = $_SESSION['ui_popup_traspaso_multiple'];
     unset($_SESSION['ui_popup_traspaso_multiple']);
 }
+$__popupP = null;
+if (!empty($_SESSION['ui_popup_prestamo_rapido']) && is_array($_SESSION['ui_popup_prestamo_rapido'])) {
+    $__popupP = $_SESSION['ui_popup_prestamo_rapido'];
+    unset($_SESSION['ui_popup_prestamo_rapido']);
+}
+$__popupPers = null;
+if (!empty($_SESSION['ui_popup_personas']) && is_array($_SESSION['ui_popup_personas'])) {
+    $__popupPers = $_SESSION['ui_popup_personas'];
+    unset($_SESSION['ui_popup_personas']);
+}
 ?>
 
 <?php if ($__popupT):
@@ -449,6 +459,232 @@ if (!empty($_SESSION['ui_popup_traspaso_multiple']) && is_array($_SESSION['ui_po
 </script>
 <?php endif; ?>
 
+<?php if ($__popupP):
+    $prestamoIdP   = intval($__popupP['prestamo_id']   ?? 0);
+    $movimientoIdP = intval($__popupP['movimiento_id'] ?? 0);
+    $codigoEquipoP = htmlspecialchars($__popupP['codigo_equipo']  ?? '');
+    $equipoNombreP = htmlspecialchars($__popupP['equipo_nombre']  ?? '');
+    $personaNombreP= htmlspecialchars($__popupP['persona_nombre'] ?? '');
+    $fechaEstP     = htmlspecialchars($__popupP['fecha_estimada'] ?? '');
+    $obsP          = htmlspecialchars($__popupP['observaciones']  ?? '');
+    $resumenUrlP   = htmlspecialchars($__popupP['resumen_url']    ?? ('/inventario_ti/modules/prestamos_rapidos/listar.php'));
+    $urlOtroP      = "/inventario_ti/modules/prestamos_rapidos/registrar.php";
+    $urlDashP      = "/inventario_ti/modules/dashboard.php";
+    $toastMsgP     = htmlspecialchars($_SESSION['success'] ?? ('Préstamo rápido registrado correctamente.' . ($codigoEquipoP ? " Equipo: $codigoEquipoP." : '')));
+?>
+<script>
+(function(){
+    function dispararPopupP() {
+        if (typeof Swal === 'undefined') { setTimeout(dispararPopupP, 120); return; }
+        const prestamoId    = <?php echo $prestamoIdP; ?>;
+        const movimientoId  = <?php echo $movimientoIdP; ?>;
+        const codigoEquipo  = <?php echo json_encode($codigoEquipoP); ?>;
+        const equipoNombre  = <?php echo json_encode($equipoNombreP); ?>;
+        const personaNombre = <?php echo json_encode($personaNombreP); ?>;
+        const fechaEst      = <?php echo json_encode($fechaEstP); ?>;
+        const obs           = <?php echo json_encode($obsP); ?>;
+        const resumenUrl    = <?php echo json_encode($resumenUrlP); ?>;
+        const urlOtro       = <?php echo json_encode($urlOtroP); ?>;
+        const urlDash       = <?php echo json_encode($urlDashP); ?>;
+        const toastMsg      = <?php echo json_encode($toastMsgP); ?>;
+
+        try {
+            Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 8000,
+                timerProgressBar: true,
+                allowOverlap: true,
+                didOpen: function (toast) {
+                    try {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    } catch (e) {}
+                }
+            }).fire({
+                icon: 'success',
+                title: '¡Préstamo Rápido Registrado!',
+                text: toastMsg,
+                background: '#5a2d8c',
+                color: '#ffffff',
+                iconColor: '#fde68a'
+            });
+        } catch (eToast) {}
+
+        let html = '<div class="text-start">';
+        html += '<div class="mb-3"><strong>Equipo prestado: </strong>';
+        if (codigoEquipo) html += '<span class="badge bg-success fs-6 me-2">' + codigoEquipo + '</span>';
+        if (equipoNombre) html += '<span class="small">' + equipoNombre + '</span>';
+        html += '</div>';
+        if (personaNombre) {
+            html += '<div class="mb-1"><strong>Persona que recibe (custodio temporal):</strong></div>';
+            html += '<div class="alert alert-warning py-2 px-3 mb-3 border border-warning bg-opacity-20 small">' + personaNombre + '</div>';
+        }
+        if (fechaEst) {
+            html += '<p class="mb-2"><strong>Devolución estimada: </strong><span class="badge bg-info fs-6">' + fechaEst + '</span></p>';
+        }
+        if (obs) {
+            html += '<p class="mb-2 small"><strong>Observaciones:</strong> ' + obs + '</p>';
+        }
+        html += '<p class="small text-muted mb-0"><i class="fas fa-info-circle me-1"></i> El movimiento PRESTAMO_RAPIDO #' + movimientoId + ' se guardó en Historial. Puedes gestionar la devolución desde el módulo <strong>Préstamos Rápidos → Listar</strong>.</p>';
+        html += '</div>';
+
+        Swal.fire({
+            icon: 'success',
+            title: '¡Préstamo Rápido Registrado con Éxito! 📤',
+            html: html,
+            showCancelButton: true,
+            showDenyButton: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            reverseButtons: true,
+            focusConfirm: false,
+            confirmButtonColor: '#198754',
+            denyButtonColor: '#f3b229',
+            cancelButtonColor: '#6c757d',
+            cancelButtonText: '<i class="fas fa-home me-1"></i> Volver al Inicio',
+            denyButtonText: '<i class="fas fa-plus-circle me-1"></i> Registrar Otro Préstamo',
+            confirmButtonText: '<i class="fas fa-clipboard-list me-1"></i> Ver Listado de Préstamos'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                window.location.href = resumenUrl;
+                return;
+            }
+            if (res.isDenied) {
+                window.location.href = urlOtro;
+                return;
+            }
+            if (res.isDismissed) {
+                const reason = String(res.dismiss || '');
+                if (reason === 'cancel' || (typeof Swal !== 'undefined' && typeof Swal.DismissReason !== 'undefined' && reason === Swal.DismissReason.cancel)) {
+                    window.location.href = urlDash;
+                    return;
+                }
+                try {
+                    if (!confirm('Ocurrió un evento inesperado en el diálogo. ¿Desea ir al inicio?')) return;
+                } catch(e) {}
+                window.location.href = urlDash;
+                return;
+            }
+            window.location.href = urlDash;
+        });
+    }
+    dispararPopupP();
+})();
+</script>
+<?php endif; ?>
+
+<?php if ($__popupPers):
+    $persIdP      = intval($__popupPers['persona_id']    ?? 0);
+    $persCedulaP  = htmlspecialchars($__popupPers['cedula']        ?? '');
+    $persNombresP = htmlspecialchars($__popupPers['nombres']       ?? '');
+    $persCargoP   = htmlspecialchars($__popupPers['cargo']         ?? '');
+    $persCorreoP  = htmlspecialchars($__popupPers['correo']        ?? '');
+    $persTelfP    = htmlspecialchars($__popupPers['telefono']      ?? '');
+    $persObsP     = htmlspecialchars($__popupPers['observaciones'] ?? '');
+    $resumenUrlP  = htmlspecialchars($__popupPers['resumen_url']   ?? ('/inventario_ti/modules/personas/listar.php'));
+    $urlOtroP     = "/inventario_ti/modules/personas/agregar.php";
+    $urlDashP     = "/inventario_ti/modules/dashboard.php";
+    $toastMsgP    = htmlspecialchars($_SESSION['success'] ?? ('Persona agregada correctamente.' . ($persNombresP ? " Nombre: $persNombresP." : '') . ($persCedulaP ? " Cédula: $persCedulaP." : '')));
+?>
+<script>
+(function(){
+    function dispararPopupPers() {
+        if (typeof Swal === 'undefined') { setTimeout(dispararPopupPers, 120); return; }
+        const persId      = <?php echo $persIdP; ?>;
+        const persCedula  = <?php echo json_encode($persCedulaP); ?>;
+        const persNombres = <?php echo json_encode($persNombresP); ?>;
+        const persCargo   = <?php echo json_encode($persCargoP); ?>;
+        const persCorreo  = <?php echo json_encode($persCorreoP); ?>;
+        const persTelf    = <?php echo json_encode($persTelfP); ?>;
+        const persObs     = <?php echo json_encode($persObsP); ?>;
+        const resumenUrl  = <?php echo json_encode($resumenUrlP); ?>;
+        const urlOtro     = <?php echo json_encode($urlOtroP); ?>;
+        const urlDash     = <?php echo json_encode($urlDashP); ?>;
+        const toastMsg    = <?php echo json_encode($toastMsgP); ?>;
+
+        try {
+            Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 8000,
+                timerProgressBar: true,
+                allowOverlap: true,
+                didOpen: function (toast) {
+                    try {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    } catch (e) {}
+                }
+            }).fire({
+                icon: 'success',
+                title: '¡Persona Agregada!',
+                text: toastMsg,
+                background: '#5a2d8c',
+                color: '#ffffff',
+                iconColor: '#fde68a'
+            });
+        } catch (eToast) {}
+
+        let html = '<div class="text-start">';
+        html += '<div class="mb-3">';
+        if (persCedula)  html += '<p class="mb-2"><strong>Cédula: </strong><span class="badge bg-purple-200 text-dark fs-6 me-2" style="background:#e9d5ff">' + persCedula + '</span> <span class="badge bg-secondary fs-6">ID #' + persId + '</span></p>';
+        if (persNombres) html += '<p class="mb-2"><strong>Nombres: </strong>' + persNombres + '</p>';
+        if (persCargo)   html += '<p class="mb-2"><strong>Cargo: </strong><span class="badge bg-info fs-6">' + persCargo + '</span></p>';
+        if (persCorreo)  html += '<p class="mb-1 small"><strong>Correo: </strong>' + persCorreo + '</p>';
+        if (persTelf)    html += '<p class="mb-1 small"><strong>Teléfono: </strong>' + persTelf + '</p>';
+        if (persObs)     html += '<p class="mb-0 small"><strong>Observaciones: </strong>' + persObs + '</p>';
+        html += '</div>';
+        html += '<p class="small text-muted mt-3 mb-0"><i class="fas fa-info-circle me-1"></i> Persona registrada en el sistema. Puedes verla en el listado, editarla o asignarle equipos desde el módulo <strong>Personas</strong>.</p>';
+        html += '</div>';
+
+        Swal.fire({
+            icon: 'success',
+            title: '¡Persona Registrada con Éxito! 👤',
+            html: html,
+            showCancelButton: true,
+            showDenyButton: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            reverseButtons: true,
+            focusConfirm: false,
+            confirmButtonColor: '#198754',
+            denyButtonColor: '#f3b229',
+            cancelButtonColor: '#6c757d',
+            cancelButtonText: '<i class="fas fa-home me-1"></i> Volver al Inicio',
+            denyButtonText: '<i class="fas fa-user-plus me-1"></i> Registrar Otra Persona',
+            confirmButtonText: '<i class="fas fa-users-line me-1"></i> Ver Listado de Personas'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                window.location.href = resumenUrl;
+                return;
+            }
+            if (res.isDenied) {
+                window.location.href = urlOtro;
+                return;
+            }
+            if (res.isDismissed) {
+                const reason = String(res.dismiss || '');
+                if (reason === 'cancel' || (typeof Swal !== 'undefined' && typeof Swal.DismissReason !== 'undefined' && reason === Swal.DismissReason.cancel)) {
+                    window.location.href = urlDash;
+                    return;
+                }
+                try {
+                    if (!confirm('Ocurrió un evento inesperado en el diálogo. ¿Desea ir al inicio?')) return;
+                } catch(e) {}
+                window.location.href = urlDash;
+                return;
+            }
+            window.location.href = urlDash;
+        });
+    }
+    dispararPopupPers();
+})();
+</script>
+<?php endif; ?>
+
 <?php if ($__popupM):
     $tm = intval($__popupM['total'] ?? 0);
     $origenM = htmlspecialchars($__popupM['origen_nombre'] ?? '');
@@ -566,7 +802,7 @@ if (!empty($_SESSION['ui_popup_traspaso_multiple']) && is_array($_SESSION['ui_po
 </script>
 <?php endif; ?>
 
-<?php if (isset($_SESSION['success']) && !$__popupT && !$__popupD && !$__popupM): ?>
+<?php if (isset($_SESSION['success']) && !$__popupT && !$__popupD && !$__popupP && !$__popupM && !$__popupPers): ?>
 <script>
 (function(){
     function dispararToastExito() {

@@ -111,7 +111,111 @@ $acta_id = intval($_POST['acta_id'] ?? 0);
 $movimiento_id = intval($_POST['movimiento_id'] ?? 0);
 
 if ($acta_id <= 0 && $movimiento_id <= 0) {
-    responderJsonActa(['success' => false, 'message' => 'ID no válido: envía acta_id o movimiento_id'], 400);
+    $recibidos = [];
+    foreach (['acta_id','movimiento_id'] as $k) {
+        $recibidos[] = $k . '=' . (isset($_POST[$k]) ? var_export($_POST[$k], true) : 'NO ENVIADO');
+    }
+    responderJsonActa([
+        'success' => false,
+        'message' => 'ID no válido: envía acta_id o movimiento_id. Datos recibidos: ' . implode(', ', $recibidos),
+        'debug' => [
+            'post_keys' => array_keys($_POST),
+            'acta_id_recibido' => $_POST['acta_id'] ?? null,
+            'movimiento_id_recibido' => $_POST['movimiento_id'] ?? null,
+        ]
+    ], 400);
+}
+
+// ====================== AUTO-VINCULACIÓN ======================
+// Si solo viene uno de los dos IDs, intentamos encontrar el otro
+// para mantener sincronizadas AMBAS tablas (actas y movimientos).
+// ==============================================================
+function _buscarActaDesdeMovimiento($conn, $mov) {
+    if (!$mov) return 0;
+    $m_tipo = strtoupper($mov['tipo_movimiento'] ?? '');
+    $mapTipo = [
+        'DEVOLUCION' => 'devolucion',
+        'ASIGNACION' => 'asignacion',
+        'ENTRADA'    => 'entrada',
+        'SALIDA'     => 'salida',
+        'TRASPASO'   => 'traspaso',
+    ];
+    $tipoActa = $mapTipo[$m_tipo] ?? strtolower($m_tipo);
+    $m_equipo   = intval($mov['equipo_id'] ?? 0);
+    $m_persona  = intval($mov['persona_id'] ?? 0);
+    $m_fecha    = $mov['fecha_movimiento'] ?? '';
+    if ($m_equipo <= 0) return 0;
+
+    $stmt = $conn->prepare("SELECT a.id FROM actas a
+        WHERE (a.tipo_acta = ? OR ? = '')
+          AND (a.persona_id = ? OR ? = 0)
+          AND FIND_IN_SET(?, a.equipos_ids)
+          AND ABS(TIMESTAMPDIFF(HOUR, a.fecha_generacion, ?)) <= 48
+        ORDER BY a.id DESC LIMIT 1");
+    if (!$stmt) return 0;
+    $stmt->bind_param('ssiiss', $tipoActa, $tipoActa, $m_persona, $m_persona, $m_equipo, $m_fecha);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    return $row ? intval($row['id']) : 0;
+}
+
+function _buscarMovimientoDesdeActa($conn, $acta) {
+    if (!$acta) return 0;
+    $a_tipo   = strtoupper($acta['tipo_acta'] ?? '');
+    $a_fecha  = $acta['fecha_generacion'] ?? '';
+    $a_persona = intval($acta['persona_id'] ?? 0);
+    $ids = array_values(array_filter(array_map('intval', explode(',', strval($acta['equipos_ids'] ?? '')))));
+    if (empty($ids) || $a_fecha === '') return 0;
+
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $sql = "SELECT m.id FROM movimientos m
+        WHERE (UPPER(m.tipo_movimiento) = ? OR ? = '')
+          AND (m.persona_id = ? OR ? = 0)
+          AND m.equipo_id IN ($placeholders)
+          AND ABS(TIMESTAMPDIFF(HOUR, m.fecha_movimiento, ?)) <= 48
+        ORDER BY m.id DESC LIMIT 1";
+    $params = array_merge([$a_tipo, $a_tipo, $a_persona, $a_persona], $ids, [$a_fecha]);
+    $types  = str_repeat('s', 4) . str_repeat('i', count($ids)) . 's';
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) return 0;
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $row = $res ? $res->fetch_assoc() : null;
+    $stmt->close();
+    return $row ? intval($row['id']) : 0;
+}
+
+$__tablasActualizadas = [];
+
+// Caso A: tenemos movimiento, faltaba acta_id
+if ($movimiento_id > 0 && $acta_id <= 0) {
+    $stmtM = $conn->prepare("SELECT * FROM movimientos WHERE id = ? LIMIT 1");
+    if ($stmtM) {
+        $stmtM->bind_param('i', $movimiento_id);
+        $stmtM->execute();
+        $movRow = $stmtM->get_result()->fetch_assoc();
+        $stmtM->close();
+        if ($movRow) {
+            $acta_id = _buscarActaDesdeMovimiento($conn, $movRow);
+        }
+    }
+}
+
+// Caso B: tenemos acta, faltaba movimiento_id
+if ($acta_id > 0 && $movimiento_id <= 0) {
+    $stmtA = $conn->prepare("SELECT * FROM actas WHERE id = ? LIMIT 1");
+    if ($stmtA) {
+        $stmtA->bind_param('i', $acta_id);
+        $stmtA->execute();
+        $actaRow = $stmtA->get_result()->fetch_assoc();
+        $stmtA->close();
+        if ($actaRow) {
+            $movimiento_id = _buscarMovimientoDesdeActa($conn, $actaRow);
+        }
+    }
 }
 
 if (!isset($_FILES['archivo_firmado']) || !is_array($_FILES['archivo_firmado'])) {
@@ -186,6 +290,10 @@ if ($acta_id > 0) {
         if (!$stmt->execute()) {
             $ok = false;
             $mensajes[] = 'No se pudo actualizar actas: ' . $stmt->error;
+        } else {
+            $afectadas = max(0, intval($stmt->affected_rows));
+            $__tablasActualizadas[] = 'actas';
+            $mensajes[] = "Tabla actas actualizada (id=$acta_id, rows=$afectadas)";
         }
     } else {
         $ok = false;
@@ -200,6 +308,10 @@ if ($movimiento_id > 0) {
         if (!$stmt->execute()) {
             $ok = false;
             $mensajes[] = 'No se pudo actualizar movimientos: ' . $stmt->error;
+        } else {
+            $afectadas = max(0, intval($stmt->affected_rows));
+            $__tablasActualizadas[] = 'movimientos';
+            $mensajes[] = "Tabla movimientos actualizada (id=$movimiento_id, rows=$afectadas)";
         }
     } else {
         $ok = false;
@@ -211,10 +323,20 @@ if (!$ok) {
     responderJsonActa(['success' => false, 'message' => implode('. ', $mensajes)], 500);
 }
 
+$url_completa = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/inventario_ti/' . ltrim($ruta_final_rel, '/');
+
+$actaEncontradaMsg = $acta_id > 0 ? " acta #$acta_id" : '';
+$movEncontradoMsg   = $movimiento_id > 0 ? " movimiento #$movimiento_id" : '';
+$tablasMsg = $__tablasActualizadas ? (' (actualizado: ' . implode(' + ', array_unique($__tablasActualizadas)) . ')') : '';
+$msgExito = trim("Archivo subido correctamente$tablasMsg.$actaEncontradaMsg$movEncontradoMsg. Puedes verlo desde Historial o desde el detalle del acta.");
+
 responderJsonActa([
     'success' => true,
-    'message' => 'Archivo subido correctamente',
+    'message' => $msgExito,
     'ruta' => $ruta_final_rel,
+    'url_completa' => $url_completa,
     'movimiento_id' => $movimiento_id ?: null,
     'acta_id' => $acta_id ?: null,
+    'tablas_actualizadas' => array_values(array_unique($__tablasActualizadas)),
+    'detalle' => $mensajes,
 ], 200);
