@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] != 1) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -225,7 +225,7 @@ function importarPersona($conn, $data) {
                                     <p>Columnas requeridas:</p>
                                     <code>tipo, marca, modelo, serie, estado</code>
                                     <hr>
-                                    <a href="/inventario_ti/templates/plantilla_equipos.csv" download class="btn btn-sm btn-outline-primary">
+                                    <a href="/Inventario-Tesa-Cardex/templates/plantilla_equipos.csv" download class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-download me-1"></i> Descargar Plantilla CSV
                                     </a>
                                 </div>
@@ -240,7 +240,7 @@ function importarPersona($conn, $data) {
                                     <p>Columnas requeridas:</p>
                                     <code>nombres, apellidos, cedula, cargo, departamento, email, telefono</code>
                                     <hr>
-                                    <a href="/inventario_ti/templates/plantilla_personas.csv" download class="btn btn-sm btn-outline-primary">
+                                    <a href="/Inventario-Tesa-Cardex/templates/plantilla_personas.csv" download class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-download me-1"></i> Descargar Plantilla CSV
                                     </a>
                                 </div>
@@ -265,3 +265,4 @@ function importarPersona($conn, $data) {
 </div>
 
 <?php include '../../includes/footer.php'; ?>
+

@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     const path = window.location.pathname;
-    if (path.includes('dashboard.php') || path.endsWith('/inventario_ti/') || path.endsWith('/inventario_ti/index.php')) {
+    if (path.includes('dashboard.php') || path.endsWith('/Inventario-Tesa-Cardex/') || path.endsWith('/Inventario-Tesa-Cardex/index.php')) {
         checkAlertas();
     }
 });
 
 function checkAlertas() {
     if (typeof Swal === 'undefined') return;
-    fetch('/inventario_ti/api/notificaciones.php')
+    fetch('/Inventario-Tesa-Cardex/api/notificaciones.php')
         .then(response => response.json())
         .then(data => {
             const notificaciones = (data && Array.isArray(data.notificaciones)) ? data.notificaciones : [];
@@ -34,3 +34,4 @@ function mostrarAlerta(alerta) {
         }
     });
 }
+

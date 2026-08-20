@@ -10,12 +10,12 @@ if (getenv('APP_DEBUG') === '1') {
 
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
 if ($_SESSION['user_rol'] != 1) {
-    header('Location: /inventario_ti/modules/dashboard.php?error=No tienes permisos');
+    header('Location: /Inventario-Tesa-Cardex/modules/dashboard.php?error=No tienes permisos');
     exit();
 }
 
@@ -346,7 +346,7 @@ $RESTORE_CHECK_IDS = json_encode($restore_asig_ids, JSON_UNESCAPED_UNICODE);
                         </div>
 
                         <div class="d-flex justify-content-between mt-4">
-                            <a href="/inventario_ti/modules/movimientos/historial.php" class="btn btn-secondary">
+                            <a href="/Inventario-Tesa-Cardex/modules/movimientos/historial.php" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Cancelar
                             </a>
                             <button type="button" name="realizar_traspaso_multiple_btn" class="btn btn-warning" id="btnTraspasar" disabled>
@@ -506,3 +506,4 @@ $RESTORE_CHECK_IDS = json_encode($restore_asig_ids, JSON_UNESCAPED_UNICODE);
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

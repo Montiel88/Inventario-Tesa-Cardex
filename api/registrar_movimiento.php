@@ -78,7 +78,7 @@ if ($datos) {
         }
         
         // URL opcional: podemos llevar al detalle del producto (si tenemos un archivo detalle)
-        $url = "/inventario_ti/modules/productos/detalle.php?id={$producto_id}";
+        $url = "/Inventario-Tesa-Cardex/modules/productos/detalle.php?id={$producto_id}";
         
         registrar_notificacion(
             $_SESSION['user_id'],

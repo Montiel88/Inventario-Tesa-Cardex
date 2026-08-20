@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['solicitar'])) {
         
         $protocolo = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'];
-        $link = $protocolo . '://' . $host . '/inventario_ti/recuperar.php?token=' . $token;
+        $link = $protocolo . '://' . $host . '/Inventario-Tesa-Cardex/recuperar.php?token=' . $token;
         
         $mensaje = "
             <div class='alert alert-success'>

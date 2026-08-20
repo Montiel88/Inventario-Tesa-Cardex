@@ -23,16 +23,16 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     <meta name="theme-color" content="#1a0533">
     <title>Sistema de Inventario - TESA</title>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/inventario_ti/assets/img/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/inventario_ti/assets/img/favicon-96x96.png">
-    <link rel="icon" type="image/svg+xml" href="/inventario_ti/assets/img/favicon.svg">
-    <link rel="manifest" href="/inventario_ti/assets/img/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="/Inventario-Tesa-Cardex/assets/img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/Inventario-Tesa-Cardex/assets/img/favicon-96x96.png">
+    <link rel="icon" type="image/svg+xml" href="/Inventario-Tesa-Cardex/assets/img/favicon.svg">
+    <link rel="manifest" href="/Inventario-Tesa-Cardex/assets/img/site.webmanifest">
 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link rel="stylesheet" href="/inventario_ti/assets/css/estilo.css">
+    <link rel="stylesheet" href="/Inventario-Tesa-Cardex/assets/css/estilo.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
@@ -431,6 +431,15 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     .tn-items {
         display: flex; align-items: center; gap: 2px;
         flex: 0 0 auto; min-width: 0; overflow: visible;
+    }
+
+    .tn-shell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 1 1 auto;
+        min-width: 0;
+        flex-wrap: nowrap;
     }
 
     /* ── Nav button ───────────────────────────────────── */
@@ -942,6 +951,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         }
 
         .tn-items { flex-direction: column; align-items: stretch; gap: 3px; overflow: visible; }
+        .tn-shell { flex-direction: column; align-items: stretch; gap: 0; width: 100%; }
         .tn-btn   { width: 100%; height: 44px; border-radius: 10px; font-size: 0.87rem; justify-content: flex-start; }
         .tn-tools { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.07); flex-wrap: wrap; }
         .tn-logout { width: 100%; justify-content: center; height: 44px; }
@@ -963,9 +973,9 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
     <div class="container-fluid cf">
 
         <!-- Brand -->
-        <a class="tn-brand" href="/inventario_ti/modules/dashboard.php">
+        <a class="tn-brand" href="/Inventario-Tesa-Cardex/modules/dashboard.php">
             <div class="tn-logo-ring">
-                <img src="/inventario_ti/assets/img/logo-tesa.png" alt="TESA"
+                <img src="/Inventario-Tesa-Cardex/assets/img/logo-tesa.png" alt="TESA"
                      onerror="this.style.display='none'">
             </div>
             <div class="tn-brand-text">
@@ -988,7 +998,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
 
         <!-- Collapse -->
         <div class="collapse navbar-collapse" id="tnMenu">
-            <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
+            <div class="tn-shell ms-auto">
 
             <div class="tn-sep ms-3 me-1"></div>
 
@@ -996,7 +1006,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
             <div class="tn-items">
 
                 <!-- Dashboard -->
-                <a class="tn-btn" href="/inventario_ti/modules/dashboard.php">
+                <a class="tn-btn" href="/Inventario-Tesa-Cardex/modules/dashboard.php">
                     <span class="bi"><i class="fas fa-house-chimney"></i></span>
                     Dashboard
                 </a>
@@ -1010,12 +1020,32 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         <i class="fas fa-chevron-down tn-caret"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/personas/listar.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/personas/listar.php">
                             <span class="di"><i class="fas fa-list-ul"></i></span>Listar Personas
                         </a></li>
                         <?php if ($es_admin): ?>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/personas/agregar.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/personas/agregar.php">
                             <span class="di"><i class="fas fa-user-plus"></i></span>Agregar Persona
+                        </a></li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+
+                <!-- Salones -->
+                <div class="dropdown">
+                    <a class="tn-btn dropdown-toggle" href="#"
+                       data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                        <span class="bi"><i class="fas fa-door-open"></i></span>
+                        Salones
+                        <i class="fas fa-chevron-down tn-caret"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/salones/listar.php">
+                            <span class="di"><i class="fas fa-list-ul"></i></span>Listar Salones
+                        </a></li>
+                        <?php if ($es_admin): ?>
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/salones/agregar.php">
+                            <span class="di"><i class="fas fa-plus"></i></span>Agregar Salón
                         </a></li>
                         <?php endif; ?>
                     </ul>
@@ -1030,24 +1060,24 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         <i class="fas fa-chevron-down tn-caret"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/equipos/listar.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/equipos/listar.php">
                             <span class="di"><i class="fas fa-list-ul"></i></span>Listar Equipos
                         </a></li>
                         <?php if ($es_admin): ?>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/equipos/agregar.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/equipos/agregar.php">
                             <span class="di"><i class="fas fa-plus-circle"></i></span>Agregar Equipo
                         </a></li>
                         <?php endif; ?>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/mantenimientos/listar.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/mantenimientos/listar.php">
                             <span class="di"><i class="fas fa-screwdriver-wrench"></i></span>Mantenimientos
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header"><i class="fas fa-microchip me-1"></i>Componentes</h6></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/componentes/listar.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/componentes/listar.php">
                             <span class="di"><i class="fas fa-microchip"></i></span>Listar Componentes
                         </a></li>
                         <?php if ($es_admin): ?>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/componentes/agregar.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/componentes/agregar.php">
                             <span class="di"><i class="fas fa-plus"></i></span>Agregar Componente
                         </a></li>
                         <?php endif; ?>
@@ -1064,28 +1094,28 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                     </a>
                     <ul class="dropdown-menu">
                         <?php if ($es_admin): ?>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/traspaso.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/movimientos/traspaso.php">
                             <span class="di"><i class="fas fa-shuffle"></i></span>Traspaso de Custodio
                         </a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/traspaso_multiple.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/movimientos/traspaso_multiple.php">
                             <span class="di"><i class="fas fa-arrows-spin"></i></span>Traspaso Múltiple
                         </a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/prestamo.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/movimientos/prestamo.php">
                             <span class="di"><i class="fas fa-hand-holding"></i></span>Registrar Préstamo
                         </a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/devolucion.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/movimientos/devolucion.php">
                             <span class="di"><i class="fas fa-rotate-left"></i></span>Registrar Devolución
                         </a></li>
                         <?php endif; ?>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/movimientos/historial.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/movimientos/historial.php">
                             <span class="di"><i class="fas fa-clock-rotate-left"></i></span>Historial
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/prestamos_rapidos/listar.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/prestamos_rapidos/listar.php">
                             <span class="di"><i class="fas fa-hand-holding-heart"></i></span>Préstamos Rápidos
                         </a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/reportes/index.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/reportes/index.php">
                             <span class="di"><i class="fas fa-file-chart-column"></i></span>Generar Reportes
                         </a></li>
                     </ul>
@@ -1100,16 +1130,16 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         <i class="fas fa-chevron-down tn-caret"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/actas/index.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/actas/index.php">
                             <span class="di"><i class="fas fa-file-lines"></i></span>Listado de Actas
                         </a></li>
                         <?php if ($es_admin): ?>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/actas/generar.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/actas/generar.php">
                             <span class="di"><i class="fas fa-file-circle-plus"></i></span>Generar Nueva Acta
                         </a></li>
                         <?php endif; ?>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/reportes/actas_generadas.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/reportes/actas_generadas.php">
                             <span class="di"><i class="fas fa-clock-rotate-left"></i></span>Actas desde Movimientos
                         </a></li>
                     </ul>
@@ -1126,16 +1156,16 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                         <i class="fas fa-chevron-down tn-caret"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/admin/backup.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/admin/backup.php">
                             <span class="di"><i class="fas fa-database"></i></span>Respaldos
                         </a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/admin/usuarios.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/admin/usuarios.php">
                             <span class="di"><i class="fas fa-users-gear"></i></span>Usuarios
                         </a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/admin/configuracion.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/admin/configuracion.php">
                             <span class="di"><i class="fas fa-file-pdf"></i></span>Config. de Actas
                         </a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/modules/admin/logs.php">
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/admin/logs.php">
                             <span class="di"><i class="fas fa-scroll"></i></span>Logs del Sistema
                         </a></li>
                     </ul>
@@ -1164,7 +1194,7 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
                 <div class="tn-sep"></div>
 
                 <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="/inventario_ti/logout.php" class="tn-logout"
+                <a href="/Inventario-Tesa-Cardex/logout.php" class="tn-logout"
                    onclick="return confirm('¿Estás seguro de cerrar sesión?')">
                     <i class="fas fa-arrow-right-from-bracket"></i>Salir
                 </a>
@@ -1194,14 +1224,14 @@ $es_lector = isset($_SESSION['user_rol']) && $_SESSION['user_rol'] == 2;
         </div>
     </div>
     <div class="tn-notif-foot">
-        <a href="/inventario_ti/modules/admin/logs.php">Ver todo el historial</a>
+        <a href="/Inventario-Tesa-Cardex/modules/admin/logs.php">Ver todo el historial</a>
     </div>
 </div>
 
 <!-- Search overlay -->
 <?php if (isset($_SESSION['user_id'])): ?>
 <div class="tn-search-overlay" id="searchOverlay">
-    <form action="/inventario_ti/buscar.php" method="GET" class="tn-search-box">
+    <form action="/Inventario-Tesa-Cardex/buscar.php" method="GET" class="tn-search-box">
         <span class="tn-s-icon"><i class="fas fa-magnifying-glass"></i></span>
         <input type="text" name="q" id="searchInput" class="tn-s-input"
                placeholder="Buscar equipos, personas, componentes…" autocomplete="off">
@@ -1236,12 +1266,12 @@ function closeAllPanels() {
     if(!b) return;
     b.addEventListener('click', function() {
         const ref = document.referrer || '';
-        const okRef = ref.startsWith(window.location.origin) && ref.includes('/inventario_ti/');
+        const okRef = ref.startsWith(window.location.origin) && ref.includes('/Inventario-Tesa-Cardex/');
         if (window.history.length > 1 && okRef) {
             window.history.back();
             return;
         }
-        window.location.href = '/inventario_ti/modules/dashboard.php';
+        window.location.href = '/Inventario-Tesa-Cardex/modules/dashboard.php';
     });
 })();
 
@@ -1326,7 +1356,7 @@ function toggleNotifications() {
         }
 
         const filtrosToSend = activeFilters.includes('todos') ? [] : activeFilters;
-        fetch(`/inventario_ti/api/busqued-inteligente.php?q=${encodeURIComponent(query)}&filtros=${encodeURIComponent(JSON.stringify(filtrosToSend))}`)
+        fetch(`/Inventario-Tesa-Cardex/api/busqued-inteligente.php?q=${encodeURIComponent(query)}&filtros=${encodeURIComponent(JSON.stringify(filtrosToSend))}`)
             .then(response => response.json())
             .then(data => {
                 resultsContainer.innerHTML = '';
@@ -1336,7 +1366,7 @@ function toggleNotifications() {
                     html += `<div class="search-result-category">Equipos</div>`;
                     data.equipos.forEach(item => {
                         html += `
-                            <a href="/inventario_ti/modules/equipos/editar.php?id=${item.id}" class="search-result-item">
+                            <a href="/Inventario-Tesa-Cardex/modules/equipos/editar.php?id=${item.id}" class="search-result-item">
                                 <div class="icon"><i class="fas fa-desktop"></i></div>
                                 <div>
                                     <div class="title">${item.tipo_equipo} ${item.marca} ${item.modelo}</div>
@@ -1350,7 +1380,7 @@ function toggleNotifications() {
                     html += `<div class="search-result-category">Personas</div>`;
                     data.personas.forEach(item => {
                         html += `
-                            <a href="/inventario_ti/modules/personas/editar.php?id=${item.id}" class="search-result-item">
+                            <a href="/Inventario-Tesa-Cardex/modules/personas/editar.php?id=${item.id}" class="search-result-item">
                                 <div class="icon"><i class="fas fa-user"></i></div>
                                 <div>
                                     <div class="title">${item.nombres}</div>
@@ -1364,7 +1394,7 @@ function toggleNotifications() {
                     html += `<div class="search-result-category">Componentes</div>`;
                     data.componentes.forEach(item => {
                         html += `
-                            <a href="/inventario_ti/modules/componentes/editar.php?id=${item.id}" class="search-result-item">
+                            <a href="/Inventario-Tesa-Cardex/modules/componentes/editar.php?id=${item.id}" class="search-result-item">
                                 <div class="icon"><i class="fas fa-microchip"></i></div>
                                 <div>
                                     <div class="title">${item.nombre} ${item.marca} ${item.modelo}</div>
@@ -1388,5 +1418,6 @@ function toggleNotifications() {
 <?php endif; ?>
 
 <main>
+
 
 

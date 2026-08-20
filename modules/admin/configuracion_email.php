@@ -6,11 +6,11 @@ session_start();
 // Para volver a habilitarla: comenta el bloque de redirect
 // y el item del menú Admin > Config. de Email en includes/header.php
 // ====================================================
-header('Location: /inventario_ti/modules/dashboard.php');
+header('Location: /Inventario-Tesa-Cardex/modules/dashboard.php');
 exit();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] != 1) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -346,3 +346,4 @@ include '../../includes/header.php';
 </div>
 
 <?php include '../../includes/footer.php'; ?>
+

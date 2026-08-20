@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
             $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-            $link = $protocolo . '://' . $host . '/inventario_ti/reset_password.php?token=' . urlencode($token);
+            $link = $protocolo . '://' . $host . '/Inventario-Tesa-Cardex/reset_password.php?token=' . urlencode($token);
 
             $nombre = $user['nombre'] ?? 'Usuario';
             $html = "<html><head><meta charset='UTF-8'><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'></head><body style='font-family:Arial,sans-serif;line-height:1.6;background:#f6f7fb;padding:20px;'>
@@ -176,4 +176,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </body>
 </html>
+
 

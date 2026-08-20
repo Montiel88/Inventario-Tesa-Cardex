@@ -206,7 +206,7 @@ include '../../includes/header.php';
                                     <small>Por: <?php echo htmlspecialchars($acta['firmador_nombre']); ?></small>
                                 <?php endif; ?>
                             </div>
-                            <a href="/inventario_ti/<?php echo htmlspecialchars($acta['archivo_firmado']); ?>" target="_blank" class="btn btn-success ms-auto">
+                            <a href="/Inventario-Tesa-Cardex/<?php echo htmlspecialchars($acta['archivo_firmado']); ?>" target="_blank" class="btn btn-success ms-auto">
                                 <i class="fas fa-file-signature me-1"></i> Abrir PDF Firmado
                             </a>
                         </div>
@@ -239,7 +239,7 @@ include '../../includes/header.php';
                         <tr>
                             <td><?php echo $i + 1; ?></td>
                             <td>
-                                <a href="/inventario_ti/modules/equipos/detalle.php?id=<?php echo $eq['id']; ?>" class="text-white fw-bold">
+                                <a href="/Inventario-Tesa-Cardex/modules/equipos/detalle.php?id=<?php echo $eq['id']; ?>" class="text-white fw-bold">
                                     <?php echo htmlspecialchars($eq['codigo_barras'] ?? '-'); ?>
                                 </a>
                             </td>
@@ -285,7 +285,7 @@ include '../../includes/header.php';
                 <div class="card-body">
                     <?php if (!empty($acta['archivo_pdf'])): ?>
                         <p class="mb-3">El PDF fue generado correctamente el día del acta. Puedes abrirlo o reimprimirlo cuando necesites.</p>
-                        <a href="/inventario_ti/<?php echo htmlspecialchars($acta['archivo_pdf']); ?>" target="_blank" class="btn btn-outline-primary w-100 mb-2">
+                        <a href="/Inventario-Tesa-Cardex/<?php echo htmlspecialchars($acta['archivo_pdf']); ?>" target="_blank" class="btn btn-outline-primary w-100 mb-2">
                             <i class="fas fa-eye me-1"></i> Ver PDF Original Almacenado
                         </a>
                     <?php else: ?>
@@ -293,7 +293,7 @@ include '../../includes/header.php';
                             <i class="fas fa-circle-info me-1"></i>
                             Esta acta fue registrada pero aún no se ha guardado una copia del PDF en el servidor. Usa los botones de abajo para generarlo.
                         </p>
-                        <a href="/inventario_ti/api/generar_acta_unificada.php?acta_id=<?php echo $acta['id']; ?>&guardar=1"
+                        <a href="/Inventario-Tesa-Cardex/api/generar_acta_unificada.php?acta_id=<?php echo $acta['id']; ?>&guardar=1"
                            class="btn btn-outline-success w-100 mb-2">
                             <i class="fas fa-file-arrow-down me-1"></i> Generar y Guardar PDF en el Sistema
                         </a>
@@ -316,7 +316,7 @@ include '../../includes/header.php';
                 <div class="card-body">
                     <?php if (empty($acta['archivo_firmado'])): ?>
                         <p class="mb-3">Sube la versión escaneada y firmada del acta (formato PDF únicamente).</p>
-                        <form action="/inventario_ti/api/subir_acta_firmada.php" method="POST" enctype="multipart/form-data" id="formSubirFirmado" class="needs-ajax-upload" data-acta-id="<?php echo $acta['id']; ?>">
+                        <form action="/Inventario-Tesa-Cardex/api/subir_acta_firmada.php" method="POST" enctype="multipart/form-data" id="formSubirFirmado" class="needs-ajax-upload" data-acta-id="<?php echo $acta['id']; ?>">
                             <input type="hidden" name="acta_id" value="<?php echo $acta['id']; ?>">
                             <div class="mb-3">
                                 <label class="form-label small">Archivo PDF firmado</label>
@@ -332,10 +332,10 @@ include '../../includes/header.php';
                             <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
                             <h6 class="mb-2">¡Acta firmada ya fue subida!</h6>
                             <p class="small text-muted mb-3">Puedes volver a subir una versión actualizada (reemplazará la ruta anterior en el sistema).</p>
-                            <a href="/inventario_ti/<?php echo htmlspecialchars($acta['archivo_firmado']); ?>" target="_blank" class="btn btn-success w-100 mb-2">
+                            <a href="/Inventario-Tesa-Cardex/<?php echo htmlspecialchars($acta['archivo_firmado']); ?>" target="_blank" class="btn btn-success w-100 mb-2">
                                 <i class="fas fa-file-pdf me-1"></i> Ver PDF Firmado
                             </a>
-                            <form action="/inventario_ti/api/subir_acta_firmada.php" method="POST" enctype="multipart/form-data" class="mt-2 needs-ajax-upload" data-acta-id="<?php echo $acta['id']; ?>">
+                            <form action="/Inventario-Tesa-Cardex/api/subir_acta_firmada.php" method="POST" enctype="multipart/form-data" class="mt-2 needs-ajax-upload" data-acta-id="<?php echo $acta['id']; ?>">
                                 <input type="hidden" name="acta_id" value="<?php echo $acta['id']; ?>">
                                 <label class="form-label small text-start d-block mb-1">Reemplazar PDF firmado</label>
                                 <input type="file" name="archivo_firmado" class="form-control form-control-sm mb-2" accept=".pdf" required>
@@ -411,7 +411,7 @@ include '../../includes/header.php';
                 showConfirmButton: false
             });
 
-            fetch(form.action || '/inventario_ti/api/subir_acta_firmada.php', {
+            fetch(form.action || '/Inventario-Tesa-Cardex/api/subir_acta_firmada.php', {
                 method: 'POST',
                 body: formData
             })
@@ -483,9 +483,10 @@ include '../../includes/header.php';
 })();
 
 function reimprimirActa(actaId) {
-    const win = window.open('/inventario_ti/api/generar_acta_unificada.php?acta_id=' + actaId, '_blank');
+    const win = window.open('/Inventario-Tesa-Cardex/api/generar_acta_unificada.php?acta_id=' + actaId, '_blank');
     if (!win) {
         alert('El navegador bloqueó la ventana emergente. Permite ventanas emergentes para este sitio e inténtalo de nuevo.');
     }
 }
 <?php include '../../includes/footer.php'; ?>
+

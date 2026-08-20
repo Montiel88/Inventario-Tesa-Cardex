@@ -3,7 +3,7 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
     
@@ -143,7 +143,7 @@ $result = $conn->query($sql);
                             <strong>✅ Baja procesada correctamente.</strong>
                             <p class="mb-2 mt-1">Los equipos seleccionados han sido dados de baja. Haz clic en el botón para generar el acta.</p>
                             <div>
-                                <a href="/inventario_ti/api/generar_acta_baja_masiva.php" target="_blank" class="btn btn-sm btn-success">
+                                <a href="/Inventario-Tesa-Cardex/api/generar_acta_baja_masiva.php" target="_blank" class="btn btn-sm btn-success">
                                     <i class="fas fa-file-pdf me-1"></i> Generar Acta de Baja
                                 </a>
                             </div>
@@ -224,21 +224,21 @@ $result = $conn->query($sql);
                                             <div id="acciones-template-<?php echo (int)$row['id']; ?>" class="d-none">
                                                 <div class="list-group">
                                                     <?php if ($tiene_asignacion && $persona_id > 0): ?>
-                                                        <a href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $persona_id; ?>" target="_blank" class="list-group-item list-group-item-action">
+                                                        <a href="/Inventario-Tesa-Cardex/api/generar_acta_entrega.php?persona_id=<?php echo $persona_id; ?>" target="_blank" class="list-group-item list-group-item-action">
                                                             <i class="fas fa-file-pdf me-2" style="color: #5a2d8c;"></i> Acta Entrega
                                                         </a>
                                                     <?php endif; ?>
                                                     
-                                                    <a href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $persona_id ?: $row['id']; ?>" target="_blank" class="list-group-item list-group-item-action">
+                                                    <a href="/Inventario-Tesa-Cardex/api/generar_acta_devolucion.php?persona_id=<?php echo $persona_id ?: $row['id']; ?>" target="_blank" class="list-group-item list-group-item-action">
                                                         <i class="fas fa-file-pdf me-2" style="color: #5a2d8c;"></i> Acta Devolución
                                                     </a>
                                                     
-                                                    <a href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $persona_id ?: $row['id']; ?>" target="_blank" class="list-group-item list-group-item-action">
+                                                    <a href="/Inventario-Tesa-Cardex/api/generar_descargo.php?persona_id=<?php echo $persona_id ?: $row['id']; ?>" target="_blank" class="list-group-item list-group-item-action">
                                                         <i class="fas fa-file-signature me-2" style="color: #5a2d8c;"></i> Descargo
                                                     </a>
 
                                                     <!-- ACTA DE BAJA -->
-                                                    <a href="/inventario_ti/api/generar_acta_baja.php?equipo_id=<?php echo $row['id']; ?>" target="_blank" class="list-group-item list-group-item-action">
+                                                    <a href="/Inventario-Tesa-Cardex/api/generar_acta_baja.php?equipo_id=<?php echo $row['id']; ?>" target="_blank" class="list-group-item list-group-item-action">
                                                     <i class="fas fa-trash-alt me-2" style="color: #dc3545;"></i> Acta de Baja
                                                     </a>
                                                     
@@ -246,7 +246,7 @@ $result = $conn->query($sql);
                                                         <i class="fas fa-history me-2" style="color: #5a2d8c;"></i> Trazabilidad
                                                     </a>
                                                     
-                                                    <a href="/inventario_ti/api/generar_qr_equipo.php?id=<?php echo $row['id']; ?>" download class="list-group-item list-group-item-action">
+                                                    <a href="/Inventario-Tesa-Cardex/api/generar_qr_equipo.php?id=<?php echo $row['id']; ?>" download class="list-group-item list-group-item-action">
                                                         <i class="fas fa-qrcode me-2" style="color: #5a2d8c;"></i> Descargar QR
                                                     </a>
                                                     
@@ -409,3 +409,4 @@ function procesarBajaMasiva() {
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

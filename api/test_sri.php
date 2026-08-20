@@ -1,6 +1,6 @@
 <?php
 /**
- * debug_sri.php  — coloca en /inventario_ti/api/debug_sri.php
+ * debug_sri.php  — coloca en /Inventario-Tesa-Cardex/api/debug_sri.php
  * Prueba todos los endpoints conocidos del SRI y muestra la respuesta real.
  * BORRA este archivo después de usarlo.
  */

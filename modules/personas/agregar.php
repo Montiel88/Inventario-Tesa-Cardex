@@ -3,7 +3,7 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'success',
                 '👤 Persona agregada',
                 "Se agregó a {$nombres} (cédula {$cedula})",
-                "/inventario_ti/modules/personas/detalle.php?id=" . $id_persona
+                "/Inventario-Tesa-Cardex/modules/personas/detalle.php?id=" . $id_persona
             );
         } catch (\Exception $eNotif) { $eNotif = null; }
 
@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         'correo'       => $correo,
         'telefono'     => $telefono,
         'observaciones'=> $observaciones,
-        'resumen_url'  => '/inventario_ti/modules/personas/listar.php',
+        'resumen_url'  => '/Inventario-Tesa-Cardex/modules/personas/listar.php',
     ];
     $_SESSION['ultima_persona_agregada'] = $id_persona;
     unset($_SESSION['flash_personas_restore']);
@@ -759,7 +759,7 @@ const RESTORE_OBS      = <?php echo json_encode($RESTORE_OBS,      JSON_UNESCAPE
         limpiarNombre();
 
         try {
-            const resp = await fetch(`/inventario_ti/api/consultar_cedula.php?cedula=${cedula}`);
+            const resp = await fetch(`/Inventario-Tesa-Cardex/api/consultar_cedula.php?cedula=${cedula}`);
 
             if (!resp.ok) throw new Error('HTTP ' + resp.status);
 
@@ -1008,3 +1008,4 @@ const RESTORE_OBS      = <?php echo json_encode($RESTORE_OBS,      JSON_UNESCAPE
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

@@ -18,6 +18,7 @@ require_once '../../config/listas.php';
 
 // Obtener persona_id de la URL si viene
 $persona_id_seleccionada = isset($_GET['persona_id']) ? intval($_GET['persona_id']) : 0;
+$salon_id_seleccionado = isset($_GET['salon_id']) ? intval($_GET['salon_id']) : 0;
 
 // Obtener lista de personas (para select y resúmenes)
 $personas = $conn->query("SELECT id, nombres, cedula FROM personas ORDER BY nombres");
@@ -27,6 +28,20 @@ while ($p = $personas->fetch_assoc()) {
     $personas_data[$p['id']] = $p['nombres'];
     $selected = ($persona_id_seleccionada == $p['id']) ? 'selected' : '';
     $persona_select_html .= '<option value="' . $p['id'] . '" ' . $selected . '>' . htmlspecialchars($p['nombres']) . '</option>';
+}
+
+// Obtener lista de salones/ubicaciones para asignación directa
+$salones = $conn->query("SELECT id, codigo_ubicacion, nombre, tipo
+                         FROM ubicaciones
+                         WHERE tipo IN ('salon', 'laboratorio', 'biblioteca', 'oficina', 'otro')
+                         ORDER BY tipo, nombre");
+$salon_select_html = '';
+while ($s = $salones->fetch_assoc()) {
+    $selected = ($salon_id_seleccionado == $s['id']) ? 'selected' : '';
+    $etiqueta_tipo = ucfirst((string)$s['tipo']);
+    $salon_select_html .= '<option value="' . $s['id'] . '" ' . $selected . '>'
+        . htmlspecialchars($s['codigo_ubicacion'] . ' - ' . $s['nombre'] . ' (' . $etiqueta_tipo . ')')
+        . '</option>';
 }
 
 // Obtener equipos en bodega (disponibles)
@@ -42,22 +57,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $esAjax) {
     header('Content-Type: application/json; charset=utf-8');
     @ob_clean();
 
+    $destino_tipo = $_POST['destino_tipo'] ?? 'persona';
     $persona_id = intval($_POST['persona_id'] ?? 0);
+    $salon_id = intval($_POST['salon_id'] ?? 0);
     $tipo_asignacion = $_POST['tipo_asignacion'] ?? 'nuevo';
 
-    if ($persona_id == 0) {
-        echo json_encode(['success' => false, 'errores' => ['Debe seleccionar una persona de la lista.']], JSON_UNESCAPED_UNICODE);
+    if (!in_array($destino_tipo, ['persona', 'salon'], true)) {
+        echo json_encode(['success' => false, 'errores' => ['Debe seleccionar un destino válido (persona o salón).']], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
-    // Verificar que la persona exista en BD
-    $per_check = $conn->query("SELECT id, nombres FROM personas WHERE id = " . $persona_id);
-    if (!$per_check || $per_check->num_rows === 0) {
-        echo json_encode(['success' => false, 'errores' => ['La persona seleccionada no existe en la base de datos.']], JSON_UNESCAPED_UNICODE);
-        exit;
+    $destino_nombre = '';
+    $persona_nombre = '';
+    $salon_nombre = '';
+
+    if ($destino_tipo === 'persona') {
+        if ($persona_id == 0) {
+            echo json_encode(['success' => false, 'errores' => ['Debe seleccionar una persona de la lista.']], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Verificar que la persona exista en BD
+        $per_check = $conn->query("SELECT id, nombres FROM personas WHERE id = " . $persona_id);
+        if (!$per_check || $per_check->num_rows === 0) {
+            echo json_encode(['success' => false, 'errores' => ['La persona seleccionada no existe en la base de datos.']], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $persona_row = $per_check->fetch_assoc();
+        $persona_nombre = $persona_row['nombres'];
+        $destino_nombre = $persona_nombre;
+    } else {
+        if ($salon_id == 0) {
+            echo json_encode(['success' => false, 'errores' => ['Debe seleccionar un salón de la lista.']], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        $sal_check = $conn->query("SELECT id, codigo_ubicacion, nombre, tipo FROM ubicaciones 
+                                   WHERE id = $salon_id
+                                     AND tipo IN ('salon', 'laboratorio', 'biblioteca', 'oficina', 'otro')
+                                   LIMIT 1");
+        if (!$sal_check || $sal_check->num_rows === 0) {
+            echo json_encode(['success' => false, 'errores' => ['El salón seleccionado no existe o no es válido.']], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $sal_row = $sal_check->fetch_assoc();
+        $salon_nombre = $sal_row['codigo_ubicacion'] . ' - ' . $sal_row['nombre'];
+        $destino_nombre = $salon_nombre;
     }
-    $persona_row = $per_check->fetch_assoc();
-    $persona_nombre = $persona_row['nombres'];
 
     $equipo_id = 0;
     $equipo_info = [];
@@ -95,9 +141,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $esAjax) {
                 }
 
                 if (empty($errores)) {
+                    $ubicacion_destino_id = ($destino_tipo === 'salon') ? $salon_id : 6;
                     // INSERT COINCIDIENDO con el esquema REAL (no columnas inexistentes)
                     $sql_equipo = "INSERT INTO equipos (codigo_barras, tipo_equipo, marca, modelo, numero_serie, especificaciones, estado, ubicacion_id, activo) 
-                                   VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$serie', '$especificaciones', 'Asignado', 6, 1)";
+                                   VALUES ('$codigo_barras', '$tipo_equipo', '$marca', '$modelo', '$serie', '$especificaciones', 'Asignado', $ubicacion_destino_id, 1)";
                     
                     if (!$conn->query($sql_equipo)) {
                         $errores[] = "Error al guardar equipo: " . $conn->error;
@@ -109,7 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $esAjax) {
                             'tipo_equipo' => $tipo_equipo,
                             'marca' => $marca,
                             'modelo' => $modelo,
-                            'nuevo' => true
+                            'nuevo' => true,
+                            'destino_tipo' => $destino_tipo
                         ];
                     }
                 }
@@ -131,8 +179,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $esAjax) {
                     if ($eq['estado'] !== 'Disponible') {
                         $errores[] = "El equipo seleccionado ya no está disponible (estado actual: {$eq['estado']}).";
                     } else {
-                        // Actualizar estado y ubicación (sale de Bodega → va a la persona = queda sin ubicación fija)
-                        if (!$conn->query("UPDATE equipos SET estado = 'Asignado', ubicacion_id = $persona_id WHERE id = $equipo_id")) {
+                        $ubicacion_destino_id = ($destino_tipo === 'salon') ? $salon_id : $persona_id;
+                        // Actualizar estado y ubicación
+                        if (!$conn->query("UPDATE equipos SET estado = 'Asignado', ubicacion_id = $ubicacion_destino_id WHERE id = $equipo_id")) {
                             $errores[] = "Error al actualizar estado del equipo: " . $conn->error;
                         } else {
                             $equipo_info = [
@@ -141,7 +190,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $esAjax) {
                                 'tipo_equipo' => $eq['tipo_equipo'],
                                 'marca' => $eq['marca'],
                                 'modelo' => $eq['modelo'],
-                                'nuevo' => false
+                                'nuevo' => false,
+                                'destino_tipo' => $destino_tipo
                             ];
                         }
                     }
@@ -153,26 +203,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $esAjax) {
         // SI TODO OK, CREAR ASIGNACIÓN + MOVIMIENTO
         // ============================================
         if (empty($errores) && $equipo_id > 0) {
-            $sql_asignacion = "INSERT INTO asignaciones (equipo_id, persona_id, fecha_asignacion) 
-                              VALUES ($equipo_id, $persona_id, NOW())";
-            
-            if (!$conn->query($sql_asignacion)) {
-                $errores[] = "Error al crear la asignación: " . $conn->error;
-            } else {
-                $asignacion_id = $conn->insert_id;
+            if ($destino_tipo === 'persona') {
+                $sql_asignacion = "INSERT INTO asignaciones (equipo_id, persona_id, fecha_asignacion) 
+                                  VALUES ($equipo_id, $persona_id, NOW())";
+                
+                if (!$conn->query($sql_asignacion)) {
+                    $errores[] = "Error al crear la asignación: " . $conn->error;
+                } else {
+                    $asignacion_id = $conn->insert_id;
 
-                // Registrar movimiento
-                if (!$conn->query("INSERT INTO movimientos (equipo_id, persona_id, tipo_movimiento, fecha_movimiento, observaciones) 
-                                   VALUES ($equipo_id, $persona_id, 'ASIGNACION', NOW(), 'Asignación directa desde módulo de Asignaciones')")) {
-                    $errores[] = "Error al registrar el movimiento: " . $conn->error;
+                    // Registrar movimiento
+                    if (!$conn->query("INSERT INTO movimientos (equipo_id, persona_id, tipo_movimiento, fecha_movimiento, observaciones) 
+                                       VALUES ($equipo_id, $persona_id, 'ASIGNACION', NOW(), 'Asignación directa desde módulo de Asignaciones')")) {
+                        $errores[] = "Error al registrar el movimiento: " . $conn->error;
+                    }
                 }
-
-                // Log de auditoría
-                require_once '../../includes/logs_functions.php';
-                $log_desc = "Equipo: {$equipo_info['codigo_barras']} ({$equipo_info['tipo_equipo']}) → Persona ID {$persona_id} ({$persona_nombre}). " . 
-                            ($equipo_info['nuevo'] ? "Equipo creado en la misma operación." : "Equipo proveniente de Bodega Principal.");
-                registrarLog($conn, 'Asignar equipo', $log_desc, $_SESSION['user_id']);
+            } else {
+                if (!$conn->query("INSERT INTO movimientos (equipo_id, persona_id, tipo_movimiento, fecha_movimiento, observaciones) 
+                                   VALUES ($equipo_id, NULL, 'ASIGNACION_SALON', NOW(), 'Asignación directa a salón')")) {
+                    $errores[] = "Error al registrar el movimiento de salón: " . $conn->error;
+                }
             }
+
+            // Log de auditoría
+            require_once '../../includes/logs_functions.php';
+            $destino_texto_log = $destino_tipo === 'persona'
+                ? "Persona ID {$persona_id} ({$persona_nombre})"
+                : "Salón ID {$salon_id} ({$salon_nombre})";
+            $log_desc = "Equipo: {$equipo_info['codigo_barras']} ({$equipo_info['tipo_equipo']}) → {$destino_texto_log}. " .
+                        ($equipo_info['nuevo'] ? "Equipo creado en la misma operación." : "Equipo proveniente de Bodega Principal.");
+            registrarLog($conn, 'Asignar equipo', $log_desc, $_SESSION['user_id']);
         }
 
         if (!empty($errores)) {
@@ -192,11 +252,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $esAjax) {
             'equipo' => $equipo_info,
             'persona_id' => $persona_id,
             'persona_nombre' => $persona_nombre,
+            'salon_id' => $salon_id,
+            'salon_nombre' => $salon_nombre,
+            'destino_tipo' => $destino_tipo,
+            'destino_nombre' => $destino_nombre,
             'urls' => [
-                'detalle_persona' => "/inventario_ti/modules/personas/detalle.php?id={$persona_id}",
-                'listado_personas' => "/inventario_ti/modules/personas/listar.php",
-                'otra_asignacion' => "/inventario_ti/modules/asignaciones/cargar_equipos.php?persona_id={$persona_id}",
-                'inicio' => "/inventario_ti/modules/dashboard.php"
+                'detalle_persona' => "/Inventario-Tesa-Cardex/modules/personas/detalle.php?id={$persona_id}",
+                'listado_personas' => "/Inventario-Tesa-Cardex/modules/personas/listar.php",
+                'otra_asignacion' => "/Inventario-Tesa-Cardex/modules/asignaciones/cargar_equipos.php?persona_id={$persona_id}",
+                'listado_salones' => "/Inventario-Tesa-Cardex/modules/salones/listar.php",
+                'otra_asignacion_salon' => "/Inventario-Tesa-Cardex/modules/asignaciones/cargar_equipos.php?salon_id={$salon_id}",
+                'inicio' => "/Inventario-Tesa-Cardex/modules/dashboard.php"
             ]
         ], JSON_UNESCAPED_UNICODE);
         exit;
@@ -252,10 +318,10 @@ if (isset($_SESSION['flash_asignacion_ok'])) {
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex align-items-center justify-content-between gap-2">
-                    <a class="btn btn-outline-secondary btn-sm" href="<?php echo $persona_id_seleccionada ? ('/inventario_ti/modules/personas/detalle.php?id=' . $persona_id_seleccionada) : '/inventario_ti/modules/personas/listar.php'; ?>">
+                    <a class="btn btn-outline-secondary btn-sm" href="<?php echo $persona_id_seleccionada ? ('/Inventario-Tesa-Cardex/modules/personas/detalle.php?id=' . $persona_id_seleccionada) : '/Inventario-Tesa-Cardex/modules/personas/listar.php'; ?>">
                         <i class="fas fa-arrow-left me-2"></i>Volver
                     </a>
-                    <h4 class="mb-0 flex-grow-1 text-center"><i class="fas fa-plus-circle me-2"></i>Asignar Equipo a Persona</h4>
+                    <h4 class="mb-0 flex-grow-1 text-center"><i class="fas fa-plus-circle me-2"></i>Asignar Equipo a Persona o Salón</h4>
                     <span style="width: 90px;"></span>
                 </div>
                 <div class="card-body">
@@ -267,13 +333,39 @@ if (isset($_SESSION['flash_asignacion_ok'])) {
                     <div id="alertasContainer"></div>
 
                     <form id="formEquipo" method="POST" enctype="multipart/form-data" onsubmit="return false;">
-    
+
+    <input type="hidden" name="destino_tipo" id="destino_tipo" value="persona">
+
     <div class="row mb-4">
         <div class="col-md-6">
+            <div class="opcion-btn active" id="opcionPersona" onclick="seleccionarDestino('persona')">
+                <i class="fas fa-user fa-3x mb-2"></i>
+                <h5>Asignar a Persona</h5>
+                <p class="mb-0">Entregar el equipo a un custodio</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="opcion-btn" id="opcionSalon" onclick="seleccionarDestino('salon')">
+                <i class="fas fa-door-open fa-3x mb-2"></i>
+                <h5>Asignar a Salón</h5>
+                <p class="mb-0">Ubicar el equipo en un aula, laboratorio o biblioteca</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6" id="panelPersona">
             <label class="form-label">Persona *</label>
             <select name="persona_id" id="persona_id" class="form-control" required>
                 <option value="">-- Seleccione una persona --</option>
                 <?php echo $persona_select_html; ?>
+            </select>
+        </div>
+        <div class="col-md-6" id="panelSalon" style="display: none;">
+            <label class="form-label">Salón *</label>
+            <select name="salon_id" id="salon_id" class="form-control">
+                <option value="">-- Seleccione un salón --</option>
+                <?php echo $salon_select_html; ?>
             </select>
         </div>
     </div>
@@ -368,7 +460,7 @@ if (isset($_SESSION['flash_asignacion_ok'])) {
         <button type="button" id="btnAsignar" class="btn btn-success btn-lg px-5">
             <i class="fas fa-save me-2"></i>Asignar Equipo
         </button>
-        <a href="/inventario_ti/modules/personas/listar.php" class="btn btn-secondary btn-lg px-5">
+        <a href="/Inventario-Tesa-Cardex/modules/personas/listar.php" class="btn btn-secondary btn-lg px-5">
             <i class="fas fa-arrow-left me-2"></i>Cancelar
         </a>
     </div>
@@ -400,6 +492,37 @@ function mostrarErrores(errores) {
     document.getElementById('alertasContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function limpiarAlertas() { document.getElementById('alertasContainer').innerHTML = ''; }
+
+// ====== SELECCIÓN DE DESTINO (persona vs salón) ======
+function seleccionarDestino(destino) {
+    const btnPersona = document.getElementById('opcionPersona');
+    const btnSalon = document.getElementById('opcionSalon');
+    const panelPersona = document.getElementById('panelPersona');
+    const panelSalon = document.getElementById('panelSalon');
+    const tipoDestino = document.getElementById('destino_tipo');
+    const inputPersona = document.getElementById('persona_id');
+    const inputSalon = document.getElementById('salon_id');
+
+    if (destino === 'salon') {
+        btnSalon.classList.add('active');
+        btnPersona.classList.remove('active');
+        panelSalon.style.display = 'block';
+        panelPersona.style.display = 'none';
+        tipoDestino.value = 'salon';
+        inputSalon.required = true;
+        inputPersona.required = false;
+        inputPersona.value = '';
+    } else {
+        btnPersona.classList.add('active');
+        btnSalon.classList.remove('active');
+        panelPersona.style.display = 'block';
+        panelSalon.style.display = 'none';
+        tipoDestino.value = 'persona';
+        inputPersona.required = true;
+        inputSalon.required = false;
+        inputSalon.value = '';
+    }
+}
 
 // ====== SELECCIÓN DE OPCIÓN (tab nuevo vs bodega) ======
 function seleccionarOpcion(opcion) {
@@ -434,19 +557,35 @@ function seleccionarOpcion(opcion) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    seleccionarDestino('<?php echo $salon_id_seleccionado > 0 ? 'salon' : 'persona'; ?>');
     seleccionarOpcion('nuevo');
 });
 
 // ====== VALIDACIÓN LOCAL ======
 function validarFormulario() {
     let errores = [];
+    const destino = document.getElementById('destino_tipo').value;
     const personaSel = document.getElementById('persona_id');
-    const persona_id = parseInt(personaSel.value || '0');
-    if (persona_id === 0) {
-        errores.push('Debe seleccionar una persona de la lista.');
-        personaSel.classList.add('is-invalid'); personaSel.focus();
-    } else {
+    const salonSel = document.getElementById('salon_id');
+
+    if (destino === 'salon') {
+        const salon_id = parseInt(salonSel.value || '0');
+        if (salon_id === 0) {
+            errores.push('Debe seleccionar un salón de la lista.');
+            salonSel.classList.add('is-invalid'); salonSel.focus();
+        } else {
+            salonSel.classList.remove('is-invalid');
+        }
         personaSel.classList.remove('is-invalid');
+    } else {
+        const persona_id = parseInt(personaSel.value || '0');
+        if (persona_id === 0) {
+            errores.push('Debe seleccionar una persona de la lista.');
+            personaSel.classList.add('is-invalid'); personaSel.focus();
+        } else {
+            personaSel.classList.remove('is-invalid');
+        }
+        salonSel.classList.remove('is-invalid');
     }
 
     const tipo = document.getElementById('tipo_asignacion').value;
@@ -476,12 +615,20 @@ document.getElementById('btnAsignar').addEventListener('click', function() {
     }
 
     // Resumen para confirmación
+    const destino = document.getElementById('destino_tipo').value;
     const persona_id = document.getElementById('persona_id').value;
-    const persona_nombre = document.getElementById('persona_id').options[document.getElementById('persona_id').selectedIndex].text;
+    const salon_id = document.getElementById('salon_id').value;
+    const persona_nombre = document.getElementById('persona_id').selectedIndex >= 0
+        ? document.getElementById('persona_id').options[document.getElementById('persona_id').selectedIndex].text
+        : '';
+    const salon_nombre = document.getElementById('salon_id').selectedIndex >= 0
+        ? document.getElementById('salon_id').options[document.getElementById('salon_id').selectedIndex].text
+        : '';
     const tipo = document.getElementById('tipo_asignacion').value;
     
     let resumen = '<div class="text-start" style="font-size:0.9rem;">';
-    resumen += '<p style="margin:4px 0;"><strong>👤 Persona:</strong> ' + escapeHtml(persona_nombre) + '</p>';
+    resumen += '<p style="margin:4px 0;"><strong>🎯 Destino:</strong> ' + (destino === 'salon' ? 'Salón' : 'Persona') + '</p>';
+    resumen += '<p style="margin:4px 0;"><strong>' + (destino === 'salon' ? '🏫 Salón:' : '👤 Persona:') + '</strong> ' + escapeHtml(destino === 'salon' ? salon_nombre : persona_nombre) + '</p>';
     resumen += '<p style="margin:4px 0;"><strong>📦 Tipo:</strong> ' + (tipo === 'nuevo' ? 'Crear y asignar Equipo NUEVO' : 'Asignar desde Bodega Principal') + '</p>';
     
     if (tipo === 'nuevo') {
@@ -534,19 +681,24 @@ document.getElementById('btnAsignar').addEventListener('click', function() {
                     const eqNom = resp.equipo.tipo_equipo + 
                         (resp.equipo.marca ? ' ' + resp.equipo.marca : '') +
                         (resp.equipo.modelo ? ' ' + resp.equipo.modelo : '');
+                    const destinoTexto = resp.destino_tipo === 'salon' ? 'Salón' : 'Persona';
+                    const destinoNombre = resp.destino_tipo === 'salon' ? resp.destino_nombre : resp.persona_nombre;
                     
                     Swal.fire({
                         icon: 'success',
                         title: '✅ EQUIPO ASIGNADO EXITOSAMENTE',
                         html: '<div class="text-start">' +
-                              '<p><strong>👤 Persona:</strong> ' + escapeHtml(resp.persona_nombre) + '</p>' +
+                              '<p><strong>🎯 Destino:</strong> ' + escapeHtml(destinoTexto) + '</p>' +
+                              '<p><strong>' + (resp.destino_tipo === 'salon' ? '🏫 Salón:' : '👤 Persona:') + '</strong> ' + escapeHtml(destinoNombre) + '</p>' +
                               '<p><strong>🖥️ Equipo:</strong> ' + escapeHtml(eqNom) + '</p>' +
                               '<p><strong>🏷️ Código:</strong> ' + escapeHtml(eqCod) + '</p>' +
                               '<p><strong>📦 Tipo:</strong> ' + (resp.equipo.nuevo ? 'Equipo NUEVO creado y asignado' : 'Proveniente de Bodega Principal') + '</p>' +
                               '</div><hr><p class="mb-0">¿Qué desea hacer ahora?</p>',
                         showDenyButton: true,
                         showCancelButton: true,
-                        confirmButtonText: '<i class="fas fa-user me-1"></i> Ver Detalle Persona',
+                        confirmButtonText: resp.destino_tipo === 'salon'
+                            ? '<i class="fas fa-door-open me-1"></i> Ver Salones'
+                            : '<i class="fas fa-user me-1"></i> Ver Detalle Persona',
                         denyButtonText: '<i class="fas fa-plus-circle me-1"></i> Asignar Otro Equipo',
                         cancelButtonText: '<i class="fas fa-home me-1"></i> Volver al Inicio',
                         confirmButtonColor: '#28a745',
@@ -556,9 +708,13 @@ document.getElementById('btnAsignar').addEventListener('click', function() {
                         allowEscapeKey: false
                     }).then(sr => {
                         if (sr.isConfirmed) {
-                            window.location.href = resp.urls.detalle_persona;
+                            window.location.href = resp.destino_tipo === 'salon'
+                                ? resp.urls.listado_salones
+                                : resp.urls.detalle_persona;
                         } else if (sr.isDenied) {
-                            window.location.href = resp.urls.otra_asignacion;
+                            window.location.href = resp.destino_tipo === 'salon'
+                                ? resp.urls.otra_asignacion_salon
+                                : resp.urls.otra_asignacion;
                         } else {
                             window.location.href = resp.urls.inicio;
                         }
@@ -593,3 +749,4 @@ document.getElementById('formEquipo').addEventListener('submit', e => { e.preven
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

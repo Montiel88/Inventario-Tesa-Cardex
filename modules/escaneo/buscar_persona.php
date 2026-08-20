@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -110,7 +110,7 @@ function buscarPersona() {
         return;
     }
     
-    fetch(`/inventario_ti/api/buscar_persona.php?q=${termino}`)
+    fetch(`/Inventario-Tesa-Cardex/api/buscar_persona.php?q=${termino}`)
         .then(response => response.json())
         .then(data => {
             let divResultados = document.getElementById('resultados');
@@ -144,7 +144,7 @@ function buscarPersona() {
 }
 
 function verPersona(id) {
-    window.location.href = `http://localhost/inventario_ti/modules/personas/ver.php?id=${id}`;
+    window.location.href = `http://localhost/Inventario-Tesa-Cardex/modules/personas/ver.php?id=${id}`;
 }
 
 // Iniciar escáner automáticamente

@@ -1,4 +1,4 @@
-# 📬 Sistema de Notificaciones Toast - Guía de Uso
+﻿# 📬 Sistema de Notificaciones Toast - Guía de Uso
 
 ## ✨ Características
 
@@ -38,7 +38,7 @@ mostrarToast('success', '✅ Operación Exitosa', 'Los datos fueron guardados', 
 
 ```javascript
 // Éxito: Equipo asignado
-notificarEquipoAsignado('Laptop HP ProBook', 'Juan Pérez', '/inventario_ti/modules/asignaciones/listar.php');
+notificarEquipoAsignado('Laptop HP ProBook', 'Juan Pérez', '/Inventario-Tesa-Cardex/modules/asignaciones/listar.php');
 
 // Error: Falló asignación
 notificarErrorAsignacion('El equipo ya está asignado');
@@ -48,7 +48,7 @@ notificarErrorAsignacion('El equipo ya está asignado');
 
 ```javascript
 // Persona creada
-notificarPersonaCreada('María González', '/inventario_ti/modules/personas/listar.php');
+notificarPersonaCreada('María González', '/Inventario-Tesa-Cardex/modules/personas/listar.php');
 
 // Persona actualizada
 notificarPersonaActualizada('Carlos Rodríguez');
@@ -133,7 +133,7 @@ $('#formAsignacion').on('submit', function(e) {
     
     const formData = new FormData(this);
     
-    fetch('/inventario_ti/modules/asignaciones/guardar.php', {
+    fetch('/Inventario-Tesa-Cardex/modules/asignaciones/guardar.php', {
         method: 'POST',
         body: formData
     })
@@ -144,12 +144,12 @@ $('#formAsignacion').on('submit', function(e) {
             notificarEquipoAsignado(
                 data.equipo, 
                 data.persona, 
-                '/inventario_ti/modules/asignaciones/listar.php'
+                '/Inventario-Tesa-Cardex/modules/asignaciones/listar.php'
             );
             
             // Redirigir después de 2 segundos
             setTimeout(() => {
-                window.location.href = '/inventario_ti/modules/asignaciones/listar.php';
+                window.location.href = '/Inventario-Tesa-Cardex/modules/asignaciones/listar.php';
             }, 2000);
         } else {
             // Mostrar notificación de error
@@ -171,16 +171,16 @@ $('#formPersona').on('submit', function(e) {
     const formData = new FormData(this);
     const nombreCompleto = $('#nombres').val() + ' ' + $('#apellido').val();
     
-    fetch('/inventario_ti/modules/personas/guardar.php', {
+    fetch('/Inventario-Tesa-Cardex/modules/personas/guardar.php', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            notificarPersonaCreada(nombreCompleto, '/inventario_ti/modules/personas/listar.php');
+            notificarPersonaCreada(nombreCompleto, '/Inventario-Tesa-Cardex/modules/personas/listar.php');
             setTimeout(() => {
-                window.location.href = '/inventario_ti/modules/personas/listar.php';
+                window.location.href = '/Inventario-Tesa-Cardex/modules/personas/listar.php';
             }, 2000);
         } else {
             notificarError(data.mensaje);
@@ -199,7 +199,7 @@ $('#formComponente').on('submit', function(e) {
     const componente = $('#nombre_componente').val();
     const equipo = $('#equipo_select').find('option:selected').text();
     
-    fetch('/inventario_ti/modules/componentes/asignar.php', {
+    fetch('/Inventario-Tesa-Cardex/modules/componentes/asignar.php', {
         method: 'POST',
         body: formData
     })
@@ -208,7 +208,7 @@ $('#formComponente').on('submit', function(e) {
         if (data.success) {
             notificarComponenteAsignado(componente, equipo);
             setTimeout(() => {
-                window.location.href = '/inventario_ti/modules/componentes/listar.php';
+                window.location.href = '/Inventario-Tesa-Cardex/modules/componentes/listar.php';
             }, 2000);
         } else {
             notificarErrorComponente(data.mensaje);
@@ -307,3 +307,4 @@ Los toasts se adaptan automáticamente a móviles:
 ---
 
 **¡Listo! Ahora tu sistema tiene notificaciones profesionales y dinámicas!** 🚀
+

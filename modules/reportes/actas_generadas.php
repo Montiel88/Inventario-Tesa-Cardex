@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 require_once '../../config/database.php';
@@ -77,7 +77,7 @@ $result = $conn->query($sql);
                         <td><?php echo date('d/m/Y H:i', strtotime($row['fecha_generacion'])); ?></td>
                         <td class="text-center">
                             <?php if (!empty($row['archivo_firmado'])): ?>
-                                <a href="/inventario_ti/<?php echo $row['archivo_firmado']; ?>" target="_blank" class="btn btn-sm btn-success mb-1">
+                                <a href="/Inventario-Tesa-Cardex/<?php echo $row['archivo_firmado']; ?>" target="_blank" class="btn btn-sm btn-success mb-1">
                                     <i class="fas fa-file-signature me-1"></i>Ver Firmado
                                 </a>
                                 <br>

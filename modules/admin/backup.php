@@ -65,7 +65,7 @@ function initBackupUI() {
 
     function cargarBackups() {
         $('#backupList').html('<div class="text-center text-muted py-3">Cargando...</div>');
-        $.getJSON('/inventario_ti/api/backup_listar.php')
+        $.getJSON('/Inventario-Tesa-Cardex/api/backup_listar.php')
             .done(function(data) {
                 if (data.success && data.backups.length > 0) {
                     let html = '<div class="list-group">';
@@ -119,7 +119,7 @@ function initBackupUI() {
                     }
                 });
                 
-                $.getJSON('/inventario_ti/api/backup_generar.php')
+                $.getJSON('/Inventario-Tesa-Cardex/api/backup_generar.php')
                     .done(function(data) {
                         if (data.success) {
                             Swal.fire({
@@ -146,7 +146,7 @@ function initBackupUI() {
 
     $(document).on('click', '.download-backup', function() {
         let file = $(this).data('file');
-        window.location.href = `/inventario_ti/api/backup_descargar.php?file=${encodeURIComponent(file)}`;
+        window.location.href = `/Inventario-Tesa-Cardex/api/backup_descargar.php?file=${encodeURIComponent(file)}`;
     });
 
     $(document).on('click', '.restore-backup', function() {
@@ -170,7 +170,7 @@ function initBackupUI() {
                     }
                 });
                 
-                $.post('/inventario_ti/api/backup_restaurar.php', { file: file })
+                $.post('/Inventario-Tesa-Cardex/api/backup_restaurar.php', { file: file })
                     .done(function(data) {
                         if (data.success) {
                             Swal.fire({
@@ -202,3 +202,4 @@ function initBackupUI() {
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

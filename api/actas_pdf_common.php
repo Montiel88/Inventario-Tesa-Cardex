@@ -187,7 +187,7 @@ function actas_guardar_pdf_y_redirigir(&$conn, $acta_id, $pdf_content, $mpdf = n
         }
     }
 
-    header("Location: /inventario_ti/modules/actas/detalle.php?id=" . $acta_id . "&success=1");
+    header("Location: /Inventario-Tesa-Cardex/modules/actas/detalle.php?id=" . $acta_id . "&success=1");
     exit();
 }
 
@@ -207,3 +207,4 @@ function actas_render_header_html($logo_base64, $titulo, $subtitulo, $codigo_act
         $codigo_html
     </div>";
 }
+

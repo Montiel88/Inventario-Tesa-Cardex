@@ -3,7 +3,7 @@ session_start();
 // NOTA: No requerimos login para esta página porque es pública para el QR
 // Si quieres que sea privada, descomenta las líneas de abajo
 // if (!isset($_SESSION['user_id'])) {
-//     header('Location: /inventario_ti/login.php');
+//     header('Location: /Inventario-Tesa-Cardex/login.php');
 //     exit();
 // }
 

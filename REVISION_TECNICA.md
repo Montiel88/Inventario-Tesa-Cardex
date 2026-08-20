@@ -1,4 +1,4 @@
-# 🔍 REVISIÓN TÉCNICA - SISTEMA INVENTARIO TESA
+﻿# 🔍 REVISIÓN TÉCNICA - SISTEMA INVENTARIO TESA
 
 **Fecha:** 17 de marzo de 2026  
 **Técnico:** Jarvis (Asistente IA)  
@@ -94,14 +94,14 @@ El sistema de inventario TESA está **completamente funcional** y listo para pro
 
 | Página | URL |
 |--------|-----|
-| **Inicio** | http://localhost/inventario_ti/inicio.html |
-| **Login** | http://localhost/inventario_ti/login.php |
-| **Dashboard** | http://localhost/inventario_ti/modules/dashboard.php |
-| **Personas** | http://localhost/inventario_ti/modules/personas/listar.php |
-| **Equipos** | http://localhost/inventario_ti/modules/equipos/listar.php |
-| **Movimientos** | http://localhost/inventario_ti/modules/movimientos/historial.php |
-| **Reportes** | http://localhost/inventario_ti/modules/reportes/index.php |
-| **Admin** | http://localhost/inventario_ti/modules/admin/usuarios.php |
+| **Inicio** | http://localhost/Inventario-Tesa-Cardex/inicio.html |
+| **Login** | http://localhost/Inventario-Tesa-Cardex/login.php |
+| **Dashboard** | http://localhost/Inventario-Tesa-Cardex/modules/dashboard.php |
+| **Personas** | http://localhost/Inventario-Tesa-Cardex/modules/personas/listar.php |
+| **Equipos** | http://localhost/Inventario-Tesa-Cardex/modules/equipos/listar.php |
+| **Movimientos** | http://localhost/Inventario-Tesa-Cardex/modules/movimientos/historial.php |
+| **Reportes** | http://localhost/Inventario-Tesa-Cardex/modules/reportes/index.php |
+| **Admin** | http://localhost/Inventario-Tesa-Cardex/modules/admin/usuarios.php |
 
 ### Acceso Rápido desde Windows
 
@@ -241,3 +241,4 @@ Las mejoras sugeridas son opcionales y pueden implementarse en el futuro sin afe
 ---
 
 *Fin del informe técnico*
+

@@ -21,7 +21,7 @@ if (!function_exists('generarCodigoActa')) {
 }
 
 if (!isset($_SESSION["user_id"]) && php_sapi_name() !== 'cli') {
-    header("Location: /inventario_ti/login.php");
+    header("Location: /Inventario-Tesa-Cardex/login.php");
     exit();
 }
 
@@ -253,3 +253,4 @@ try {
     echo "Error: " . $e->getMessage();
 }
 ?>
+

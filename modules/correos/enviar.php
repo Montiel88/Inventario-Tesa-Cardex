@@ -10,7 +10,7 @@ use PHPMailer\PHPMailer\Exception;
 $usuario_id = $_SESSION['usuario_id'] ?? $_SESSION['user_id'] ?? null;
 $rol_id = $_SESSION['rol_id'] ?? $_SESSION['user_rol'] ?? null;
 if (!$usuario_id || $rol_id != 1) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit;
 }
 
@@ -120,7 +120,7 @@ if ($check_table && $check_table->num_rows > 0) {
         $email_enviado ? 'success' : 'error',
         $email_enviado ? '✉️ Correo enviado' : '❌ Error al enviar',
         $email_enviado ? "Correo enviado a {$persona['nombres']}: {$asunto}" : "Error al enviar correo a {$persona['nombres']}: {$error_email}",
-        $email_enviado ? "/inventario_ti/modules/correos/historial.php?id={$correo_id}" : null
+        $email_enviado ? "/Inventario-Tesa-Cardex/modules/correos/historial.php?id={$correo_id}" : null
     );
     
     // Registrar log de la operación
@@ -205,3 +205,4 @@ function convertirAHTML($mensaje, $persona, $conn, $asignacion_id, $componente_i
     return $html;
 }
 ?>
+

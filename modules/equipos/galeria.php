@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -96,7 +96,7 @@ const equipoId = <?php echo $id; ?>;
 const esAdmin = <?php echo $es_admin ? 'true' : 'false'; ?>;
 
 function cargarFotos() {
-    fetch('/inventario_ti/api/equipos_fotos.php?action=listar&equipo_id=' + equipoId)
+    fetch('/Inventario-Tesa-Cardex/api/equipos_fotos.php?action=listar&equipo_id=' + equipoId)
         .then(r => r.json())
         .then(data => {
             const container = document.getElementById('galeriaFotos');
@@ -149,7 +149,7 @@ document.getElementById('formSubirFoto').addEventListener('submit', function(e) 
     
     const formData = new FormData(this);
     
-    fetch('/inventario_ti/api/equipos_fotos.php?action=subir', {
+    fetch('/Inventario-Tesa-Cardex/api/equipos_fotos.php?action=subir', {
         method: 'POST',
         body: formData
     })
@@ -171,7 +171,7 @@ function eliminarFoto(id) {
     formData.append('action', 'eliminar');
     formData.append('id', id);
     
-    fetch('/inventario_ti/api/equipos_fotos.php', {
+    fetch('/Inventario-Tesa-Cardex/api/equipos_fotos.php', {
         method: 'POST',
         body: formData
     })
@@ -190,7 +190,7 @@ function setPrincipal(id) {
     formData.append('action', 'set_principal');
     formData.append('id', id);
     
-    fetch('/inventario_ti/api/equipos_fotos.php', {
+    fetch('/Inventario-Tesa-Cardex/api/equipos_fotos.php', {
         method: 'POST',
         body: formData
     })
@@ -209,3 +209,4 @@ cargarFotos();
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

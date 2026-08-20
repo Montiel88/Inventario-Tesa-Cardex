@@ -3,7 +3,7 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -82,7 +82,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
     left: -50%;
     width: 200%;
     height: 200%;
-    background: url('/inventario_ti/assets/img/logo-tesa.png') no-repeat center;
+    background: url('/Inventario-Tesa-Cardex/assets/img/logo-tesa.png') no-repeat center;
     background-size: contain;
     opacity: 0.03;
     transform: rotate(-5deg);
@@ -360,7 +360,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_personas; ?></h5>
                         <p class="card-text"><i class="fas fa-users me-1"></i> Personas</p>
-                        <a href="/inventario_ti/modules/personas/listar.php" class="btn btn-sm">
+                        <a href="/Inventario-Tesa-Cardex/modules/personas/listar.php" class="btn btn-sm">
                             <i class="fas fa-list me-1"></i> Ver lista
                         </a>
                     </div>
@@ -371,7 +371,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_equipos; ?></h5>
                         <p class="card-text"><i class="fas fa-laptop me-1"></i> Equipos</p>
-                        <a href="/inventario_ti/modules/equipos/listar.php" class="btn btn-sm">
+                        <a href="/Inventario-Tesa-Cardex/modules/equipos/listar.php" class="btn btn-sm">
                             <i class="fas fa-list me-1"></i> Ver equipos
                         </a>
                     </div>
@@ -382,7 +382,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_prestamos; ?></h5>
                         <p class="card-text"><i class="fas fa-hand-holding me-1"></i> Préstamos Activos</p>
-                        <a href="/inventario_ti/modules/movimientos/historial.php?filtro=activos" class="btn btn-sm">
+                        <a href="/Inventario-Tesa-Cardex/modules/movimientos/historial.php?filtro=activos" class="btn btn-sm">
                             <i class="fas fa-history me-1"></i> Ver préstamos
                         </a>
                     </div>
@@ -397,7 +397,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_disponibles; ?></h5>
                         <p class="card-text"><i class="fas fa-check-circle me-1"></i> Equipos Disponibles</p>
-                        <a href="/inventario_ti/modules/equipos/listar.php?estado=disponible" class="btn btn-sm">
+                        <a href="/Inventario-Tesa-Cardex/modules/equipos/listar.php?estado=disponible" class="btn btn-sm">
                             <i class="fas fa-list me-1"></i> Ver disponibles
                         </a>
                     </div>
@@ -408,7 +408,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     <div class="card-body">
                         <h5 class="card-title"><?php echo $total_componentes; ?></h5>
                         <p class="card-text"><i class="fas fa-microchip me-1"></i> Componentes</p>
-                        <a href="/inventario_ti/modules/componentes/listar.php" class="btn btn-sm">
+                        <a href="/Inventario-Tesa-Cardex/modules/componentes/listar.php" class="btn btn-sm">
                             <i class="fas fa-list me-1"></i> Ver componentes
                         </a>
                     </div>
@@ -427,22 +427,22 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <a href="/inventario_ti/modules/movimientos/prestamo.php" class="btn btn-primary w-100">
+                                <a href="/Inventario-Tesa-Cardex/modules/movimientos/prestamo.php" class="btn btn-primary w-100">
                                     <i class="fas fa-hand-holding me-2"></i>Registrar Préstamo
                                 </a>
                             </div>
                             <div class="col-md-3">
-                                <a href="/inventario_ti/modules/movimientos/devolucion.php" class="btn btn-success w-100">
+                                <a href="/Inventario-Tesa-Cardex/modules/movimientos/devolucion.php" class="btn btn-success w-100">
                                     <i class="fas fa-undo-alt me-2"></i>Registrar Devolución
                                 </a>
                             </div>
                             <div class="col-md-3">
-                                <a href="/inventario_ti/modules/equipos/agregar.php" class="btn btn-warning w-100">
+                                <a href="/Inventario-Tesa-Cardex/modules/equipos/agregar.php" class="btn btn-warning w-100">
                                     <i class="fas fa-plus-circle me-2"></i>Agregar Equipo
                                 </a>
                             </div>
                             <div class="col-md-3">
-                                <a href="/inventario_ti/modules/personas/agregar.php" class="btn btn-info w-100">
+                                <a href="/Inventario-Tesa-Cardex/modules/personas/agregar.php" class="btn btn-info w-100">
                                     <i class="fas fa-user-plus me-2"></i>Agregar Persona
                                 </a>
                             </div>
@@ -475,7 +475,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                             <div class="list-group list-group-flush">
                                 <?php while($row = $result_movimientos->fetch_assoc()): ?>
                                     <div class="list-group-item" style="position: relative;">
-                                        <a href="/inventario_ti/modules/equipos/detalle.php?id=<?php echo $row['equipo_id']; ?>" class="stretched-link"></a>
+                                        <a href="/Inventario-Tesa-Cardex/modules/equipos/detalle.php?id=<?php echo $row['equipo_id']; ?>" class="stretched-link"></a>
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div class="flex-grow-1">
                                                 <div class="fw-bold text-primary"><?php echo htmlspecialchars($row['equipo'] ?? 'N/A'); ?></div>
@@ -512,7 +512,7 @@ $result_movimientos_componentes = $conn->query($sql_movimientos_componentes);
                             <div class="list-group list-group-flush">
                                 <?php while($row = $result_movimientos_componentes->fetch_assoc()): ?>
                                     <div class="list-group-item" style="position: relative;">
-                                        <a href="/inventario_ti/modules/componentes/detalle.php?id=<?php echo $row['componente_id']; ?>" class="stretched-link"></a>
+                                        <a href="/Inventario-Tesa-Cardex/modules/componentes/detalle.php?id=<?php echo $row['componente_id']; ?>" class="stretched-link"></a>
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div class="flex-grow-1">
                                                 <div class="fw-bold text-primary"><?php echo htmlspecialchars($row['tipo'] . ': ' . $row['nombre_componente']); ?></div>
@@ -592,7 +592,7 @@ function toggleGraficos() {
 }
 
 function cargarGraficos() {
-    fetch('/inventario_ti/api/dashboard_stats.php')
+    fetch('/Inventario-Tesa-Cardex/api/dashboard_stats.php')
         .then(response => response.json())
         .then(data => {
             if (window.chartEstado) return;
@@ -619,3 +619,4 @@ function cargarGraficos() {
 }
 </script>
 <?php include '../includes/footer.php'; ?>
+

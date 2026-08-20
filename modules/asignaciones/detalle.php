@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -78,7 +78,7 @@ $es_activa = is_null($asignacion['fecha_devolucion']);
                                         <tr><th>Correo:</th><td><?php echo $asignacion['correo'] ?: 'No registrado'; ?></td></tr>
                                         <tr><th>Teléfono:</th><td><?php echo $asignacion['telefono'] ?: 'No registrado'; ?></td></tr>
                                     </table>
-                                    <a href="/inventario_ti/modules/personas/detalle.php?id=<?php echo $asignacion['persona_id']; ?>" class="btn btn-sm btn-info">
+                                    <a href="/Inventario-Tesa-Cardex/modules/personas/detalle.php?id=<?php echo $asignacion['persona_id']; ?>" class="btn btn-sm btn-info">
                                         <i class="fas fa-user me-1"></i>Ver Perfil Completo
                                     </a>
                                 </div>
@@ -98,7 +98,7 @@ $es_activa = is_null($asignacion['fecha_devolucion']);
                                         <tr><th>N° Serie:</th><td><?php echo $asignacion['numero_serie'] ?: 'N/A'; ?></td></tr>
                                         <tr><th>Especificaciones:</th><td><?php echo nl2br($asignacion['especificaciones'] ?: 'No especificadas'); ?></td></tr>
                                     </table>
-                                    <a href="/inventario_ti/modules/equipos/detalle.php?id=<?php echo $asignacion['equipo_id']; ?>" class="btn btn-sm btn-info">
+                                    <a href="/Inventario-Tesa-Cardex/modules/equipos/detalle.php?id=<?php echo $asignacion['equipo_id']; ?>" class="btn btn-sm btn-info">
                                         <i class="fas fa-laptop me-1"></i>Ver Detalle del Equipo
                                     </a>
                                 </div>
@@ -143,13 +143,13 @@ $es_activa = is_null($asignacion['fecha_devolucion']);
                                 </div>
                                 <div class="card-body">
                                     <div class="d-grid gap-2">
-                                        <a href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $asignacion['persona_id']; ?>" target="_blank" class="btn btn-outline-primary">
+                                        <a href="/Inventario-Tesa-Cardex/api/generar_acta_entrega.php?persona_id=<?php echo $asignacion['persona_id']; ?>" target="_blank" class="btn btn-outline-primary">
                                             <i class="fas fa-file-pdf me-2"></i>Acta de Entrega
                                         </a>
-                                        <a href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $asignacion['persona_id']; ?>" target="_blank" class="btn btn-outline-warning">
+                                        <a href="/Inventario-Tesa-Cardex/api/generar_acta_devolucion.php?persona_id=<?php echo $asignacion['persona_id']; ?>" target="_blank" class="btn btn-outline-warning">
                                             <i class="fas fa-file-pdf me-2"></i>Acta de Devolución
                                         </a>
-                                        <a href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $asignacion['persona_id']; ?>" target="_blank" class="btn btn-outline-info">
+                                        <a href="/Inventario-Tesa-Cardex/api/generar_descargo.php?persona_id=<?php echo $asignacion['persona_id']; ?>" target="_blank" class="btn btn-outline-info">
                                             <i class="fas fa-file-signature me-2"></i>Descargo de Responsabilidad
                                         </a>
                                         <?php if ($es_activa && $es_admin): ?>

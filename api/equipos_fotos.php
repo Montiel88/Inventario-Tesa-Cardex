@@ -131,7 +131,7 @@ function listarFotos() {
     
     while ($row = $result->fetch_assoc()) {
         // Convertir ruta relativa para URL
-        $row['url'] = str_replace('../../', '/inventario_ti/', $row['ruta']);
+        $row['url'] = str_replace('../../', '/Inventario-Tesa-Cardex/', $row['ruta']);
         $row['fecha'] = date('d/m/Y H:i', strtotime($row['created_at']));
         $fotos[] = $row;
     }
@@ -208,3 +208,4 @@ function setPrincipal() {
     
     echo json_encode(['success' => true, 'mensaje' => 'Foto principal actualizada']);
 }
+

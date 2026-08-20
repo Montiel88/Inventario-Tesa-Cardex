@@ -1,4 +1,4 @@
-# 🎉 Sistema de Notificaciones Dinámicas Implementado
+﻿# 🎉 Sistema de Notificaciones Dinámicas Implementado
 
 **Fecha:** 2024-12-19  
 **Estado:** ✅ Completado
@@ -175,7 +175,7 @@ La notificación aparecerá automáticamente.
 ```javascript
 // Al asignar equipo exitosamente
 notificarEquipoAsignado('Laptop HP ProBook', 'Juan Pérez', 
-    '/inventario_ti/modules/asignaciones/listar.php');
+    '/Inventario-Tesa-Cardex/modules/asignaciones/listar.php');
 
 // Si falla la asignación
 notificarErrorAsignacion('El equipo ya está asignado a otra persona');
@@ -185,7 +185,7 @@ notificarErrorAsignacion('El equipo ya está asignado a otra persona');
 ```javascript
 // Al crear nueva persona
 notificarPersonaCreada('María González Rodríguez', 
-    '/inventario_ti/modules/personas/listar.php');
+    '/Inventario-Tesa-Cardex/modules/personas/listar.php');
 
 // Al actualizar persona
 notificarPersonaActualizada('Carlos Rodríguez');
@@ -275,3 +275,4 @@ Ahora cuando:
 ---
 
 **Estado:** ✅ **LISTO PARA USAR**
+

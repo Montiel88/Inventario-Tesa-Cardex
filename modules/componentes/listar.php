@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -85,7 +85,7 @@ if (!$result) {
                             <?php if ($es_admin): ?>
                             <td>
                                 <?php if ($disponible): ?>
-                                    <a href="asignar.php?id=<?php echo $c['id']; ?>" class="btn btn-sm btn-success" title="Asignar a persona">
+                                    <a href="asignar.php?id=<?php echo $c['id']; ?>" class="btn btn-sm btn-success" title="Asignar a persona o salón">
                                         <i class="fas fa-hand-holding"></i>
                                     </a>
                                 <?php else: ?>

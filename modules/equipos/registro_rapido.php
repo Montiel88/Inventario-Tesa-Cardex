@@ -324,7 +324,7 @@ document.getElementById('formEquipo').addEventListener('submit', function(e) {
     });
     
     // Enviar datos
-    fetch('/inventario_ti/api/registrar_equipo_rapido.php', {
+    fetch('/Inventario-Tesa-Cardex/api/registrar_equipo_rapido.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(datos)

@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   WHERE id = $id";
 
     if ($conn->query($sql_update)) {
-        header("Location: /inventario_ti/modules/equipos/detalle.php?id=$equipo_id&mensaje=Componente actualizado");
+        header("Location: /Inventario-Tesa-Cardex/modules/equipos/detalle.php?id=$equipo_id&mensaje=Componente actualizado");
     } else {
         $error = "Error al actualizar: " . $conn->error;
     }
@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-2"></i>Actualizar Componente
                             </button>
-                            <a href="/inventario_ti/modules/equipos/detalle.php?id=<?php echo $equipo_id; ?>" class="btn btn-secondary">
+                            <a href="/Inventario-Tesa-Cardex/modules/equipos/detalle.php?id=<?php echo $equipo_id; ?>" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Cancelar
                             </a>
                         </div>

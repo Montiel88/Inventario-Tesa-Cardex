@@ -3,13 +3,13 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
 // SOLO ADMIN PUEDE VER LOGS
 if ($_SESSION['user_rol'] != 1) {
-    header('Location: /inventario_ti/modules/dashboard.php?error=No tienes permisos para ver logs');
+    header('Location: /Inventario-Tesa-Cardex/modules/dashboard.php?error=No tienes permisos para ver logs');
     exit();
 }
 
@@ -405,3 +405,4 @@ function getColorParaAccion($accion) {
 ?>
 
 <?php include '../../includes/footer.php'; ?>
+

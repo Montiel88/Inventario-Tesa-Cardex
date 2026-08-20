@@ -43,7 +43,7 @@ $json_datos = json_encode($datos_qr, JSON_UNESCAPED_UNICODE);
 
 // Construir URL alternativa (para compatibilidad)
 $url_base = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
-$url_destino = $url_base . '/inventario_ti/modules/escaneo/verificar.php?codigo=' . $equipo['codigo_barras'];
+$url_destino = $url_base . '/Inventario-Tesa-Cardex/modules/escaneo/verificar.php?codigo=' . $equipo['codigo_barras'];
 
 // Redirigir a la librería de generación de QR
 require_once '../vendor/autoload.php';

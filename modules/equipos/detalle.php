@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -73,10 +73,10 @@ $componentes = $conn->query($sql_componentes);
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" style="max-height: 400px; overflow-y: auto;">
                                 <li><h6 class="dropdown-header">📦 ACTAS DE EQUIPO</h6></li>
-                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_ingreso.php?equipo_id=<?php echo $id; ?>" target="_blank">
+                                <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/api/generar_acta_ingreso.php?equipo_id=<?php echo $id; ?>" target="_blank">
                                     <i class="fas fa-box-open me-2 text-primary"></i>Acta de Ingreso
                                 </a></li>
-                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_baja.php?equipo_id=<?php echo $id; ?>" target="_blank">
+                                <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/api/generar_acta_baja.php?equipo_id=<?php echo $id; ?>" target="_blank">
                                     <i class="fas fa-trash-alt me-2 text-danger"></i>Acta de Baja
                                 </a></li>
                                 
@@ -88,13 +88,13 @@ $componentes = $conn->query($sql_componentes);
                                 ?>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><h6 class="dropdown-header">👤 ACTAS DE PERSONA ASIGNADA</h6></li>
-                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $persona_id; ?>" target="_blank">
+                                <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/api/generar_acta_entrega.php?persona_id=<?php echo $persona_id; ?>" target="_blank">
                                     <i class="fas fa-hand-holding me-2 text-success"></i>Acta Entrega
                                 </a></li>
-                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $persona_id; ?>" target="_blank">
+                                <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/api/generar_acta_devolucion.php?persona_id=<?php echo $persona_id; ?>" target="_blank">
                                     <i class="fas fa-undo-alt me-2 text-warning"></i>Acta Devolución
                                 </a></li>
-                                <li><a class="dropdown-item" href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $persona_id; ?>" target="_blank">
+                                <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/api/generar_descargo.php?persona_id=<?php echo $persona_id; ?>" target="_blank">
                                     <i class="fas fa-file-signature me-2 text-info"></i>Descargo
                                 </a></li>
                                 <?php endif; ?>
@@ -288,7 +288,7 @@ $componentes = $conn->query($sql_componentes);
 
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
-const baseUrl = window.location.origin + '/inventario_ti';
+const baseUrl = window.location.origin + '/Inventario-Tesa-Cardex';
 
 function generarQR(id) {
     document.getElementById('qrModal').style.display = 'flex';
@@ -378,3 +378,4 @@ window.onclick = function(event) {
 </style>
 
 <?php include '../../includes/footer.php'; ?>
+

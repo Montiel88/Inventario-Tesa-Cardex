@@ -9,7 +9,7 @@ if (getenv('APP_DEBUG') === '1') {
 }
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -142,7 +142,7 @@ $incidencias = $conn->query($sql_incidencias);
 // ============================================
 $protocolo = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'];
-$base_url_publica = $protocolo . '://' . $host . '/inventario_ti';
+$base_url_publica = $protocolo . '://' . $host . '/Inventario-Tesa-Cardex';
 ?>
 
 <style>
@@ -452,9 +452,9 @@ $base_url_publica = $protocolo . '://' . $host . '/inventario_ti';
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end p-2">
                         <li><h6 class="dropdown-header small">AUDITORÍA Y CONTROL</h6></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_entrega.php?persona_id=<?php echo $id; ?>" target="_blank"><i class="fas fa-hand-holding me-2 text-success"></i>Acta Entrega</a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/api/generar_acta_devolucion.php?persona_id=<?php echo $id; ?>" target="_blank"><i class="fas fa-undo-alt me-2 text-warning"></i>Acta Devolución</a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/api/generar_descargo.php?persona_id=<?php echo $id; ?>" target="_blank"><i class="fas fa-file-signature me-2 text-info"></i>Descargo</a></li>
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/api/generar_acta_entrega.php?persona_id=<?php echo $id; ?>" target="_blank"><i class="fas fa-hand-holding me-2 text-success"></i>Acta Entrega</a></li>
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/api/generar_acta_devolucion.php?persona_id=<?php echo $id; ?>" target="_blank"><i class="fas fa-undo-alt me-2 text-warning"></i>Acta Devolución</a></li>
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/api/generar_descargo.php?persona_id=<?php echo $id; ?>" target="_blank"><i class="fas fa-file-signature me-2 text-info"></i>Descargo</a></li>
                     </ul>
                 </div>
                 
@@ -465,7 +465,7 @@ $base_url_publica = $protocolo . '://' . $host . '/inventario_ti';
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end p-2">
                         <li><a class="dropdown-item" href="#" onclick="generarQR(<?php echo $id; ?>); return false;"><i class="fas fa-eye me-2"></i>Visualizar</a></li>
-                        <li><a class="dropdown-item" href="/inventario_ti/api/generar_qr_persona.php?id=<?php echo $id; ?>" download><i class="fas fa-download me-2"></i>Descargar</a></li>
+                        <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/api/generar_qr_persona.php?id=<?php echo $id; ?>" download><i class="fas fa-download me-2"></i>Descargar</a></li>
                     </ul>
                 </div>
 
@@ -611,9 +611,9 @@ $base_url_publica = $protocolo . '://' . $host . '/inventario_ti';
                                     </div>
                                     <div class="col-auto">
                                         <div class="d-flex flex-column gap-2">
-                                            <a href="/inventario_ti/modules/equipos/detalle.php?id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-outline-info rounded-pill px-3">Ver</a>
+                                            <a href="/Inventario-Tesa-Cardex/modules/equipos/detalle.php?id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-outline-info rounded-pill px-3">Ver</a>
                                             <?php if ($es_admin): ?>
-                                            <a href="/inventario_ti/modules/movimientos/devolucion.php?equipo_id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">Devolver</a>
+                                            <a href="/Inventario-Tesa-Cardex/modules/movimientos/devolucion.php?equipo_id=<?php echo $eq['id']; ?>" class="btn btn-sm btn-outline-success rounded-pill px-3">Devolver</a>
                                             <?php endif; ?>
                                         </div>
                                     </div>
@@ -670,9 +670,9 @@ $base_url_publica = $protocolo . '://' . $host . '/inventario_ti';
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item" href="/inventario_ti/modules/componentes/detalle.php?id=<?php echo $comp['id']; ?>">Ver detalles</a></li>
+                                                    <li><a class="dropdown-item" href="/Inventario-Tesa-Cardex/modules/componentes/detalle.php?id=<?php echo $comp['id']; ?>">Ver detalles</a></li>
                                                     <?php if ($es_admin): ?>
-                                                    <li><a class="dropdown-item text-warning" href="/inventario_ti/modules/componentes/devolver.php?id=<?php echo $comp['id']; ?>">Registrar devolución</a></li>
+                                                    <li><a class="dropdown-item text-warning" href="/Inventario-Tesa-Cardex/modules/componentes/devolver.php?id=<?php echo $comp['id']; ?>">Registrar devolución</a></li>
                                                     <?php endif; ?>
                                                 </ul>
                                             </div>
@@ -701,7 +701,7 @@ $base_url_publica = $protocolo . '://' . $host . '/inventario_ti';
                                             <small class="text-white-50 opacity-50"><i class="fas fa-link me-1"></i> Vinc. a: <?php echo htmlspecialchars($comp['tipo_equipo']); ?></small>
                                         </div>
                                         <div class="col-auto">
-                                            <a href="/inventario_ti/modules/componentes/detalle.php?id=<?php echo $comp['id']; ?>" class="btn btn-sm btn-link text-info"><i class="fas fa-external-link-alt"></i></a>
+                                            <a href="/Inventario-Tesa-Cardex/modules/componentes/detalle.php?id=<?php echo $comp['id']; ?>" class="btn btn-sm btn-link text-info"><i class="fas fa-external-link-alt"></i></a>
                                         </div>
                                     </div>
                                 </div>
@@ -807,3 +807,4 @@ window.onclick = function(event) {
     }
 }
 </script>
+

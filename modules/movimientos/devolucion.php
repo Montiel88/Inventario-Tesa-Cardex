@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 require_once '../../config/database.php';
@@ -214,9 +214,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
         // URL ACTA
         $acta_url = '';
         if ($acta_insertada_id > 0) {
-            $acta_url = "/inventario_ti/api/generar_acta_devolucion.php?acta_id=" . $acta_insertada_id;
+            $acta_url = "/Inventario-Tesa-Cardex/api/generar_acta_devolucion.php?acta_id=" . $acta_insertada_id;
         } else {
-            $acta_url = "/inventario_ti/api/generar_acta_devolucion.php?persona_id=" . $persona_id_int . "&equipo_id=" . $equipo_id;
+            $acta_url = "/Inventario-Tesa-Cardex/api/generar_acta_devolucion.php?persona_id=" . $persona_id_int . "&equipo_id=" . $equipo_id;
         }
 
         $mensaje_adicional = ($estado_equipo != 'BUENO') ? 'Se ha creado un registro automático en Mantenimientos.' : '';
@@ -258,7 +258,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['equipo_id'])) {
                 'success',
                 '🔄 Devolución registrada',
                 "Equipo {$asignacion['tipo_equipo']} ({$asignacion['codigo_barras']}) devuelto por {$asignacion['persona_nombre']}",
-                "/inventario_ti/modules/equipos/detalle.php?id={$equipo_id}"
+                "/Inventario-Tesa-Cardex/modules/equipos/detalle.php?id={$equipo_id}"
             );
         } catch (\Exception $eNotif) { $eNotif = null; }
 
@@ -396,7 +396,7 @@ $RESTORE_OBS = !empty($flash_devolucion_restore['observacion']) ? json_encode($f
         <div class="col-12">
             <div class="card devolucion-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <a href="/inventario_ti/modules/dashboard.php" class="btn btn-outline-secondary btn-sm">
+                    <a href="/Inventario-Tesa-Cardex/modules/dashboard.php" class="btn btn-outline-secondary btn-sm">
                         <i class="fas fa-arrow-left me-2"></i>Volver
                     </a>
                     <h4 class="mb-0"><i class="fas fa-undo-alt me-2"></i>Registrar Devolución de Equipo</h4>
@@ -764,3 +764,4 @@ $RESTORE_OBS = !empty($flash_devolucion_restore['observacion']) ? json_encode($f
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

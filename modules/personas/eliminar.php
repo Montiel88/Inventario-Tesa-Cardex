@@ -3,7 +3,7 @@ session_start();
 
 // Verificar autenticación
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -72,3 +72,4 @@ if ($stmt->execute()) {
 $stmt->close();
 exit();
 ?>
+

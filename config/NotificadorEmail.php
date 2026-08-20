@@ -432,7 +432,7 @@ class NotificadorEmail {
         if ($wrote === false) {
             return ['success' => false, 'error' => 'No se pudo escribir en carpeta local tmp/mailbox. Verifica permisos.'];
         }
-        $webPath = '/inventario_ti/tmp/mailbox/' . basename($file);
+        $webPath = '/Inventario-Tesa-Cardex/tmp/mailbox/' . basename($file);
         return [
             'success' => true,
             'error' => null,
@@ -660,3 +660,4 @@ class NotificadorEmail {
         return $notificados;
     }
 }
+

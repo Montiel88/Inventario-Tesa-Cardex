@@ -323,7 +323,7 @@ if (!$ok) {
     responderJsonActa(['success' => false, 'message' => implode('. ', $mensajes)], 500);
 }
 
-$url_completa = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/inventario_ti/' . ltrim($ruta_final_rel, '/');
+$url_completa = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/Inventario-Tesa-Cardex/' . ltrim($ruta_final_rel, '/');
 
 $actaEncontradaMsg = $acta_id > 0 ? " acta #$acta_id" : '';
 $movEncontradoMsg   = $movimiento_id > 0 ? " movimiento #$movimiento_id" : '';
@@ -340,3 +340,4 @@ responderJsonActa([
     'tablas_actualizadas' => array_values(array_unique($__tablasActualizadas)),
     'detalle' => $mensajes,
 ], 200);
+

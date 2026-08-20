@@ -5,7 +5,7 @@ include '../../includes/header.php';
 
 // Verificar sesión
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 ?>
@@ -255,7 +255,7 @@ function buscarPorCodigo(codigo = null) {
         didOpen: () => Swal.showLoading()
     });
     
-    fetch(`/inventario_ti/api/buscar_producto.php?codigo=${encodeURIComponent(codigo)}`)
+    fetch(`/Inventario-Tesa-Cardex/api/buscar_producto.php?codigo=${encodeURIComponent(codigo)}`)
         .then(response => response.json())
         .then(data => {
             Swal.close();
@@ -317,7 +317,7 @@ function buscarPorCodigo(codigo = null) {
                         <tr>
                             <th>Prestado a:</th>
                             <td>
-                                <a href="/inventario_ti/modules/personas/detalle.php?id=${equipo.persona_id}" class="text-decoration-none">
+                                <a href="/Inventario-Tesa-Cardex/modules/personas/detalle.php?id=${equipo.persona_id}" class="text-decoration-none">
                                     <i class="fas fa-user me-1"></i>${equipo.persona_nombre || 'Desconocido'}
                                 </a>
                             </td>
@@ -335,12 +335,12 @@ function buscarPorCodigo(codigo = null) {
                     acciones.innerHTML = `
                         <div class="row g-2">
                             <div class="col-6">
-                                <button class="btn btn-success w-100" onclick="window.location.href='/inventario_ti/modules/movimientos/devolucion.php?equipo_id=${equipo.id}'">
+                                <button class="btn btn-success w-100" onclick="window.location.href='/Inventario-Tesa-Cardex/modules/movimientos/devolucion.php?equipo_id=${equipo.id}'">
                                     <i class="fas fa-undo-alt me-2"></i>Devolución
                                 </button>
                             </div>
                             <div class="col-6">
-                                <button class="btn btn-info w-100" onclick="window.location.href='/inventario_ti/modules/personas/detalle.php?id=${equipo.persona_id}'">
+                                <button class="btn btn-info w-100" onclick="window.location.href='/Inventario-Tesa-Cardex/modules/personas/detalle.php?id=${equipo.persona_id}'">
                                     <i class="fas fa-user me-2"></i>Ver Persona
                                 </button>
                             </div>
@@ -350,17 +350,17 @@ function buscarPorCodigo(codigo = null) {
                     acciones.innerHTML = `
                         <div class="row g-2">
                             <div class="col-6">
-                                <button class="btn btn-primary w-100" onclick="window.location.href='/inventario_ti/modules/movimientos/prestamo.php?equipo_id=${equipo.id}'">
+                                <button class="btn btn-primary w-100" onclick="window.location.href='/Inventario-Tesa-Cardex/modules/movimientos/prestamo.php?equipo_id=${equipo.id}'">
                                     <i class="fas fa-hand-holding me-2"></i>Prestar
                                 </button>
                             </div>
                             <div class="col-6">
-                                <button class="btn btn-warning w-100" onclick="window.location.href='/inventario_ti/modules/equipos/editar.php?id=${equipo.id}'">
+                                <button class="btn btn-warning w-100" onclick="window.location.href='/Inventario-Tesa-Cardex/modules/equipos/editar.php?id=${equipo.id}'">
                                     <i class="fas fa-edit me-2"></i>Editar
                                 </button>
                             </div>
                             <div class="col-12 mt-2">
-                                <button class="btn btn-secondary w-100" onclick="window.location.href='/inventario_ti/api/generar_qr_equipo.php?id=${equipo.id}'">
+                                <button class="btn btn-secondary w-100" onclick="window.location.href='/Inventario-Tesa-Cardex/api/generar_qr_equipo.php?id=${equipo.id}'">
                                     <i class="fas fa-qrcode me-2"></i>Descargar QR
                                 </button>
                             </div>
@@ -379,7 +379,7 @@ function buscarPorCodigo(codigo = null) {
                 acciones.innerHTML = `
                     <div class="row">
                         <div class="col-12">
-                            <button class="btn btn-warning w-100" onclick="window.location.href='/inventario_ti/modules/equipos/registro_rapido.php?codigo=${encodeURIComponent(codigo)}'">
+                            <button class="btn btn-warning w-100" onclick="window.location.href='/Inventario-Tesa-Cardex/modules/equipos/registro_rapido.php?codigo=${encodeURIComponent(codigo)}'">
                                 <i class="fas fa-plus-circle me-2"></i>Registrar Nuevo Equipo
                             </button>
                         </div>

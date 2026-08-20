@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($stmt->execute()) {
             // Redirigir según origen
             if ($equipo_id_post > 0) {
-                header("Location: /inventario_ti/modules/equipos/detalle.php?id=$equipo_id_post&mensaje=Componente agregado correctamente");
+                header("Location: /Inventario-Tesa-Cardex/modules/equipos/detalle.php?id=$equipo_id_post&mensaje=Componente agregado correctamente");
             } else {
                 header("Location: listar.php?mensaje=Componente agregado correctamente");
             }
@@ -213,7 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
 
                         <div class="d-flex justify-content-between mt-4">
-                            <a href="<?php echo $equipo_id > 0 ? '/inventario_ti/modules/equipos/detalle.php?id=' . $equipo_id : 'listar.php'; ?>" class="btn btn-secondary">
+                            <a href="<?php echo $equipo_id > 0 ? '/Inventario-Tesa-Cardex/modules/equipos/detalle.php?id=' . $equipo_id : 'listar.php'; ?>" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary">

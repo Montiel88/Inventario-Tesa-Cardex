@@ -1,4 +1,4 @@
-# 📬 Sistema de Notificaciones Implementado - Resumen Completo
+﻿# 📬 Sistema de Notificaciones Implementado - Resumen Completo
 
 **Fecha:** 2024-12-19  
 **Estado:** ✅ Completado
@@ -40,7 +40,7 @@ registrar_notificacion(
     'success',
     '👤 Persona agregada',
     "Se agregó a {$nombres} (cédula {$cedula})",
-    "/inventario_ti/modules/personas/detalle.php?id=" . $id_persona
+    "/Inventario-Tesa-Cardex/modules/personas/detalle.php?id=" . $id_persona
 );
 ```
 
@@ -52,7 +52,7 @@ registrar_notificacion(
     'success',
     '🖥️ Equipo agregado',
     "Se agregó {$tipo_equipo} con código {$codigo_barras}",
-    "/inventario_ti/modules/equipos/detalle.php?id=" . $equipo_id
+    "/Inventario-Tesa-Cardex/modules/equipos/detalle.php?id=" . $equipo_id
 );
 ```
 
@@ -65,7 +65,7 @@ registrar_notificacion(
     'success',
     '📦 Préstamo registrado',
     "Se realizó préstamo de {$producto_nombre} a {$persona_nombre}",
-    "/inventario_ti/modules/productos/detalle.php?id={$producto_id}"
+    "/Inventario-Tesa-Cardex/modules/productos/detalle.php?id={$producto_id}"
 );
 
 // En error
@@ -87,7 +87,7 @@ registrar_notificacion(
     'success',
     '🔄 Devolución registrada',
     "Equipo {$asignacion['tipo_equipo']} ({$asignacion['codigo_barras']}) devuelto por {$asignacion['persona_nombre']}",
-    "/inventario_ti/modules/equipos/detalle.php?id={$equipo_id}"
+    "/Inventario-Tesa-Cardex/modules/equipos/detalle.php?id={$equipo_id}"
 );
 
 // Error
@@ -108,7 +108,7 @@ registrar_notificacion(
     'success',
     '🔧 Componente asignado',
     "Componente {$componente_nombre} asignado a {$persona_nombre}",
-    "/inventario_ti/modules/componentes/detalle.php?id={$componente_id}"
+    "/Inventario-Tesa-Cardex/modules/componentes/detalle.php?id={$componente_id}"
 );
 ```
 
@@ -120,7 +120,7 @@ registrar_notificacion(
     $email_enviado ? 'success' : 'error',
     $email_enviado ? '✉️ Correo enviado' : '❌ Error al enviar',
     $email_enviado ? "Correo enviado a {$persona['nombres']}: {$asunto}" : "Error al enviar correo a {$persona['nombres']}: {$error_email}",
-    $email_enviado ? "/inventario_ti/modules/correos/historial.php?id={$correo_id}" : null
+    $email_enviado ? "/Inventario-Tesa-Cardex/modules/correos/historial.php?id={$correo_id}" : null
 );
 ```
 
@@ -376,3 +376,4 @@ Ahora cada vez que:
 ```bash
 mysql -u root inventario_ti < database/notificaciones_table.sql
 ```
+

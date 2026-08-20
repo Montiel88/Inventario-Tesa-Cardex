@@ -10,11 +10,11 @@ if (getenv('APP_DEBUG') === '1') {
 
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 if ($_SESSION['user_rol'] != 1) {
-    header('Location: /inventario_ti/modules/dashboard.php?error=No tienes permisos');
+    header('Location: /Inventario-Tesa-Cardex/modules/dashboard.php?error=No tienes permisos');
     exit();
 }
 require_once '../../config/database.php';
@@ -317,8 +317,8 @@ $html_dbg = '';
                                 $nombre_origen = $conn->query("SELECT nombres FROM personas WHERE id=".intval($data['origen_persona_id']))->fetch_row()[0] ?? '';
                                 $nombre_destino = $conn->query("SELECT nombres FROM personas WHERE id=".intval($data['nueva_persona_id']))->fetch_row()[0] ?? '';
 
-                                $url_acta_vieja = !empty($data['asignaciones_ids'][0]) ? ("/inventario_ti/api/generar_acta_traspaso.php?asignacion_id=" . intval($data['asignaciones_ids'][0]) . "&nueva_persona_id=" . intval($data['nueva_persona_id'])) : '';
-                                $url_acta_nueva = !empty($data['acta_id']) ? ("/inventario_ti/api/generar_acta_unificada.php?acta_id=" . intval($data['acta_id'])) : '';
+                                $url_acta_vieja = !empty($data['asignaciones_ids'][0]) ? ("/Inventario-Tesa-Cardex/api/generar_acta_traspaso.php?asignacion_id=" . intval($data['asignaciones_ids'][0]) . "&nueva_persona_id=" . intval($data['nueva_persona_id'])) : '';
+                                $url_acta_nueva = !empty($data['acta_id']) ? ("/Inventario-Tesa-Cardex/api/generar_acta_unificada.php?acta_id=" . intval($data['acta_id'])) : '';
                         ?>
                         <div class="alert alert-info mt-3">
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -341,7 +341,7 @@ $html_dbg = '';
                                         <i class="fas fa-file-pdf me-1"></i> Acta estilo anterior (1er equipo)
                                     </a><br>
                                     <?php endif; ?>
-                                    <a href="/inventario_ti/modules/actas/generar.php?tipo=traspaso&persona_id=<?php echo intval($data['nueva_persona_id']); ?>&equipos_ids=<?php echo htmlspecialchars(implode(',', $data['equipos_ids'])); ?>" target="_blank" class="btn btn-outline-warning btn-sm mb-1">
+                                    <a href="/Inventario-Tesa-Cardex/modules/actas/generar.php?tipo=traspaso&persona_id=<?php echo intval($data['nueva_persona_id']); ?>&equipos_ids=<?php echo htmlspecialchars(implode(',', $data['equipos_ids'])); ?>" target="_blank" class="btn btn-outline-warning btn-sm mb-1">
                                         <i class="fas fa-plus-circle me-1"></i> Ir a Módulo Actas
                                     </a>
                                 </div>
@@ -475,7 +475,7 @@ $html_dbg = '';
                         </div>
 
                         <div class="d-flex justify-content-between mt-4 flex-wrap gap-2">
-                            <a href="/inventario_ti/modules/movimientos/historial.php" class="btn btn-secondary">
+                            <a href="/Inventario-Tesa-Cardex/modules/movimientos/historial.php" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-2"></i>Volver a Historial
                             </a>
                             <button type="button" id="btnSubmitTraspaso" class="btn btn-warning" disabled>
@@ -689,7 +689,7 @@ $html_dbg = '';
         }
         cargador.classList.remove('d-none');
         try {
-            const r = await fetch('/inventario_ti/api/get_asignaciones_por_persona.php?persona_id=' + encodeURIComponent(personaId));
+            const r = await fetch('/Inventario-Tesa-Cardex/api/get_asignaciones_por_persona.php?persona_id=' + encodeURIComponent(personaId));
             const t = await r.text();
             let data;
             try { data = JSON.parse(t); } catch(e) { throw new Error('Respuesta inválida: ' + t.substring(0, 150)); }
@@ -875,3 +875,4 @@ $html_dbg = '';
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

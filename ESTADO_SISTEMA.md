@@ -1,4 +1,4 @@
-# 📊 ESTADO DEL SISTEMA DE INVENTARIO TESA
+﻿# 📊 ESTADO DEL SISTEMA DE INVENTARIO TESA
 
 **Fecha de diagnóstico:** 17 de marzo de 2026  
 **Versión del sistema:** 1.1  
@@ -208,7 +208,7 @@ inventario_ti/
 
 ## 🔗 ACCESO AL SISTEMA
 
-**URL de acceso:** http://localhost/inventario_ti/
+**URL de acceso:** http://localhost/Inventario-Tesa-Cardex/
 
 **Credenciales de administrador:**
 - Email: `admin@tesa.edu.ec`
@@ -269,3 +269,4 @@ Todos los módulos críticos funcionan correctamente:
 ---
 
 *Documento generado automáticamente el 17/03/2026 20:07*
+

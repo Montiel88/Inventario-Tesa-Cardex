@@ -13,7 +13,7 @@ session_start();
 if (!isset($_SESSION['baja_masiva_ids']) || empty($_SESSION['baja_masiva_ids'])) {
     die("<h3 style='color: #dc3545; text-align:center; margin-top:50px;'>❌ No se encontraron datos de la baja masiva en la sesión.</h3>
          <p style='text-align:center;'>Por favor, regresa al listado de equipos y realiza el proceso de baja masiva nuevamente para generar el acta.</p>
-         <p style='text-align:center;'><a href='/inventario_ti/modules/equipos/listar.php' style='padding:10px 20px; background:#5a2d8c; color:white; text-decoration:none; border-radius:5px;'>Volver al Listado</a></p>");
+         <p style='text-align:center;'><a href='/Inventario-Tesa-Cardex/modules/equipos/listar.php' style='padding:10px 20px; background:#5a2d8c; color:white; text-decoration:none; border-radius:5px;'>Volver al Listado</a></p>");
 }
 
 define('BASE_PATH', rtrim(str_replace('\\', '/', realpath(__DIR__ . '/..')), '/') . '/');
@@ -22,7 +22,7 @@ require_once BASE_PATH . 'config/permisos.php';
 require_once BASE_PATH . 'config/actas_config.php';
 
 if (!isset($_SESSION["user_id"])) {
-    header("Location: /inventario_ti/login.php");
+    header("Location: /Inventario-Tesa-Cardex/login.php");
     exit();
 }
 
@@ -43,7 +43,7 @@ if (is_array($ids_raw)) {
 $ids = array_values(array_filter(array_map('intval', $ids), function ($v) { return $v > 0; }));
 if (count($ids) === 0) {
     die("<h3 style='color: #dc3545; text-align:center; margin-top:50px;'>❌ No se encontraron equipos válidos para generar el acta.</h3>
-         <p style='text-align:center;'><a href='/inventario_ti/modules/equipos/listar.php' style='padding:10px 20px; background:#5a2d8c; color:white; text-decoration:none; border-radius:5px;'>Volver al Listado</a></p>");
+         <p style='text-align:center;'><a href='/Inventario-Tesa-Cardex/modules/equipos/listar.php' style='padding:10px 20px; background:#5a2d8c; color:white; text-decoration:none; border-radius:5px;'>Volver al Listado</a></p>");
 }
 $ids_string = implode(',', $ids);
 
@@ -78,7 +78,7 @@ $equipos = $conn->query($sql);
 if (!$equipos || $equipos->num_rows === 0) {
     die("<h3 style='color: #dc3545; text-align:center; margin-top:50px;'>❌ No se encontraron equipos en la base de datos para generar el acta.</h3>
          <p style='text-align:center;'>Es posible que los IDs no existan o que ya no estén disponibles.</p>
-         <p style='text-align:center;'><a href='/inventario_ti/modules/equipos/listar.php' style='padding:10px 20px; background:#5a2d8c; color:white; text-decoration:none; border-radius:5px;'>Volver al Listado</a></p>");
+         <p style='text-align:center;'><a href='/Inventario-Tesa-Cardex/modules/equipos/listar.php' style='padding:10px 20px; background:#5a2d8c; color:white; text-decoration:none; border-radius:5px;'>Volver al Listado</a></p>");
 }
 
 $user_id = $_SESSION["user_id"];
@@ -301,3 +301,4 @@ try {
     echo "Error: " . $e->getMessage();
 }
 ?>
+

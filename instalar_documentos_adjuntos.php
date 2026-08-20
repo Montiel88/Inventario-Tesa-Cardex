@@ -134,4 +134,5 @@ if (@file_put_contents($prueba, 'ok') !== false) {
     echo "<p class='bad'>❌ La carpeta uploads/documentos NO es escribible. Ajusta permisos o propietario.</p>";
 }
 
-echo "<hr><p><a href='/inventario_ti/'>← Volver al inicio</a> | <a href='/inventario_ti/modules/equipos/listar.php'>Ir a Equipos</a></p></body></html>";
+echo "<hr><p><a href='/Inventario-Tesa-Cardex/'>← Volver al inicio</a> | <a href='/Inventario-Tesa-Cardex/modules/equipos/listar.php'>Ir a Equipos</a></p></body></html>";
+

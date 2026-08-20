@@ -149,9 +149,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $codigoEquipo = strval($equipo['codigo_barras'] ?? '');
     $equipoNombre = trim(($equipo['tipo_equipo'] ?? '') . ' ' . ($equipo['marca'] ?? '') . ' ' . ($equipo['modelo'] ?? ''));
     $personaNombre = trim(($persona['nombres'] ?? '') . (empty($persona['cedula']) ? '' : (' - ' . $persona['cedula'])));
-    $resumenUrl = "/inventario_ti/modules/prestamos_rapidos/listar.php";
-    $urlOtro    = "/inventario_ti/modules/prestamos_rapidos/registrar.php";
-    $urlDash    = "/inventario_ti/modules/dashboard.php";
+    $resumenUrl = "/Inventario-Tesa-Cardex/modules/prestamos_rapidos/listar.php";
+    $urlOtro    = "/Inventario-Tesa-Cardex/modules/prestamos_rapidos/registrar.php";
+    $urlDash    = "/Inventario-Tesa-Cardex/modules/dashboard.php";
 
     $_SESSION['success'] = "Préstamo rápido registrado correctamente. Equipo: $codigoEquipo.";
     $_SESSION['ui_popup_prestamo_rapido'] = [
@@ -445,3 +445,4 @@ const RESTORE_OBS    = <?php echo json_encode($obsRest); ?>;
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

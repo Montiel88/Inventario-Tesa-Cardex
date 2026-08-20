@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt->bind_param($tipos, $codigo_acta, $tipo_acta, $persona_bind, $usuario_id, $equipos_ids, $motivo_bind);
                 if ($stmt->execute()) {
                     $id_nuevo = $conn->insert_id;
-                    header("Location: /inventario_ti/api/generar_acta_unificada.php?acta_id=" . $id_nuevo . "&guardar=1");
+                    header("Location: /Inventario-Tesa-Cardex/api/generar_acta_unificada.php?acta_id=" . $id_nuevo . "&guardar=1");
                     exit();
                 } else {
                     $mensaje_error = "Error al guardar: " . $conn->error;
@@ -278,7 +278,7 @@ function agregarEquipo() {
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Buscando...';
 
-    fetch('/inventario_ti/api/buscar_producto.php?codigo=' + encodeURIComponent(query))
+    fetch('/Inventario-Tesa-Cardex/api/buscar_producto.php?codigo=' + encodeURIComponent(query))
         .then(res => res.json())
         .then(data => {
             btn.disabled = false;
@@ -336,3 +336,4 @@ document.getElementById('formGenerarActa').addEventListener('submit', function(e
 renderizarEquipos();
 </script>
 <?php include '../../includes/footer.php'; ?>
+

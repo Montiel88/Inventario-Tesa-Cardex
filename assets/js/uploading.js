@@ -2,12 +2,12 @@
    UX LOADING GLOBAL — Sistema Inventario TESA
    Auto-aplica feedback visual en TODOS los formularios y botones
    del sistema. No requiere tocar cada página individualmente.
-   Incluir: <script src="/inventario_ti/assets/js/ux-loading.js"></script>
+   Incluir: <script src="/Inventario-Tesa-Cardex/assets/js/ux-loading.js"></script>
    ============================================================ */
 (function () {
     'use strict';
 
-    const APP_BASE = window.__APP_BASE__ || '/inventario_ti';
+    const APP_BASE = window.__APP_BASE__ || '/Inventario-Tesa-Cardex';
 
     /* ---------------- Utilidades ---------------- */
     function $(sel, ctx) { return (ctx || document).querySelectorAll(sel); }
@@ -254,3 +254,4 @@
         try { obs.observe(document.body, { childList: true, subtree: true }); } catch (e) {}
     }
 })();
+

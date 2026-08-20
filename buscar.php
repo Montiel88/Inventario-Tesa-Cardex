@@ -114,7 +114,7 @@ $termino_seguro = $conn->real_escape_string($termino);
 
                 <hr>
 
-                <h5>Ubicaciones encontradas (<?php echo $result_ubicaciones->num_rows; ?>)</h5>
+                <h5>Salones encontrados (<?php echo $result_ubicaciones->num_rows; ?>)</h5>
                 <?php if ($result_ubicaciones->num_rows > 0): ?>
                     <div class="table-responsive">
                         <table class="table table-hover">
@@ -135,7 +135,7 @@ $termino_seguro = $conn->real_escape_string($termino);
                                     <td><?php echo $row['tipo']; ?></td>
                                     <td><?php echo $row['descripcion']; ?></td>
                                     <td>
-                                        <a href="modules/ubicaciones/editar.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning">Editar</a>
+                                        <a href="modules/salones/editar.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning">Editar</a>
                                     </td>
                                 </tr>
                                 <?php endwhile; ?>
@@ -143,7 +143,7 @@ $termino_seguro = $conn->real_escape_string($termino);
                         </table>
                     </div>
                 <?php else: ?>
-                    <p class="text-muted">No se encontraron ubicaciones.</p>
+                    <p class="text-muted">No se encontraron salones.</p>
                 <?php endif; ?>
 
             <?php endif; ?>

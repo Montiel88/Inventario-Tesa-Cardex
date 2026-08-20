@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -180,7 +180,7 @@ $result = $conn->query($sql);
                                             <td data-label="OBSERVACIONES"><?php echo $row['observaciones'] ?? ''; ?></td>
                                             <td data-label="DOC. FIRMADO" class="text-center">
                                                 <?php if (!empty($row['acta_firmada'])): ?>
-                                                    <a href="/inventario_ti/<?php echo $row['acta_firmada']; ?>" target="_blank" class="btn btn-sm btn-success">
+                                                    <a href="/Inventario-Tesa-Cardex/<?php echo $row['acta_firmada']; ?>" target="_blank" class="btn btn-sm btn-success">
                                                         <i class="fas fa-file-pdf"></i> Ver
                                                     </a>
                                                 <?php elseif ($row['tipo_movimiento'] == 'ASIGNACION' || $row['tipo_movimiento'] == 'DEVOLUCION'): ?>

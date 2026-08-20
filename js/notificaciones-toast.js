@@ -110,7 +110,7 @@ function notificarEquipoAsignado(equipo, persona, url = null) {
         'success',
         '✅ Equipo Asignado Correctamente',
         `<strong>${equipo}</strong> ha sido asignado a <strong>${persona}</strong>`,
-        url || '/inventario_ti/modules/asignaciones/listar.php',
+        url || '/Inventario-Tesa-Cardex/modules/asignaciones/listar.php',
         5000
     );
 }
@@ -132,7 +132,7 @@ function notificarPersonaCreada(nombre, url = null) {
         'success',
         '✅ Persona Añadida Correctamente',
         `<strong>${nombre}</strong> ha sido registrado en el sistema`,
-        url || '/inventario_ti/modules/personas/listar.php',
+        url || '/Inventario-Tesa-Cardex/modules/personas/listar.php',
         5000
     );
 }
@@ -143,7 +143,7 @@ function notificarPersonaActualizada(nombre) {
         'success',
         '✅ Persona Actualizada',
         `Los datos de <strong>${nombre}</strong> han sido actualizados`,
-        '/inventario_ti/modules/personas/listar.php',
+        '/Inventario-Tesa-Cardex/modules/personas/listar.php',
         4000
     );
 }
@@ -154,7 +154,7 @@ function notificarComponenteAsignado(componente, equipo) {
         'success',
         '✅ Componente Asignado',
         `<strong>${componente}</strong> asignado a <strong>${equipo}</strong>`,
-        '/inventario_ti/modules/componentes/listar.php',
+        '/Inventario-Tesa-Cardex/modules/componentes/listar.php',
         5000
     );
 }
@@ -176,7 +176,7 @@ function notificarCorreoEnviado(destinatario, asunto) {
         'success',
         '✉️ Correo Enviado Correctamente',
         `Enviado a <strong>${destinatario}</strong><br><small>${asunto}</small>`,
-        '/inventario_ti/modules/correos/historial.php',
+        '/Inventario-Tesa-Cardex/modules/correos/historial.php',
         5000
     );
 }
@@ -187,7 +187,7 @@ function notificarErrorCorreo(error, destinatario) {
         'error',
         '❌ Error al Enviar Correo',
         `Destinatario: <strong>${destinatario}</strong><br>${error || 'Verifica la configuración SMTP'}`,
-        '/inventario_ti/modules/correos/historial.php',
+        '/Inventario-Tesa-Cardex/modules/correos/historial.php',
         7000
     );
 }
@@ -198,7 +198,7 @@ function notificarEquipoCreado(codigo) {
         'success',
         '✅ Equipo Registrado',
         `Equipo <strong>${codigo}</strong> añadido al inventario`,
-        '/inventario_ti/modules/equipos/listar.php',
+        '/Inventario-Tesa-Cardex/modules/equipos/listar.php',
         4000
     );
 }
@@ -209,7 +209,7 @@ function notificarStockBajo(equipo, cantidad) {
         'warning',
         '⚠️ Stock Bajo',
         `${equipo}: Solo quedan <strong>${cantidad}</strong> unidades`,
-        '/inventario_ti/modules/equipos/listar.php',
+        '/Inventario-Tesa-Cardex/modules/equipos/listar.php',
         6000
     );
 }
@@ -220,7 +220,7 @@ function notificarMantenimientoProgramado(equipo, fecha) {
         'info',
         '🔧 Mantenimiento Programado',
         `${equipo} - Fecha: <strong>${fecha}</strong>`,
-        '/inventario_ti/modules/mantenimientos/listar.php',
+        '/Inventario-Tesa-Cardex/modules/mantenimientos/listar.php',
         5000
     );
 }
@@ -231,7 +231,7 @@ function notificarPrestamoRegistrado(equipo, persona) {
         'success',
         '✅ Préstamo Registrado',
         `${equipo} prestado a <strong>${persona}</strong>`,
-        '/inventario_ti/modules/prestamos/listar.php',
+        '/Inventario-Tesa-Cardex/modules/prestamos/listar.php',
         5000
     );
 }
@@ -242,7 +242,7 @@ function notificarDevolucionRegistrada(equipo, persona) {
         'success',
         '✅ Devolución Registrada',
         `${equipo} devuelto por <strong>${persona}</strong>`,
-        '/inventario_ti/modules/prestamos/listar.php',
+        '/Inventario-Tesa-Cardex/modules/prestamos/listar.php',
         5000
     );
 }
@@ -253,7 +253,7 @@ function notificarPrestamoVencido(equipo, persona, dias) {
         'warning',
         '⏰ Préstamo Vencido',
         `${equipo} - ${persona} tiene <strong>${dias} días</strong> de retraso`,
-        '/inventario_ti/modules/asignaciones/listar.php',
+        '/Inventario-Tesa-Cardex/modules/asignaciones/listar.php',
         7000
     );
 }
@@ -264,7 +264,7 @@ function notificarUsuarioCreado(usuario) {
         'success',
         '✅ Usuario Creado',
         `Usuario <strong>${usuario}</strong> registrado en el sistema`,
-        '/inventario_ti/modules/usuarios/listar.php',
+        '/Inventario-Tesa-Cardex/modules/usuarios/listar.php',
         4000
     );
 }
@@ -316,3 +316,4 @@ window.notificarPrestamoVencido = notificarPrestamoVencido;
 window.notificarUsuarioCreado = notificarUsuarioCreado;
 window.notificarError = notificarError;
 window.notificarExito = notificarExito;
+

@@ -1,4 +1,4 @@
-# 🎨 REDISEÑO ESPECTACULAR DEL SISTEMA DE CORREOS
+﻿# 🎨 REDISEÑO ESPECTACULAR DEL SISTEMA DE CORREOS
 
 ## ✨ Transformación Completada
 
@@ -204,7 +204,7 @@ He convertido el sistema de correos en una experiencia visual **PROFESIONAL, MOD
 ## 🚀 Cómo Usar
 
 ### Acceder al Sistema
-1. Ir a `http://localhost/inventario_ti/modules/correos/listar.php`
+1. Ir a `http://localhost/Inventario-Tesa-Cardex/modules/correos/listar.php`
 2. Explorar las estadísticas
 3. Navegar entre secciones con los tabs
 4. Enviar correos desde cualquier sección
@@ -267,3 +267,4 @@ He convertido el sistema de correos en una experiencia visual **PROFESIONAL, MOD
 El sistema de correos más bonito y profesional que verás. ¡Cada detalle está pensado para impresionar!
 
 **Hecho con 💜 por tu asistente de diseño experto**
+

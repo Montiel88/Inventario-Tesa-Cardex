@@ -9,7 +9,20 @@ if (!$id) die('ID no válido');
 $comp = $conn->query("SELECT * FROM componentes WHERE id = $id")->fetch_assoc();
 if (!$comp) die('Componente no encontrado');
 
-$historial = $conn->query("SELECT mc.*, p.nombres as persona_nombre FROM movimientos_componentes mc LEFT JOIN personas p ON mc.persona_id = p.id WHERE mc.componente_id = $id ORDER BY mc.fecha_movimiento DESC");
+$historial = $conn->query("SELECT mc.*, p.nombres as persona_nombre
+                           FROM movimientos_componentes mc
+                           LEFT JOIN personas p ON mc.persona_id = p.id
+                           WHERE mc.componente_id = $id
+                           ORDER BY mc.fecha_movimiento DESC");
+
+$destino_actual = 'Sin asignar';
+if (!empty($comp['ubicacion_id'])) {
+    $ub = $conn->query("SELECT codigo_ubicacion, nombre FROM ubicaciones WHERE id = " . intval($comp['ubicacion_id']) . " LIMIT 1");
+    if ($ub && $ub->num_rows > 0) {
+        $u = $ub->fetch_assoc();
+        $destino_actual = trim(($u['codigo_ubicacion'] ?? '') . ' - ' . ($u['nombre'] ?? ''));
+    }
+}
 ?>
 <div class="container-fluid py-4">
     <div class="card">
@@ -23,6 +36,7 @@ $historial = $conn->query("SELECT mc.*, p.nombres as persona_nombre FROM movimie
                 <tr><th>Modelo</th><td><?php echo $comp['modelo']; ?></td></tr>
                 <tr><th>Serie</th><td><?php echo $comp['numero_serie']; ?></td></tr>
                 <tr><th>Especificaciones</th><td><?php echo nl2br($comp['especificaciones']); ?></td></tr>
+                <tr><th>Destino actual</th><td><?php echo htmlspecialchars($destino_actual); ?></td></tr>
             </table>
             <h5>Historial de Movimientos</h5>
             <table class="table table-sm">

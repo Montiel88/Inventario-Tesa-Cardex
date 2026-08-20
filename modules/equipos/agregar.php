@@ -6,7 +6,7 @@
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 $es_admin = ($_SESSION['user_rol'] == 1);
@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $esAjax) {
                 'success',
                 '🖥️ Equipo agregado',
                 "Se agregó {$tipo_equipo} con código {$codigo_barras}",
-                "/inventario_ti/modules/equipos/detalle.php?id=" . $equipo_id
+                "/Inventario-Tesa-Cardex/modules/equipos/detalle.php?id=" . $equipo_id
             );
             
             require_once '../../includes/logs_functions.php';
@@ -108,10 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $esAjax) {
                 'equipo_id' => $equipo_id,
                 'codigo_barras' => $codigo_barras,
                 'tipo_equipo' => $tipo_equipo,
-                'acta_url' => "/inventario_ti/api/generar_acta_ingreso.php?equipo_id=$equipo_id",
-                'listado_url' => "/inventario_ti/modules/equipos/listar.php",
-                'inicio_url' => "/inventario_ti/modules/dashboard.php",
-                'otro_url' => "/inventario_ti/modules/equipos/agregar.php"
+                'acta_url' => "/Inventario-Tesa-Cardex/api/generar_acta_ingreso.php?equipo_id=$equipo_id",
+                'listado_url' => "/Inventario-Tesa-Cardex/modules/equipos/listar.php",
+                'inicio_url' => "/Inventario-Tesa-Cardex/modules/dashboard.php",
+                'otro_url' => "/Inventario-Tesa-Cardex/modules/equipos/agregar.php"
             ], JSON_UNESCAPED_UNICODE);
             exit;
         } else {
@@ -450,3 +450,4 @@ document.getElementById('formAgregarEquipo').addEventListener('submit', function
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

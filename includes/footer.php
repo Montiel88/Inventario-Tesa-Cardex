@@ -42,7 +42,7 @@ function cargarNotificaciones() {
     const container = document.getElementById('notifList');
     if(!container) return;
 
-    fetch('/inventario_ti/api/notificaciones.php')
+    fetch('/Inventario-Tesa-Cardex/api/notificaciones.php')
         .then(response => response.json())
         .then(data => {
             const notificaciones = (data && data.notificaciones) ? data.notificaciones : [];
@@ -115,13 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
     AOS.init({ duration: 800, once: true });
 </script>
 <!-- Sistema de Notificaciones Toast -->
-<script src="/inventario_ti/js/notificaciones-toast.js"></script>
-<script src="/inventario_ti/assets/js/funciones.js"></script>
+<script src="/Inventario-Tesa-Cardex/js/notificaciones-toast.js"></script>
+<script src="/Inventario-Tesa-Cardex/assets/js/funciones.js"></script>
 <!-- UX Loading GLOBAL — Feedback visual en botones, forms y operaciones largas -->
-<script>window.__APP_BASE__ = '/inventario_ti';</script>
-<script src="/inventario_ti/assets/js/uploading.js"></script>
+<script>window.__APP_BASE__ = '/Inventario-Tesa-Cardex';</script>
+<script src="/Inventario-Tesa-Cardex/assets/js/uploading.js"></script>
 <!-- Sistema de Alertas -->
-<script src="/inventario_ti/assets/js/alertas_sistema.js"></script>
+<script src="/Inventario-Tesa-Cardex/assets/js/alertas_sistema.js"></script>
 <?php ob_end_flush(); ?>
 
 <?php
@@ -229,9 +229,9 @@ if (!empty($_SESSION['ui_popup_personas']) && is_array($_SESSION['ui_popup_perso
     $destino = htmlspecialchars($__popupT['destino_nombre'] ?? '');
     $acta_id = intval($__popupT['acta_id'] ?? 0);
     $tieneActa = ($acta_id > 0);
-    $url_acta = $tieneActa ? ("/inventario_ti/api/generar_acta_unificada.php?acta_id=" . $acta_id) : '';
-    $url_otra = "/inventario_ti/modules/movimientos/traspaso.php";
-    $url_dash = "/inventario_ti/modules/dashboard.php";
+    $url_acta = $tieneActa ? ("/Inventario-Tesa-Cardex/api/generar_acta_unificada.php?acta_id=" . $acta_id) : '';
+    $url_otra = "/Inventario-Tesa-Cardex/modules/movimientos/traspaso.php";
+    $url_dash = "/Inventario-Tesa-Cardex/modules/dashboard.php";
     $toastMsg = htmlspecialchars($_SESSION['success'] ?? ("Traspaso exitoso. Se trasladaron $t equipos correctamente."));
 ?>
 <script>
@@ -344,8 +344,8 @@ if (!empty($_SESSION['ui_popup_personas']) && is_array($_SESSION['ui_popup_perso
     $personaNombreD = htmlspecialchars($__popupD['persona_nombre'] ?? '');
     $codigoEquipoD = htmlspecialchars($__popupD['codigo_equipo'] ?? '');
     $codigoActaD = htmlspecialchars($__popupD['codigo_acta'] ?? '');
-    $urlOtraDev = "/inventario_ti/modules/movimientos/devolucion.php";
-    $urlDashD = "/inventario_ti/modules/dashboard.php";
+    $urlOtraDev = "/Inventario-Tesa-Cardex/modules/movimientos/devolucion.php";
+    $urlDashD = "/Inventario-Tesa-Cardex/modules/dashboard.php";
     $toastMsgDev = htmlspecialchars($_SESSION['success'] ?? ('Devolución registrada correctamente.' . ($codigoEquipoD ? " Equipo: $codigoEquipoD." : '')));
 ?>
 <script>
@@ -467,9 +467,9 @@ if (!empty($_SESSION['ui_popup_personas']) && is_array($_SESSION['ui_popup_perso
     $personaNombreP= htmlspecialchars($__popupP['persona_nombre'] ?? '');
     $fechaEstP     = htmlspecialchars($__popupP['fecha_estimada'] ?? '');
     $obsP          = htmlspecialchars($__popupP['observaciones']  ?? '');
-    $resumenUrlP   = htmlspecialchars($__popupP['resumen_url']    ?? ('/inventario_ti/modules/prestamos_rapidos/listar.php'));
-    $urlOtroP      = "/inventario_ti/modules/prestamos_rapidos/registrar.php";
-    $urlDashP      = "/inventario_ti/modules/dashboard.php";
+    $resumenUrlP   = htmlspecialchars($__popupP['resumen_url']    ?? ('/Inventario-Tesa-Cardex/modules/prestamos_rapidos/listar.php'));
+    $urlOtroP      = "/Inventario-Tesa-Cardex/modules/prestamos_rapidos/registrar.php";
+    $urlDashP      = "/Inventario-Tesa-Cardex/modules/dashboard.php";
     $toastMsgP     = htmlspecialchars($_SESSION['success'] ?? ('Préstamo rápido registrado correctamente.' . ($codigoEquipoP ? " Equipo: $codigoEquipoP." : '')));
 ?>
 <script>
@@ -583,9 +583,9 @@ if (!empty($_SESSION['ui_popup_personas']) && is_array($_SESSION['ui_popup_perso
     $persCorreoP  = htmlspecialchars($__popupPers['correo']        ?? '');
     $persTelfP    = htmlspecialchars($__popupPers['telefono']      ?? '');
     $persObsP     = htmlspecialchars($__popupPers['observaciones'] ?? '');
-    $resumenUrlP  = htmlspecialchars($__popupPers['resumen_url']   ?? ('/inventario_ti/modules/personas/listar.php'));
-    $urlOtroP     = "/inventario_ti/modules/personas/agregar.php";
-    $urlDashP     = "/inventario_ti/modules/dashboard.php";
+    $resumenUrlP  = htmlspecialchars($__popupPers['resumen_url']   ?? ('/Inventario-Tesa-Cardex/modules/personas/listar.php'));
+    $urlOtroP     = "/Inventario-Tesa-Cardex/modules/personas/agregar.php";
+    $urlDashP     = "/Inventario-Tesa-Cardex/modules/dashboard.php";
     $toastMsgP    = htmlspecialchars($_SESSION['success'] ?? ('Persona agregada correctamente.' . ($persNombresP ? " Nombre: $persNombresP." : '') . ($persCedulaP ? " Cédula: $persCedulaP." : '')));
 ?>
 <script>
@@ -695,12 +695,12 @@ if (!empty($_SESSION['ui_popup_personas']) && is_array($_SESSION['ui_popup_perso
     $nueva_persona_idM = intval($__popupM['nueva_persona_id'] ?? 0);
     $url_actaM = '';
     if ($tieneActaM) {
-        $url_actaM = "/inventario_ti/api/generar_acta_unificada.php?acta_id=" . $acta_idM . ($multiple_flag ? '&multiple=1' : '');
+        $url_actaM = "/Inventario-Tesa-Cardex/api/generar_acta_unificada.php?acta_id=" . $acta_idM . ($multiple_flag ? '&multiple=1' : '');
     } elseif ($nueva_persona_idM > 0) {
-        $url_actaM = "/inventario_ti/api/generar_acta_traspaso.php?multiple=1&nueva_persona_id=" . $nueva_persona_idM;
+        $url_actaM = "/Inventario-Tesa-Cardex/api/generar_acta_traspaso.php?multiple=1&nueva_persona_id=" . $nueva_persona_idM;
     }
-    $url_otraM = "/inventario_ti/modules/movimientos/traspaso_multiple.php";
-    $url_dashM = "/inventario_ti/modules/dashboard.php";
+    $url_otraM = "/Inventario-Tesa-Cardex/modules/movimientos/traspaso_multiple.php";
+    $url_dashM = "/Inventario-Tesa-Cardex/modules/dashboard.php";
     $toastMsgM = htmlspecialchars($_SESSION['success'] ?? ("Traspaso múltiple exitoso. Se trasladaron $tm equipos correctamente."));
     $tituloPrincipalM = $multiple_flag ? '¡Traspaso Múltiple Realizado con Éxito! 🎉' : '¡Traspaso Realizado con Éxito! 🎉';
 ?>
@@ -861,3 +861,4 @@ if (!empty($_SESSION['ui_popup_personas']) && is_array($_SESSION['ui_popup_perso
 <?php unset($_SESSION['error']); endif; ?>
 </body>
 </html>
+

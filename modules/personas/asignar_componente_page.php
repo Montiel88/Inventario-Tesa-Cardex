@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] != 1) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -281,7 +281,7 @@ $total_componentes = $componentes->num_rows;
                                 <div class="text-center py-4">
                                     <i class="fas fa-microchip fa-3x text-muted mb-2"></i>
                                     <p class="text-muted">No hay componentes registrados en el sistema</p>
-                                    <a href="/inventario_ti/modules/componentes/agregar.php" class="btn btn-primary btn-sm">
+                                    <a href="/Inventario-Tesa-Cardex/modules/componentes/agregar.php" class="btn btn-primary btn-sm">
                                         <i class="fas fa-plus-circle me-1"></i>Agregar Componente
                                     </a>
                                 </div>

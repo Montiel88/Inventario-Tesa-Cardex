@@ -1,4 +1,4 @@
-# 🎨 Mejoras de Diseño - Sistema de Notificaciones
+﻿# 🎨 Mejoras de Diseño - Sistema de Notificaciones
 
 ## Cambios Realizados Hoy
 
@@ -156,7 +156,7 @@ transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
 ## 🚀 Cómo Probar
 
-1. **Abre el sistema:** `http://localhost/inventario_ti/`
+1. **Abre el sistema:** `http://localhost/Inventario-Tesa-Cardex/`
 2. **Mira el header:** Verás el botón dorado 📬 junto al logo
 3. **Si hay notificaciones:** El badge rojo mostrará el número
 4. **Haz clic:** El panel se abrirá con animación suave
@@ -188,3 +188,4 @@ transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 **Fecha:** 2025
 **Versión:** 2.0 - Diseño Premium
 **Estado:** ✅ Implementado
+

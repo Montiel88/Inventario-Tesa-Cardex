@@ -16,7 +16,7 @@ require_once BASE_PATH . 'config/actas_config.php';
 require_once __DIR__ . '/actas_pdf_common.php';
 
 if (!isset($_SESSION["user_id"]) && php_sapi_name() !== 'cli') {
-    header("Location: /inventario_ti/login.php");
+    header("Location: /Inventario-Tesa-Cardex/login.php");
     exit();
 }
 if (!file_exists(BASE_PATH . 'vendor/autoload.php')) {
@@ -385,3 +385,4 @@ try {
 } catch (Exception $e) {
     echo "Error al generar el PDF: " . $e->getMessage();
 }
+

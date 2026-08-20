@@ -115,7 +115,7 @@ function tesa_sync_system_notifications(mysqli $conn, int $usuario_id): void {
             if ($asig_id <= 0) continue;
             $fecha = (string)($row['fecha_asignacion'] ?? '');
             $mensaje = trim(($row['equipo'] ?? '') . ' - ' . ($row['persona'] ?? '')) . ($fecha ? " (desde {$fecha})" : '');
-            $upsert("asig_{$asig_id}_vencido", 'danger', '⚠️ Préstamo VENCIDO', $mensaje, '/inventario_ti/modules/asignaciones/listar.php');
+            $upsert("asig_{$asig_id}_vencido", 'danger', '⚠️ Préstamo VENCIDO', $mensaje, '/Inventario-Tesa-Cardex/modules/asignaciones/listar.php');
         }
     }
 
@@ -138,7 +138,7 @@ function tesa_sync_system_notifications(mysqli $conn, int $usuario_id): void {
             if ($asig_id <= 0) continue;
             $fecha = (string)($row['fecha_asignacion'] ?? '');
             $mensaje = trim(($row['equipo'] ?? '') . ' - ' . ($row['persona'] ?? '')) . ($fecha ? " (desde {$fecha})" : '');
-            $upsert("asig_{$asig_id}_porvencer", 'warning', '⏰ Préstamo por Vencer', $mensaje, '/inventario_ti/modules/asignaciones/listar.php');
+            $upsert("asig_{$asig_id}_porvencer", 'warning', '⏰ Préstamo por Vencer', $mensaje, '/Inventario-Tesa-Cardex/modules/asignaciones/listar.php');
         }
     }
 
@@ -154,7 +154,7 @@ function tesa_sync_system_notifications(mysqli $conn, int $usuario_id): void {
             $cid = (int)($row['componente_id'] ?? 0);
             if ($cid <= 0) continue;
             $mensaje = trim(($row['tipo'] ?? '') . ' - ' . ($row['nombre_componente'] ?? '')) . ' (' . ($row['codigo_barras'] ?? '') . ')';
-            $upsert("comp_{$cid}_danado", 'danger', '🔧 Componente Dañado', $mensaje, '/inventario_ti/modules/componentes/listar.php');
+            $upsert("comp_{$cid}_danado", 'danger', '🔧 Componente Dañado', $mensaje, '/Inventario-Tesa-Cardex/modules/componentes/listar.php');
         }
     }
 
@@ -169,7 +169,7 @@ function tesa_sync_system_notifications(mysqli $conn, int $usuario_id): void {
         $total_su = (int)($row['total'] ?? 0);
     }
     if ($total_su > 0) {
-        $upsert('equipos_sin_ubicacion', 'info', '📍 Equipos sin Ubicación', "{$total_su} equipos requieren asignación", '/inventario_ti/modules/equipos/sin_ubicacion.php');
+        $upsert('equipos_sin_ubicacion', 'info', '📍 Equipos sin Ubicación', "{$total_su} equipos requieren asignación", '/Inventario-Tesa-Cardex/modules/equipos/sin_ubicacion.php');
     }
 
     // Marcar como resueltas (leida=1) las notificaciones del sistema que ya no aplican
@@ -258,7 +258,7 @@ if (tesa_table_exists($conn, 'correos_enviados')) {
                         'tipo' => $row['email_enviado'] ? 'success' : 'error',
                         'titulo' => $row['email_enviado'] ? '✉️ Correo enviado' : '❌ Error al enviar',
                         'mensaje' => "Para: " . ($row['destinatario'] ?? $row['email_destino']) . " - " . $row['asunto'],
-                        'url' => "/inventario_ti/modules/correos/historial.php?id={$row['id']}",
+                        'url' => "/Inventario-Tesa-Cardex/modules/correos/historial.php?id={$row['id']}",
                         'fecha' => $row['created_at'],
                         'icono' => $row['email_enviado'] ? 'fa-check-circle' : 'fa-times-circle'
                     ];
@@ -281,3 +281,4 @@ echo json_encode([
 ]);
 $conn->close();
 ?>
+

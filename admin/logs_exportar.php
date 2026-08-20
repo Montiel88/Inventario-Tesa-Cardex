@@ -3,7 +3,7 @@ session_start();
 
 // Verificar autenticación y permisos
 if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] != 1) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -57,3 +57,4 @@ fclose($output);
 $conn->close();
 exit;
 ?>
+

@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -245,3 +245,4 @@ document.getElementById('destinoSelect').addEventListener('change', function() {
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

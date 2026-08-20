@@ -1,4 +1,4 @@
-# 🎓 SISTEMA DE GESTIÓN DE INVENTARIO - TESA
+﻿# 🎓 SISTEMA DE GESTIÓN DE INVENTARIO - TESA
 
 **Instituto Tecnológico San Antonio**  
 **Versión:** 1.1  
@@ -60,7 +60,7 @@ Permite administrar:
 
 6. **Acceder al sistema**
    ```
-   http://localhost/inventario_ti/
+   http://localhost/Inventario-Tesa-Cardex/
    ```
 
 ---
@@ -303,3 +303,4 @@ Todos los derechos reservados © 2026 TESA
 ---
 
 *Documento generado: Marzo 2026*
+

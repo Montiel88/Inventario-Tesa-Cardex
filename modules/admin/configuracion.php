@@ -212,7 +212,7 @@ while($row = $result->fetch_assoc()) {
                                             <label class="form-label">URL del Logo</label>
                                             <input type="text" name="logo_url" class="form-control" 
                                                    value="<?php echo $config['logo_url']['valor']; ?>">
-                                            <small class="text-muted">Ruta ejemplo: /inventario_ti/assets/img/logo-tesa.png</small>
+                                            <small class="text-muted">Ruta ejemplo: /Inventario-Tesa-Cardex/assets/img/logo-tesa.png</small>
                                         </div>
                                     </div>
                                 </div>

@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -273,7 +273,7 @@ document.getElementById('registrar_prestamo').addEventListener('click', async fu
                 location.reload();
                 return;
             }
-            window.location.href = '/inventario_ti/modules/dashboard.php';
+            window.location.href = '/Inventario-Tesa-Cardex/modules/dashboard.php';
             return;
 
         } else {

@@ -35,7 +35,7 @@ while ($row = $result_equipos->fetch_assoc()) {
 // Construir la URL que se codificará en el QR
 // Esta URL apunta a una página que mostrará los equipos de la persona
 $url_base = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
-$url_destino = $url_base . '/inventario_ti/modules/personas/ver_equipos_qr.php?id=' . $persona_id;
+$url_destino = $url_base . '/Inventario-Tesa-Cardex/modules/personas/ver_equipos_qr.php?id=' . $persona_id;
 
 // Redirigir a la librería de generación de QR
 require_once '../vendor/autoload.php';

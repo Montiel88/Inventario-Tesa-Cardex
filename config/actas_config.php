@@ -22,7 +22,7 @@ function cargarConfiguracion() {
             'departamento_entrega' => 'Tecnologías de la Información',
             'institucion_nombre' => 'TECNOLÓGICO SAN ANTONIO - TESA',
             'ciudad' => 'Quito',
-            'logo_url' => '/inventario_ti/assets/img/logo-tesa.png'
+            'logo_url' => '/Inventario-Tesa-Cardex/assets/img/logo-tesa.png'
         ];
     }
     
@@ -46,7 +46,7 @@ function cargarConfiguracion() {
         'departamento_entrega' => 'Tecnologías de la Información',
         'institucion_nombre' => 'TECNOLÓGICO SAN ANTONIO - TESA',
         'ciudad' => 'Quito',
-        'logo_url' => '/inventario_ti/assets/img/logo-tesa.png'
+        'logo_url' => '/Inventario-Tesa-Cardex/assets/img/logo-tesa.png'
     ];
     
     foreach ($defaults as $key => $value) {

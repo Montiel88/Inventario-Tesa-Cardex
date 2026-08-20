@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /inventario_ti/login.php');
+    header('Location: /Inventario-Tesa-Cardex/login.php');
     exit();
 }
 
@@ -128,7 +128,7 @@ if ($titulo === '   ') {
 const equipoId = <?php echo $id; ?>;
 
 function cargarDocumentos() {
-    let url = '/inventario_ti/api/documentos_adjuntos.php?action=listar&equipo_id=' + equipoId;
+    let url = '/Inventario-Tesa-Cardex/api/documentos_adjuntos.php?action=listar&equipo_id=' + equipoId;
     
     fetch(url)
         .then(r => r.json())
@@ -161,7 +161,7 @@ function cargarDocumentos() {
                 html += '<td>' + escapeHtml(doc.tamano_format || '-') + '</td>';
                 html += '<td>' + escapeHtml(doc.fecha || '-') + '</td>';
                 html += '<td>';
-                html += '<a href="/inventario_ti/api/documentos_adjuntos.php?action=descargar&id=' + encodeURIComponent(doc.id) + '" class="btn btn-sm btn-primary" title="Descargar" target="_blank" rel="noopener"><i class="fas fa-download"></i></a>';
+                html += '<a href="/Inventario-Tesa-Cardex/api/documentos_adjuntos.php?action=descargar&id=' + encodeURIComponent(doc.id) + '" class="btn btn-sm btn-primary" title="Descargar" target="_blank" rel="noopener"><i class="fas fa-download"></i></a>';
                 <?php if ($es_admin): ?>
                 html += ' <button class="btn btn-sm btn-danger" onclick="eliminarDocumento(' + encodeURIComponent(doc.id) + ')" title="Eliminar"><i class="fas fa-trash"></i></button>';
                 <?php endif; ?>
@@ -209,7 +209,7 @@ document.getElementById('formSubirDocumento').addEventListener('submit', functio
     progressBar.style.width = '30%';
     progressBar.textContent = 'Subiendo...';
     
-    fetch('/inventario_ti/api/documentos_adjuntos.php?action=subir', {
+    fetch('/Inventario-Tesa-Cardex/api/documentos_adjuntos.php?action=subir', {
         method: 'POST',
         body: formData
     })
@@ -240,7 +240,7 @@ function eliminarDocumento(id) {
     formData.append('action', 'eliminar');
     formData.append('id', id);
     
-    fetch('/inventario_ti/api/documentos_adjuntos.php', {
+    fetch('/Inventario-Tesa-Cardex/api/documentos_adjuntos.php', {
         method: 'POST',
         body: formData
     })
@@ -259,3 +259,4 @@ cargarDocumentos();
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+

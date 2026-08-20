@@ -50,7 +50,7 @@ while ($row = $result->fetch_assoc()) {
         'tipo' => $row['email_enviado'] ? 'success' : 'error',
         'titulo' => $row['email_enviado'] ? '✉️ Correo enviado' : '❌ Error al enviar',
         'mensaje' => "Para: " . ($row['destinatario'] ?? $row['email_destino']) . " - " . $row['asunto'],
-        'url' => "/inventario_ti/modules/correos/historial.php?id={$row['id']}",
+        'url' => "/Inventario-Tesa-Cardex/modules/correos/historial.php?id={$row['id']}",
         'fecha' => $row['created_at'],
         'icono' => $row['email_enviado'] ? 'fa-check-circle' : 'fa-times-circle'
     ];
